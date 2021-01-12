@@ -1,4 +1,4 @@
-## 0.6.3.2
+## 0.6.3+2
 
 - Fixed a bug in the `Room.disconnect` event when there was no exception given.
 
