@@ -3,6 +3,7 @@ import 'package:twilio_programmable_video_platform_interface/src/audio_codecs/au
 import 'package:twilio_programmable_video_platform_interface/src/enums/enum_exports.dart';
 import 'package:twilio_programmable_video_platform_interface/src/models/model_exports.dart';
 import 'package:twilio_programmable_video_platform_interface/src/video_codecs/video_codec.dart';
+import 'package:dartlin/dartlin.dart';
 
 import 'model_exports.dart';
 
@@ -84,7 +85,7 @@ class ConnectOptionsModel {
         'enableDominantSpeaker': enableDominantSpeaker,
         'enableAutomaticSubscription': enableAutomaticSubscription,
         'enableNetworkQuality': enableNetworkQuality,
-        'networkQualityConfiguration': networkQualityConfiguration != null ? networkQualityConfiguration.toMap() : null
+        'networkQualityConfiguration': networkQualityConfiguration?.let((it) => it.toMap()),
       },
     };
   }
