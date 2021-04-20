@@ -1,10 +1,10 @@
 @JS()
-library map;
+library js_map;
 
 import 'package:js/js.dart';
 
-@JS()
-class Map<K, V> {
+@JS('Map')
+class JSMap<K, V> {
   /// Returns an [Iterator] of all the key value pairs in the [Map]
   ///
   /// The [Iterator] returns the key value pairs as a [List<dynamic>].
@@ -18,7 +18,27 @@ class Map<K, V> {
   @JS('prototype.values')
   external Iterator<V> values();
 
-  external factory Map();
+  external factory JSMap();
+}
+
+extension Interop<K, V> on JSMap<K, V> {
+  Map<K, V> toDartMap() {
+    final returnMap = <K, V>{};
+
+    final jsKeys = keys();
+    final jsValues = values();
+
+    var nextKey = jsKeys.next();
+    var nextValue = jsValues.next();
+
+    while (!nextKey.done) {
+      returnMap[nextKey.value] = nextValue.value;
+      nextKey = jsKeys.next();
+      nextValue = jsValues.next();
+    }
+
+    return returnMap;
+  }
 }
 
 @JS()

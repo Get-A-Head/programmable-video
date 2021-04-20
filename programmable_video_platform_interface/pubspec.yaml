@@ -13,7 +13,6 @@ dependencies:
   enum_to_string: ^1.0.9
   plugin_platform_interface: ^2.0.0
   collection: ^1.14.12
-  dartlin: ^0.5.2
   equatable: ^1.2.0
   dartlin: ^0.5.2
 

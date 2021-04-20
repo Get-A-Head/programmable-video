@@ -3,8 +3,6 @@ PODS:
     - Firebase/Functions (= 7.3.0)
     - firebase_core
     - Flutter
-  - device_info (0.0.1):
-    - Flutter
   - Firebase/CoreOnly (7.3.0):
     - FirebaseCore (= 7.3.0)
   - Firebase/Functions (7.3.0):
@@ -54,7 +52,6 @@ PODS:
 
 DEPENDENCIES:
   - cloud_functions (from `.symlinks/plugins/cloud_functions/ios`)
-  - device_info (from `.symlinks/plugins/device_info/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - Flutter (from `Flutter`)
   - native_device_orientation (from `.symlinks/plugins/native_device_orientation/ios`)
@@ -78,8 +75,6 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   cloud_functions:
     :path: ".symlinks/plugins/cloud_functions/ios"
-  device_info:
-    :path: ".symlinks/plugins/device_info/ios"
   firebase_core:
     :path: ".symlinks/plugins/firebase_core/ios"
   Flutter:
@@ -95,7 +90,6 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   cloud_functions: 32ea5ece6048a6029d3280df62afe8ff85598ce9
-  device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
   Firebase: 26223c695fe322633274198cb19dca8cb7e54416
   firebase_core: d2e03528e2a600891f6f460b5e92932624480d1d
   FirebaseCore: 4d3c72622ce0e2106aaa07bb4b2935ba2c370972

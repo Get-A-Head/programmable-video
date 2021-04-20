@@ -69,7 +69,8 @@ Future<Room> connectWithModel(ConnectOptionsModel model) {
       // This is because those paramaters are optional non nullable parameters in js.
       ConnectOptions(
         audio: model.audioTracks != null,
-        automaticSubscription: model.enableAutomaticSubscription,
+        automaticSubscription: model.enableAutomaticSubscription ?? true,
+        //model.enableAutomaticSubscription,
         dominantSpeaker: model.enableDominantSpeaker,
         name: model.roomName,
         networkQuality: model.networkQualityConfiguration != null && model.enableNetworkQuality
