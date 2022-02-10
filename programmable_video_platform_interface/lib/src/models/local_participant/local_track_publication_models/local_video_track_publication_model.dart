@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import 'package:twilio_programmable_video_platform_interface/src/models/model_exports.dart';
 
 /// Model that a plugin implementation can use to construct a LocalVideoTrackPublication.
@@ -6,9 +8,10 @@ class LocalVideoTrackPublicationModel {
   final LocalVideoTrackModel localVideoTrack;
 
   const LocalVideoTrackPublicationModel({
-    required this.sid,
-    required this.localVideoTrack,
-  });
+    @required this.sid,
+    @required this.localVideoTrack,
+  })  : assert(sid != null),
+        assert(localVideoTrack != null);
 
   factory LocalVideoTrackPublicationModel.fromEventChannelMap(Map<String, dynamic> map) {
     assert(map['localVideoTrack'] != null);

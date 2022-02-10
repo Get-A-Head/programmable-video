@@ -6,7 +6,7 @@ class RemoteAudioTrackPublication implements AudioTrackPublication {
 
   final String _name;
 
-  RemoteAudioTrack? _remoteAudioTrack;
+  RemoteAudioTrack _remoteAudioTrack;
 
   bool _subscribed;
 
@@ -30,20 +30,17 @@ class RemoteAudioTrackPublication implements AudioTrackPublication {
   /// Returns the published remote audio track.
   ///
   /// Will return `null` if the track is not subscribed to.
-  RemoteAudioTrack? get remoteAudioTrack => _remoteAudioTrack;
+  RemoteAudioTrack get remoteAudioTrack => _remoteAudioTrack;
 
   /// The base audio track object of the published remote audio track.
   ///
   /// Will return `null` if the track is not subscribed to.
   @override
-  AudioTrack? get audioTrack => _remoteAudioTrack;
+  AudioTrack get audioTrack => _remoteAudioTrack;
 
-  RemoteAudioTrackPublication(
-    this._subscribed,
-    this._enabled,
-    this._sid,
-    this._name,
-  );
+  RemoteAudioTrackPublication(this._subscribed, this._enabled, this._sid, this._name)
+      : assert(_sid != null),
+        assert(_name != null);
 
   /// Construct from a [RemoteAudioTrackPublicationModel].
   factory RemoteAudioTrackPublication._fromModel(RemoteAudioTrackPublicationModel model) {
@@ -57,10 +54,9 @@ class RemoteAudioTrackPublication implements AudioTrackPublication {
     _subscribed = model.subscribed;
     _enabled = model.enabled;
 
-    final remoteAudioTrack = model.remoteAudioTrack;
-    if (remoteAudioTrack != null) {
-      _remoteAudioTrack ??= RemoteAudioTrack._fromModel(remoteAudioTrack);
-      _remoteAudioTrack!._updateFromModel(remoteAudioTrack);
+    if (model.remoteAudioTrack != null) {
+      _remoteAudioTrack ??= RemoteAudioTrack._fromModel(model.remoteAudioTrack);
+      _remoteAudioTrack._updateFromModel(model.remoteAudioTrack);
     } else {
       _remoteAudioTrack = null;
     }

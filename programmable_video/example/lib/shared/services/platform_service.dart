@@ -1,11 +1,8 @@
 import 'dart:io';
 
 import 'package:device_info/device_info.dart';
-import 'package:uuid/uuid.dart';
 
 class PlatformService {
-  static String? generatedDeviceId;
-
   static Future<String> get deviceId async {
     var deviceInfo = DeviceInfoPlugin();
     if (Platform.isIOS) {
@@ -15,8 +12,6 @@ class PlatformService {
       var androidInfo = await deviceInfo.androidInfo;
       return androidInfo.androidId;
     }
-
-    generatedDeviceId = Uuid().v1();
-    return generatedDeviceId!;
+    return null;
   }
 }

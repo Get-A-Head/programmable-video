@@ -11,7 +11,8 @@ class NetworkQualityConfiguration {
   NetworkQualityConfiguration({
     this.local = NetworkQualityVerbosity.NETWORK_QUALITY_VERBOSITY_MINIMAL,
     this.remote = NetworkQualityVerbosity.NETWORK_QUALITY_VERBOSITY_NONE,
-  });
+  })  : assert(local != null && local != NetworkQualityVerbosity.NETWORK_QUALITY_VERBOSITY_NONE),
+        assert(remote != null);
 
   /// Create [NetworkQualityConfigurationModel] from properties.
   NetworkQualityConfigurationModel _toModel() => NetworkQualityConfigurationModel(local, remote);

@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:twilio_programmable_video_platform_interface/src/models/model_exports.dart';
 
 import '../../model_instances.dart';
@@ -31,9 +32,24 @@ void main() {
       expect(model.enabled, enabled);
       expect(model.name, name);
 
-      expect(model.remoteAudioTrack!.name, remoteAudioTrack.name);
-      expect(model.remoteAudioTrack!.enabled, remoteAudioTrack.enabled);
-      expect(model.remoteAudioTrack!.sid, remoteAudioTrack.sid);
+      expect(model.remoteAudioTrack.name, remoteAudioTrack.name);
+      expect(model.remoteAudioTrack.enabled, remoteAudioTrack.enabled);
+      expect(model.remoteAudioTrack.sid, remoteAudioTrack.sid);
+    });
+
+    test('should not construct from incorrect Map', () {
+      final map = {
+        'sid': null,
+        'subscribed': subscribed,
+        'enabled': enabled,
+        'name': null,
+        'remoteAudioTrack': {
+          'name': remoteAudioTrack.name,
+          'enabled': remoteAudioTrack.enabled,
+          'sid': remoteAudioTrack.sid,
+        },
+      };
+      expect(() => RemoteAudioTrackPublicationModel.fromEventChannelMap(map), throwsAssertionError);
     });
   });
 

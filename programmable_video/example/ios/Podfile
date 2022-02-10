@@ -10,7 +10,11 @@ project 'Runner', {
   'Release' => :release,
 }
 
-def flutter_root
+def parse_KV_file(file, separator='=')
+  file_abs_path = File.expand_path(file)
+  if !File.exists? file_abs_path
+    return [];
+
   generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
   unless File.exist?(generated_xcode_build_settings_path)
     raise "#{generated_xcode_build_settings_path} must exist. If you're running pod install manually, make sure flutter pub get is executed first"
@@ -37,13 +41,5 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
-    target.build_configurations.each do |config|
-      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
-        '$(inherited)',
-        'PERMISSION_CAMERA=1',
-        'PERMISSION_MICROPHONE=1',
-      ]
-
-    end
   end
 end

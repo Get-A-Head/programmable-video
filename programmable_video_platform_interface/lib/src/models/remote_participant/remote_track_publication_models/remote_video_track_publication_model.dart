@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import 'package:twilio_programmable_video_platform_interface/src/models/model_exports.dart';
 
 /// Model that a plugin implementation can use to construct a RemoteVideoTrackPublication.
@@ -7,18 +9,19 @@ class RemoteVideoTrackPublicationModel {
   final String sid;
   final String name;
 
-  final RemoteVideoTrackModel? remoteVideoTrack;
+  final RemoteVideoTrackModel remoteVideoTrack;
 
   const RemoteVideoTrackPublicationModel({
-    required this.subscribed,
-    required this.enabled,
-    required this.sid,
-    required this.name,
-    required this.remoteVideoTrack,
-  });
+    this.subscribed,
+    this.enabled,
+    @required this.sid,
+    @required this.name,
+    @required this.remoteVideoTrack,
+  })  : assert(sid != null),
+        assert(name != null);
 
   factory RemoteVideoTrackPublicationModel.fromEventChannelMap(Map<String, dynamic> map) {
-    RemoteVideoTrackModel? remoteVideoTrack;
+    RemoteVideoTrackModel remoteVideoTrack;
     if (map['remoteVideoTrack'] != null) {
       remoteVideoTrack = RemoteVideoTrackModel.fromEventChannelMap(Map<String, dynamic>.from(map['remoteVideoTrack']));
     }

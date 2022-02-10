@@ -3,30 +3,30 @@ part of twilio_programmable_video;
 /// The [CameraCapturer] is used to provide video frames for a [LocalVideoTrack] from a given [CameraSource].
 class CameraCapturer implements VideoCapturer {
   /// Instance for the singleton behaviour.
-  static CameraCapturer? _cameraCapturer;
+  static CameraCapturer _cameraCapturer;
 
   /// Stream for native camera events
-  StreamSubscription<BaseCameraEvent>? _cameraStream;
+  StreamSubscription<BaseCameraEvent> _cameraStream;
 
   final StreamController<CameraSwitchedEvent> _onCameraSwitched = StreamController<CameraSwitchedEvent>.broadcast();
 
   /// Called when the camera has switched
-  Stream<CameraSwitchedEvent>? onCameraSwitched;
+  Stream<CameraSwitchedEvent> onCameraSwitched;
 
   final StreamController<FirstFrameAvailableEvent> _onFirstFrameAvailable = StreamController<FirstFrameAvailableEvent>.broadcast();
 
   /// Called when the first frame is available from the camera
-  Stream<FirstFrameAvailableEvent>? onFirstFrameAvailable;
+  Stream<FirstFrameAvailableEvent> onFirstFrameAvailable;
 
   final StreamController<CameraErrorEvent> _onCameraError = StreamController<CameraErrorEvent>.broadcast();
 
   /// Called when the camera has thrown an error
-  Stream<CameraErrorEvent>? onCameraError;
+  Stream<CameraErrorEvent> onCameraError;
 
-  CameraSource? _source;
+  CameraSource _cameraSource;
 
   /// The current specified camera source.
-  CameraSource? get source => _source;
+  CameraSource get cameraSource => _cameraSource;
 
   /// Indicates that the camera capturer is not a screen cast.
   @override
@@ -35,14 +35,15 @@ class CameraCapturer implements VideoCapturer {
   /// Singleton factory.
   ///
   /// Only one instance is allowed.
-  factory CameraCapturer(CameraSource? source) {
+  factory CameraCapturer(CameraSource cameraSource) {
+    assert(cameraSource != null);
     _cameraCapturer ??= CameraCapturer._internal();
-    _cameraCapturer!._source = source;
-    _cameraCapturer!._cameraStream ??= ProgrammableVideoPlatform.instance.cameraStream()?.listen(_cameraCapturer!._parseCameraEvents);
-    _cameraCapturer!.onCameraSwitched ??= _cameraCapturer!._onCameraSwitched.stream;
-    _cameraCapturer!.onFirstFrameAvailable ??= _cameraCapturer!._onFirstFrameAvailable.stream;
-    _cameraCapturer!.onCameraError ??= _cameraCapturer!._onCameraError.stream;
-    return _cameraCapturer!;
+    _cameraCapturer._cameraSource = cameraSource;
+    _cameraCapturer._cameraStream ??= ProgrammableVideoPlatform.instance.cameraStream().listen(_cameraCapturer._parseCameraEvents);
+    _cameraCapturer.onCameraSwitched ??= _cameraCapturer._onCameraSwitched.stream;
+    _cameraCapturer.onFirstFrameAvailable ??= _cameraCapturer._onFirstFrameAvailable.stream;
+    _cameraCapturer.onCameraError ??= _cameraCapturer._onCameraError.stream;
+    return _cameraCapturer;
   }
 
   /// Construct from a [CameraCapturerModel].
@@ -63,7 +64,7 @@ class CameraCapturer implements VideoCapturer {
 
   /// Dispose the event streams.
   Future<void> _closeStreams() async {
-    await _cameraStream?.cancel();
+    await _cameraStream.cancel();
     _cameraStream = null;
     await _onFirstFrameAvailable.close();
     onFirstFrameAvailable = null;
@@ -73,16 +74,16 @@ class CameraCapturer implements VideoCapturer {
     onCameraError = null;
   }
 
-  /// Switch to the given [CameraSource].
+  /// Switch the current [CameraSource].
   ///
   /// This method can be invoked while capturing frames or not.
-  /// Throws a [MissingCameraException] if no camera is found for the [CameraSource].
+  /// Throws a [FormatException] if the result could not be parsed to a [CameraSource].
+  /// Throws a [MissingCameraException] if no camera is found for the [CameraSource]
+  /// that is not presently in use.
   /// Throws a [NotFoundException] when the [CameraCapturer] was not provided at time of connection.
-  Future<void> switchCamera(CameraSource newSource) async {
+  Future<void> switchCamera() async {
     try {
-      _source = await ProgrammableVideoPlatform.instance.switchCamera(
-        newSource,
-      );
+      _cameraSource = await ProgrammableVideoPlatform.instance.switchCamera();
     } on PlatformException catch (err) {
       throw TwilioProgrammableVideo._convertException(err);
     }
@@ -90,8 +91,11 @@ class CameraCapturer implements VideoCapturer {
 
   /// Get availability of torch on active [CameraSource].
   ///
-  /// Returns false if there is no active [CameraSource].
-  bool get hasTorch => source?.hasTorch ?? false;
+  /// This method can be invoked while capturing frames or not.
+  /// Returns false if there is no active camera.
+  Future<bool> hasTorch() async {
+    return ProgrammableVideoPlatform.instance.hasTorch();
+  }
 
   /// Set state of torch on active [CameraSource].
   ///
@@ -112,9 +116,9 @@ class CameraCapturer implements VideoCapturer {
 
   /// Update properties from a [VideoCapturerModel].
   @override
-  void _updateFromModel(VideoCapturerModel? model) {
-    if (model is CameraCapturerModel && model.source != null) {
-      _source = model.source;
+  void _updateFromModel(VideoCapturerModel model) {
+    if (model is CameraCapturerModel) {
+      _cameraSource = model.source;
     }
   }
 

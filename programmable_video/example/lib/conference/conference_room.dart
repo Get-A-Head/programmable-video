@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:collection/collection.dart' show IterableExtension;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:twilio_programmable_video/twilio_programmable_video.dart';
 import 'package:twilio_programmable_video_example/conference/participant_widget.dart';
 import 'package:twilio_programmable_video_example/debug.dart';
-import 'package:uuid/uuid.dart';
 
 class ConferenceRoom with ChangeNotifier {
   final String name;
@@ -15,15 +13,15 @@ class ConferenceRoom with ChangeNotifier {
   final String identity;
 
   final StreamController<bool> _onAudioEnabledStreamController = StreamController<bool>.broadcast();
-  late Stream<bool> onAudioEnabled;
+  Stream<bool> onAudioEnabled;
   final StreamController<bool> _onVideoEnabledStreamController = StreamController<bool>.broadcast();
-  late Stream<bool> onVideoEnabled;
-  late final StreamController<Map<String, bool>> _flashStateStreamController;
-  late Stream<Map<String, bool>> flashStateStream;
+  Stream<bool> onVideoEnabled;
+  final StreamController<Map<String, bool>> _flashStateStreamController = StreamController<Map<String, bool>>.broadcast();
+  Stream<Map<String, bool>> flashStateStream;
   final StreamController<Exception> _onExceptionStreamController = StreamController<Exception>.broadcast();
-  late Stream<Exception> onException;
+  Stream<Exception> onException;
   final StreamController<NetworkQualityLevel> _onNetworkQualityStreamController = StreamController<NetworkQualityLevel>.broadcast();
-  late Stream<NetworkQualityLevel> onNetworkQualityLevel;
+  Stream<NetworkQualityLevel> onNetworkQualityLevel;
 
   final Completer<Room> _completer = Completer<Room>();
 
@@ -33,23 +31,19 @@ class ConferenceRoom with ChangeNotifier {
   final List<RemoteDataTrack> _dataTracks = [];
   final List<String> _messages = [];
 
-  late CameraCapturer _cameraCapturer;
-  late Room _room;
-  late Timer _timer;
+  CameraCapturer _cameraCapturer;
+  Room _room;
+  Timer _timer;
 
   bool flashEnabled = false;
-  var trackId;
 
   ConferenceRoom({
-    required this.name,
-    required this.token,
-    required this.identity,
+    @required this.name,
+    @required this.token,
+    @required this.identity,
   }) {
     onAudioEnabled = _onAudioEnabledStreamController.stream;
     onVideoEnabled = _onVideoEnabledStreamController.stream;
-    _flashStateStreamController = StreamController<Map<String, bool>>.broadcast(onListen: () {
-      _updateFlashState();
-    });
     flashStateStream = _flashStateStreamController.stream;
     onException = _onExceptionStreamController.stream;
     onNetworkQualityLevel = _onNetworkQualityStreamController.stream;
@@ -63,27 +57,15 @@ class ConferenceRoom with ChangeNotifier {
     Debug.log('ConferenceRoom.connect()');
     try {
       await TwilioProgrammableVideo.debug(dart: true, native: true);
-      _streamSubscriptions.add(TwilioProgrammableVideo.onAudioNotification.listen((event) {
-        print('ConferenceRoom::onAudioNotificationEvent => $event');
-      }));
-      await TwilioProgrammableVideo.setAudioSettings(speakerphoneEnabled: true, bluetoothPreferred: true);
+      await TwilioProgrammableVideo.setSpeakerphoneOn(true);
 
-      final sources = await CameraSource.getSources();
-      _cameraCapturer = CameraCapturer(
-        sources.firstWhere((source) => source.isFrontFacing),
-      );
-      trackId = Uuid().v4();
-
+      _cameraCapturer = CameraCapturer(CameraSource.FRONT_CAMERA);
       var connectOptions = ConnectOptions(
         token,
         roomName: name,
         preferredAudioCodecs: [OpusCodec()],
-        audioTracks: [LocalAudioTrack(true, 'audio_track-$trackId')],
-        dataTracks: [
-          LocalDataTrack(
-            DataTrackOptions(name: 'data_track-$trackId'),
-          )
-        ],
+        audioTracks: [LocalAudioTrack(true)],
+        dataTracks: [LocalDataTrack()],
         videoTracks: [LocalVideoTrack(true, _cameraCapturer)],
         enableNetworkQuality: true,
         networkQualityConfiguration: NetworkQualityConfiguration(
@@ -95,10 +77,8 @@ class ConferenceRoom with ChangeNotifier {
       _room = await TwilioProgrammableVideo.connect(connectOptions);
 
       _streamSubscriptions.add(_room.onConnected.listen(_onConnected));
-      _streamSubscriptions.add(_room.onDisconnected.listen(_onDisconnected));
-      _streamSubscriptions.add(_room.onReconnecting.listen(_onReconnecting));
       _streamSubscriptions.add(_room.onConnectFailure.listen(_onConnectFailure));
-      _streamSubscriptions.add(_cameraCapturer.onCameraSwitched!.listen(_onCameraSwitched));
+      _streamSubscriptions.add(_cameraCapturer.onCameraSwitched.listen(_onCameraSwitched));
 
       await _updateFlashState();
 
@@ -111,8 +91,9 @@ class ConferenceRoom with ChangeNotifier {
 
   Future<void> disconnect() async {
     Debug.log('ConferenceRoom.disconnect()');
-    _timer.cancel();
-    await TwilioProgrammableVideo.disableAudioSettings();
+    if (_timer != null) {
+      _timer.cancel();
+    }
     await _room.disconnect();
   }
 
@@ -134,12 +115,8 @@ class ConferenceRoom with ChangeNotifier {
     }
   }
 
-  Future<List<StatsReport>?> getStats() async {
-    return await TwilioProgrammableVideo.getStats();
-  }
-
   Future<void> sendMessage(String message) async {
-    final tracks = _room.localParticipant?.localDataTracks ?? [];
+    final tracks = _room.localParticipant.localDataTracks;
     final localDataTrack = tracks.isEmpty ? null : tracks[0].localDataTrack;
     if (localDataTrack == null || _messages.isNotEmpty) {
       Debug.log('ConferenceRoom.sendMessage => Track is not available yet, buffering message.');
@@ -150,7 +127,7 @@ class ConferenceRoom with ChangeNotifier {
   }
 
   Future<void> sendBufferMessage(ByteBuffer message) async {
-    final tracks = _room.localParticipant?.localDataTracks ?? [];
+    final tracks = _room.localParticipant.localDataTracks;
     final localDataTrack = tracks.isEmpty ? null : tracks[0].localDataTrack;
     if (localDataTrack == null) {
       return;
@@ -159,7 +136,7 @@ class ConferenceRoom with ChangeNotifier {
   }
 
   Future<void> toggleVideoEnabled() async {
-    final tracks = _room.localParticipant?.localVideoTracks ?? [];
+    final tracks = _room.localParticipant.localVideoTracks;
     final localVideoTrack = tracks.isEmpty ? null : tracks[0].localVideoTrack;
     if (localVideoTrack == null) {
       Debug.log('ConferenceRoom.toggleVideoEnabled() => Track is not available yet!');
@@ -178,24 +155,21 @@ class ConferenceRoom with ChangeNotifier {
   }
 
   Future<void> toggleMute(RemoteParticipant remoteParticipant) async {
-    final enabled = await remoteParticipant.remoteAudioTracks.first.remoteAudioTrack!.isPlaybackEnabled();
+    final enabled = await remoteParticipant.remoteAudioTracks.first.remoteAudioTrack.isPlaybackEnabled();
     remoteParticipant.remoteAudioTracks.forEach((remoteAudioTrackPublication) async {
-      final remoteAudioTrack = remoteAudioTrackPublication.remoteAudioTrack;
-      if (remoteAudioTrack != null && enabled != null) {
-        await remoteAudioTrack.enablePlayback(!enabled);
-      }
+      await remoteAudioTrackPublication.remoteAudioTrack.enablePlayback(!enabled);
     });
 
     var index = _participants.indexWhere((ParticipantWidget participant) => participant.id == remoteParticipant.sid);
     if (index < 0) {
       return;
     }
-    _participants[index] = _participants[index].copyWith(audioEnabledLocally: !enabled!);
+    _participants[index] = _participants[index].copyWith(audioEnabledLocally: !enabled);
     notifyListeners();
   }
 
   Future<void> toggleAudioEnabled() async {
-    final tracks = _room.localParticipant?.localAudioTracks ?? [];
+    final tracks = _room.localParticipant.localAudioTracks;
     final localAudioTrack = tracks.isEmpty ? null : tracks[0].localAudioTrack;
     if (localAudioTrack == null) {
       Debug.log('ConferenceRoom.toggleAudioEnabled() => Track is not available yet!');
@@ -215,15 +189,13 @@ class ConferenceRoom with ChangeNotifier {
 
   Future<void> switchCamera() async {
     Debug.log('ConferenceRoom.switchCamera()');
-    final sources = await CameraSource.getSources();
-    final source = sources.firstWhere((source) {
-      if (_cameraCapturer.source!.isFrontFacing) {
-        return source.isBackFacing;
-      }
-      return source.isFrontFacing;
-    });
-
-    await _cameraCapturer.switchCamera(source);
+    try {
+      await _cameraCapturer.switchCamera();
+    } on FormatException catch (e) {
+      Debug.log(
+        'ConferenceRoom.switchCamera() failed because of FormatException with message: ${e.message}',
+      );
+    }
   }
 
   Future<void> toggleFlashlight() async {
@@ -232,7 +204,7 @@ class ConferenceRoom with ChangeNotifier {
     await _updateFlashState();
   }
 
-  void addDummy({required Widget child}) {
+  void addDummy({Widget child}) {
     Debug.log('ConferenceRoom.addDummy()');
     if (_participants.length >= 18) {
       throw PlatformException(
@@ -245,11 +217,11 @@ class ConferenceRoom with ChangeNotifier {
       0,
       ParticipantWidget(
         id: (_participants.length + 1).toString(),
+        child: child,
         isRemote: true,
         audioEnabled: true,
         videoEnabled: true,
         isDummy: true,
-        child: child,
       ),
     );
     notifyListeners();
@@ -257,21 +229,11 @@ class ConferenceRoom with ChangeNotifier {
 
   void removeDummy() {
     Debug.log('ConferenceRoom.removeDummy()');
-    var dummy = _participants.firstWhereOrNull((participant) => participant.isDummy);
+    var dummy = _participants.firstWhere((participant) => participant.isDummy, orElse: () => null);
     if (dummy != null) {
       _participants.remove(dummy);
       notifyListeners();
     }
-  }
-
-  void _onDisconnected(RoomDisconnectedEvent event) {
-    Debug.log('ConferenceRoom._onDisconnected');
-    _timer.cancel();
-  }
-
-  void _onReconnecting(RoomReconnectingEvent room) {
-    Debug.log('ConferenceRoom._onReconnecting');
-    _timer.cancel();
   }
 
   void _onConnected(Room room) {
@@ -281,26 +243,19 @@ class ConferenceRoom with ChangeNotifier {
     _streamSubscriptions.add(_room.onParticipantConnected.listen(_onParticipantConnected));
     _streamSubscriptions.add(_room.onParticipantDisconnected.listen(_onParticipantDisconnected));
     _streamSubscriptions.add(_room.onDominantSpeakerChange.listen(_onDominantSpeakerChanged));
-
-    final localParticipant = room.localParticipant;
-    if (localParticipant == null) {
-      Debug.log('ConferenceRoom._onConnected => localParticipant is null');
-      return;
-    }
-
     // Only add ourselves when connected for the first time too.
     _participants.add(
       _buildParticipant(
-          child: localParticipant.localVideoTracks[0].localVideoTrack.widget(),
+          child: room.localParticipant.localVideoTracks[0].localVideoTrack.widget(),
           id: identity,
           audioEnabled: true,
           videoEnabled: true,
-          networkQualityLevel: localParticipant.networkQualityLevel,
-          onNetworkQualityChanged: localParticipant.onNetworkQualityLevelChanged),
+          networkQualityLevel: room.localParticipant.networkQualityLevel,
+          onNetworkQualityChanged: room.localParticipant.onNetworkQualityLevelChanged),
     );
 
     for (final remoteParticipant in room.remoteParticipants) {
-      var participant = _participants.firstWhereOrNull((participant) => participant.id == remoteParticipant.sid);
+      var participant = _participants.firstWhere((participant) => participant.id == remoteParticipant.sid, orElse: () => null);
       if (participant == null) {
         Debug.log('Adding participant that was already present in the room ${remoteParticipant.sid}, before I connected');
         _addRemoteParticipantListeners(remoteParticipant);
@@ -309,7 +264,7 @@ class ConferenceRoom with ChangeNotifier {
 
     // We have to listen for the [onDataTrackPublished] event on the [LocalParticipant] in
     // order to be able to use the [send] method.
-    _streamSubscriptions.add(localParticipant.onDataTrackPublished.listen(_onLocalDataTrackPublished));
+    _streamSubscriptions.add(room.localParticipant.onDataTrackPublished.listen(_onLocalDataTrackPublished));
     notifyListeners();
     _completer.complete(room);
 
@@ -328,23 +283,23 @@ class ConferenceRoom with ChangeNotifier {
     while (_messages.isNotEmpty) {
       var message = _messages.removeAt(0);
       Debug.log('Sending buffered message: $message');
-      event.localDataTrackPublication.localDataTrack!.send(message);
+      event.localDataTrackPublication.localDataTrack.send(message);
     }
   }
 
   void _onConnectFailure(RoomConnectFailureEvent event) {
     Debug.log('ConferenceRoom._onConnectFailure: ${event.exception}');
-    _completer.completeError(event.exception ?? TwilioException(TwilioException.unknownException, 'An unknown connection failure occurred.'));
+    _completer.completeError(event.exception);
   }
 
   void _onDominantSpeakerChanged(DominantSpeakerChangedEvent event) {
-    Debug.log('ConferenceRoom._onDominantSpeakerChanged: ${event.remoteParticipant?.identity}');
+    Debug.log('ConferenceRoom._onDominantSpeakerChanged: ${event.remoteParticipant.identity}');
     var oldDominantParticipantIndex = _participants.indexWhere((p) => p.isDominant);
     if (oldDominantParticipantIndex >= 0) {
       _participants[oldDominantParticipantIndex] = _participants[oldDominantParticipantIndex].copyWith(isDominant: false);
     }
 
-    var newDominantParticipantIndex = _participants.indexWhere((p) => p.id == event.remoteParticipant?.sid);
+    var newDominantParticipantIndex = _participants.indexWhere((p) => p.id == event.remoteParticipant.sid);
     _participants[newDominantParticipantIndex] = _participants[newDominantParticipantIndex].copyWith(isDominant: true);
     notifyListeners();
   }
@@ -367,30 +322,30 @@ class ConferenceRoom with ChangeNotifier {
 
   Future _updateFlashState() async {
     var flashState = <String, bool>{
-      'hasFlash': _cameraCapturer.hasTorch,
+      'hasFlash': await _cameraCapturer.hasTorch(),
       'flashEnabled': flashEnabled,
     };
     _flashStateStreamController.add(flashState);
   }
 
   ParticipantWidget _buildParticipant({
-    required Widget child,
-    required String? id,
-    required bool audioEnabled,
-    required bool videoEnabled,
-    required NetworkQualityLevel networkQualityLevel,
-    required Stream<NetworkQualityLevelChangedEvent> onNetworkQualityChanged,
-    RemoteParticipant? remoteParticipant,
+    @required Widget child,
+    @required String id,
+    @required bool audioEnabled,
+    @required bool videoEnabled,
+    @required NetworkQualityLevel networkQualityLevel,
+    @required Stream<NetworkQualityLevelChangedEvent> onNetworkQualityChanged,
+    RemoteParticipant remoteParticipant,
   }) {
     return ParticipantWidget(
       id: remoteParticipant?.sid,
       isRemote: remoteParticipant != null,
+      child: child,
       audioEnabled: audioEnabled,
       videoEnabled: videoEnabled,
       networkQualityLevel: networkQualityLevel,
       onNetworkQualityChanged: onNetworkQualityChanged,
-      toggleMute: () => toggleMute(remoteParticipant!),
-      child: child,
+      toggleMute: () => toggleMute(remoteParticipant),
     );
   }
 
@@ -466,10 +421,6 @@ class ConferenceRoom with ChangeNotifier {
   void _onDataTrackSubscribed(RemoteDataTrackSubscriptionEvent event) {
     Debug.log('ConferenceRoom._onDataTrackSubscribed(), ${event.remoteParticipant.sid}, ${event.remoteDataTrackPublication.trackSid}');
     final dataTrack = event.remoteDataTrackPublication.remoteDataTrack;
-    if (dataTrack == null) {
-      Debug.log('ConferenceRoom._onDataTrackSubscribed() => dataTrack == null');
-      return;
-    }
     _dataTracks.add(dataTrack);
     _streamSubscriptions.add(dataTrack.onMessage.listen(_onMessage));
     _streamSubscriptions.add(dataTrack.onBufferMessage.listen(_onBufferMessage));
@@ -545,6 +496,9 @@ class ConferenceRoom with ChangeNotifier {
   }
 
   void _setRemoteAudioEnabled(RemoteAudioTrackEvent event) {
+    if (event.remoteAudioTrackPublication == null) {
+      return;
+    }
     var index = _participants.indexWhere((ParticipantWidget participant) => participant.id == event.remoteParticipant.sid);
     if (index < 0) {
       return;
@@ -554,6 +508,9 @@ class ConferenceRoom with ChangeNotifier {
   }
 
   void _setRemoteVideoEnabled(RemoteVideoTrackEvent event) {
+    if (event.remoteVideoTrackPublication == null) {
+      return;
+    }
     var index = _participants.indexWhere((ParticipantWidget participant) => participant.id == event.remoteParticipant.sid);
     if (index < 0) {
       return;
@@ -564,19 +521,18 @@ class ConferenceRoom with ChangeNotifier {
 
   void _addOrUpdateParticipant(RemoteParticipantEvent event) {
     Debug.log('ConferenceRoom._addOrUpdateParticipant(), ${event.remoteParticipant.sid}');
-    final participant = _participants.firstWhereOrNull(
+    final participant = _participants.firstWhere(
       (ParticipantWidget participant) => participant.id == event.remoteParticipant.sid,
+      orElse: () => null,
     );
     if (participant != null) {
       Debug.log('Participant found: ${participant.id}, updating A/V enabled values');
-      if (event is RemoteVideoTrackEvent) {
-        _setRemoteVideoEnabled(event);
-      } else if (event is RemoteAudioTrackEvent) {
-        _setRemoteAudioEnabled(event);
-      }
+      _setRemoteVideoEnabled(event);
+      _setRemoteAudioEnabled(event);
     } else {
-      final bufferedParticipant = _participantBuffer.firstWhereOrNull(
+      final bufferedParticipant = _participantBuffer.firstWhere(
         (ParticipantBuffer participant) => participant.id == event.remoteParticipant.sid,
+        orElse: () => null,
       );
       if (bufferedParticipant != null) {
         _participantBuffer.remove(bufferedParticipant);
@@ -585,7 +541,7 @@ class ConferenceRoom with ChangeNotifier {
         _participantBuffer.add(
           ParticipantBuffer(
             id: event.remoteParticipant.sid,
-            audioEnabled: event.remoteAudioTrackPublication.remoteAudioTrack?.isEnabled ?? true,
+            audioEnabled: event.remoteAudioTrackPublication?.remoteAudioTrack?.isEnabled ?? true,
           ),
         );
         return;
@@ -599,7 +555,7 @@ class ConferenceRoom with ChangeNotifier {
             id: event.remoteParticipant.sid,
             remoteParticipant: event.remoteParticipant,
             audioEnabled: bufferedParticipant?.audioEnabled ?? true,
-            videoEnabled: event.remoteVideoTrackPublication.remoteVideoTrack?.isEnabled ?? true,
+            videoEnabled: event.remoteVideoTrackPublication?.remoteVideoTrack?.isEnabled ?? true,
             networkQualityLevel: event.remoteParticipant.networkQualityLevel,
             onNetworkQualityChanged: event.remoteParticipant.onNetworkQualityLevelChanged,
           ),

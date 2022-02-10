@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 enum NoiseBoxDensity {
@@ -13,23 +12,24 @@ enum NoiseBoxDensity {
 
 class NoiseBox extends StatefulWidget {
   final NoiseBoxDensity density;
-  final Color? backgroundColor;
-  final Widget? child;
+  final Color backgroundColor;
+  final Widget child;
 
   const NoiseBox({
-    Key? key,
+    Key key,
     this.backgroundColor,
     this.child,
     this.density = NoiseBoxDensity.medium,
-  }) : super(key: key);
+  })  : assert(density != null),
+        super(key: key);
 
   @override
   _NoiseBoxState createState() => _NoiseBoxState();
 }
 
 class _NoiseBoxState extends State<NoiseBox> with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late int _density;
+  AnimationController _animationController;
+  int _density;
 
   @override
   void initState() {
@@ -73,7 +73,7 @@ class _NoiseBoxState extends State<NoiseBox> with SingleTickerProviderStateMixin
         height: constraints.biggest.height,
         child: AnimatedBuilder(
           animation: _animationController,
-          builder: (BuildContext context, Widget? w) {
+          builder: (BuildContext context, Widget w) {
             final children = <Widget>[
               CustomPaint(
                 painter: NoisePainter(
@@ -83,20 +83,11 @@ class _NoiseBoxState extends State<NoiseBox> with SingleTickerProviderStateMixin
                 ),
               ),
             ];
-            final child = widget.child;
-            if (child != null) {
-              children.add(child);
+            if (widget.child != null) {
+              children.add(widget.child);
             }
             return Stack(
-              children: children
-                  .map((e) =>
-                      child ??
-                      LimitedBox(
-                        maxWidth: 0.0,
-                        maxHeight: 0.0,
-                        child: ConstrainedBox(constraints: const BoxConstraints.expand()),
-                      ))
-                  .toList(),
+              children: children,
             );
           },
         ),
@@ -111,10 +102,12 @@ class NoisePainter extends CustomPainter {
   final int density;
 
   NoisePainter({
-    required this.width,
-    required this.height,
-    required this.density,
-  }) : assert(density >= 3 && density < math.min(width, height));
+    @required this.width,
+    @required this.height,
+    @required this.density,
+  })  : assert(width != null),
+        assert(height != null),
+        assert(density != null && density >= 3 && density < math.min(width, height));
 
   List<Color> colors = <Color>[
     Colors.black,

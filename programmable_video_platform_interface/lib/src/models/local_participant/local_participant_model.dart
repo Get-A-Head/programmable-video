@@ -1,5 +1,5 @@
-import 'package:dartlin/dartlin.dart';
 import 'package:enum_to_string/enum_to_string.dart';
+import 'package:flutter/foundation.dart';
 import 'package:twilio_programmable_video_platform_interface/src/enums/enum_exports.dart';
 import 'package:twilio_programmable_video_platform_interface/src/models/model_exports.dart';
 
@@ -16,14 +16,20 @@ class LocalParticipantModel {
   final NetworkQualityLevel networkQualityLevel;
 
   const LocalParticipantModel({
-    required this.identity,
-    required this.sid,
-    required this.signalingRegion,
-    required this.localAudioTrackPublications,
-    required this.localDataTrackPublications,
-    required this.localVideoTrackPublications,
-    required this.networkQualityLevel,
-  });
+    @required this.identity,
+    @required this.sid,
+    @required this.signalingRegion,
+    @required this.localAudioTrackPublications,
+    @required this.localDataTrackPublications,
+    @required this.localVideoTrackPublications,
+    @required this.networkQualityLevel,
+  })  : assert(identity != null),
+        assert(sid != null),
+        assert(signalingRegion != null),
+        assert(localAudioTrackPublications != null),
+        assert(localDataTrackPublications != null),
+        assert(localVideoTrackPublications != null),
+        assert(networkQualityLevel != null);
 
   factory LocalParticipantModel.fromEventChannelMap(Map<String, dynamic> map) {
     var localAudioTrackPublications = <LocalAudioTrackPublicationModel>[];
@@ -53,7 +59,7 @@ class LocalParticipantModel {
       }
     }
 
-    final networkQualityLevel = ((map['networkQualityLevel'] as String?)?.let((it) => EnumToString.fromString(NetworkQualityLevel.values, it)) ?? NetworkQualityLevel.NETWORK_QUALITY_LEVEL_UNKNOWN);
+    var networkQualityLevel = EnumToString.fromString(NetworkQualityLevel.values, map['networkQualityLevel']) ?? NetworkQualityLevel.NETWORK_QUALITY_LEVEL_UNKNOWN;
 
     return LocalParticipantModel(
       identity: map['identity'],

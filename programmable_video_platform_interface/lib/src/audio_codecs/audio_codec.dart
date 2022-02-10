@@ -8,7 +8,7 @@ export 'pcmu_codec.dart';
 abstract class AudioCodec {
   String name;
 
-  AudioCodec(this.name);
+  AudioCodec(this.name) : assert(name != null);
 
   @override
   String toString() {

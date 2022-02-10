@@ -6,15 +6,15 @@ import 'package:flutter/material.dart';
 class ButtonToProgress extends StatefulWidget {
   final double height;
   final double progressHeight;
-  final String? loadingText;
+  final String loadingText;
   final Duration duration;
-  final TextStyle? loadingTextStyle;
-  final VoidCallback? onPressed;
-  final Stream<bool>? onLoading;
+  final TextStyle loadingTextStyle;
+  final VoidCallback onPressed;
+  final Stream<bool> onLoading;
   final Widget child;
 
   const ButtonToProgress({
-    Key? key,
+    Key key,
     this.height = 40.0,
     this.progressHeight = 5.0,
     this.loadingText,
@@ -22,8 +22,10 @@ class ButtonToProgress extends StatefulWidget {
     this.loadingTextStyle,
     this.onPressed,
     this.onLoading,
-    required this.child,
-  })  : assert(progressHeight > 0 && progressHeight <= height),
+    @required this.child,
+  })  : assert(child != null),
+        assert(height != null && height > 0),
+        assert(progressHeight != null && progressHeight > 0 && progressHeight <= height),
         super(key: key);
 
   @override
@@ -31,18 +33,18 @@ class ButtonToProgress extends StatefulWidget {
 }
 
 class _ButtonToProgressState extends State<ButtonToProgress> {
-  late double _height;
+  double _height;
   double _opacity = 0;
   bool _isLoading = false;
 
-  StreamSubscription<bool>? _subscription;
+  StreamSubscription<bool> _subscription;
 
   @override
   void initState() {
     super.initState();
     _height = widget.height;
     if (widget.onLoading != null) {
-      _subscription = widget.onLoading!.listen((bool isLoading) {
+      _subscription = widget.onLoading.listen((bool isLoading) {
         setState(() {
           _isLoading = isLoading;
           _height = isLoading ? widget.progressHeight : widget.height;
@@ -54,8 +56,9 @@ class _ButtonToProgressState extends State<ButtonToProgress> {
 
   @override
   void dispose() {
-    _subscription?.cancel();
-
+    if (_subscription != null) {
+      _subscription.cancel();
+    }
     super.dispose();
   }
 
@@ -71,17 +74,17 @@ class _ButtonToProgressState extends State<ButtonToProgress> {
             Padding(
               padding: EdgeInsets.only(bottom: widget.progressHeight),
               child: AnimatedOpacity(
-                opacity: _opacity,
-                duration: Duration(milliseconds: widget.duration.inMilliseconds + 200),
-                curve: Curves.easeInCubic,
                 child: Center(
                   child: FittedBox(
                     child: Text(
-                      widget.loadingText!,
+                      widget.loadingText,
                       style: widget.loadingTextStyle,
                     ),
                   ),
                 ),
+                opacity: _opacity,
+                duration: Duration(milliseconds: widget.duration.inMilliseconds + 200),
+                curve: Curves.easeInCubic,
               ),
             ),
           AnimatedPadding(

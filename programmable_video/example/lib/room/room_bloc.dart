@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:twilio_programmable_video_example/debug.dart';
@@ -16,13 +17,13 @@ class RoomBloc {
   final BehaviorSubject<RoomModel> _modelSubject = BehaviorSubject<RoomModel>.seeded(RoomModel());
   final StreamController<bool> _loadingController = StreamController<bool>.broadcast();
 
-  RoomBloc({required this.backendService});
+  RoomBloc({@required this.backendService}) : assert(backendService != null);
 
   Stream<RoomModel> get modelStream => _modelSubject.stream;
 
   Stream<bool> get onLoading => _loadingController.stream;
 
-  RoomModel get model => _modelSubject.value!;
+  RoomModel get model => _modelSubject.value;
 
   void dispose() {
     _modelSubject.close();
@@ -35,13 +36,8 @@ class RoomBloc {
       await _createRoom();
       await _createToken();
       return model;
-    } catch (e) {
-      try {
-        await _createToken();
-        return model;
-      } catch (err) {
-        rethrow;
-      }
+    } catch (err) {
+      rethrow;
     } finally {
       updateWith(isLoading: false);
     }
@@ -57,20 +53,16 @@ class RoomBloc {
   }
 
   Future _createToken() async {
-    final name = model.name;
-
-    if (name != null) {
-      final twilioRoomTokenResponse = await backendService.createToken(
-        TwilioRoomTokenRequest(
-          uniqueName: name,
-          identity: await _getDeviceId(),
-        ),
-      );
-      updateWith(
-        token: twilioRoomTokenResponse.token,
-        identity: twilioRoomTokenResponse.identity,
-      );
-    }
+    final twilioRoomTokenResponse = await backendService.createToken(
+      TwilioRoomTokenRequest(
+        uniqueName: model.name,
+        identity: await _getDeviceId(),
+      ),
+    );
+    updateWith(
+      token: twilioRoomTokenResponse.token,
+      identity: twilioRoomTokenResponse.identity,
+    );
   }
 
   Future _createRoom() async {
@@ -92,31 +84,30 @@ class RoomBloc {
 
   void updateName(String name) => updateWith(name: name);
 
-  void updateType(TwilioRoomType? type) => updateWith(type: type);
+  void updateType(TwilioRoomType type) => updateWith(type: type);
 
   void updateWith({
-    String? name,
-    bool? isLoading,
-    bool? isSubmitted,
-    String? token,
-    String? identity,
-    TwilioRoomType? type,
+    String name,
+    bool isLoading,
+    bool isSubmitted,
+    String token,
+    String identity,
+    TwilioRoomType type,
   }) {
     var raiseLoading = false;
-    if (isLoading != null && _modelSubject.value!.isLoading != isLoading) {
+    if (isLoading != null && _modelSubject.value.isLoading != isLoading) {
       raiseLoading = true;
     }
-    _modelSubject.add(model.copyWith(
+    _modelSubject.value = model.copyWith(
       name: name,
       isLoading: isLoading,
       isSubmitted: isSubmitted,
       token: token,
       identity: identity,
       type: type,
-    ));
-
+    );
     if (raiseLoading) {
-      _loadingController.add(_modelSubject.value!.isLoading);
+      _loadingController.add(_modelSubject.value.isLoading);
     }
   }
 }

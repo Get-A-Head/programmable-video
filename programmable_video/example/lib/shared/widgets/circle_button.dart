@@ -5,16 +5,16 @@ import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:twilio_programmable_video_example/debug.dart';
 
 class CircleButton extends StatefulWidget {
-  final VoidCallback? onLongPress;
-  final VoidCallback? onPressed;
-  final GestureTapDownCallback? onTapDown;
-  final VoidCallback? onTapCancel;
-  final Widget? child;
-  final Color? color;
+  final VoidCallback onLongPress;
+  final VoidCallback onPressed;
+  final GestureTapDownCallback onTapDown;
+  final VoidCallback onTapCancel;
+  final Widget child;
+  final Color color;
   final double radius;
 
   const CircleButton({
-    Key? key,
+    Key key,
     this.onLongPress,
     this.onPressed,
     this.child,
@@ -22,7 +22,8 @@ class CircleButton extends StatefulWidget {
     this.radius = 25.0,
     this.onTapCancel,
     this.onTapDown,
-  }) : super(key: key);
+  })  : assert(radius != null),
+        super(key: key);
 
   @override
   _CircleButtonState createState() => _CircleButtonState();
@@ -32,7 +33,7 @@ class _CircleButtonState extends State<CircleButton> {
   double _rotationAngle = 0.0;
 
   final Stream<NativeDeviceOrientation> _orientationStream = NativeDeviceOrientationCommunicator().onOrientationChanged(useSensor: true);
-  late StreamSubscription<NativeDeviceOrientation> _orientationSubscription;
+  StreamSubscription<NativeDeviceOrientation> _orientationSubscription;
 
   void _handleOrientationChange(NativeDeviceOrientation orientation) {
     var targetAngle = 0.0;
@@ -90,12 +91,12 @@ class _CircleButtonState extends State<CircleButton> {
         onTapCancel: widget.onTapCancel,
         child: RawMaterialButton(
           onPressed: widget.onPressed,
+          child: RotationTransition(
+            child: widget.child,
+            turns: AlwaysStoppedAnimation<double>(_rotationAngle / 360),
+          ),
           elevation: 0,
           shape: const CircleBorder(),
-          child: RotationTransition(
-            turns: AlwaysStoppedAnimation<double>(_rotationAngle / 360),
-            child: widget.child,
-          ),
         ),
       ),
     );

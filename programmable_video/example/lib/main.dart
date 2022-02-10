@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:twilio_programmable_video_example/debug.dart';
 import 'package:twilio_programmable_video_example/room/join_room_page.dart';
 import 'package:twilio_programmable_video_example/shared/services/backend_service.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 void main() {
   Debug.enabled = true;
@@ -21,32 +20,25 @@ void main() {
 class TwilioProgrammableVideoExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: Firebase.initializeApp(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          return Provider<BackendService>(
-            create: (_) => FirebaseFunctionsService.instance,
-            child: MaterialApp(
-              title: 'Twilio Programmable Video',
-              theme: ThemeData(
-                primarySwatch: Colors.blue,
-                appBarTheme: AppBarTheme(
-                  color: Colors.blue,
-                  titleTextStyle: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                  ),
-                ),
+    return Provider<BackendService>(
+      create: (_) => FirebaseFunctions.instance,
+      child: MaterialApp(
+        title: 'Twilio Programmable Video',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          appBarTheme: AppBarTheme(
+            color: Colors.blue,
+            textTheme: TextTheme(
+              headline6: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
               ),
-              home: JoinRoomPage(),
             ),
-          );
-        } else {
-          return Center(child: CircularProgressIndicator());
-        }
-      },
+          ),
+        ),
+        home: JoinRoomPage(),
+      ),
     );
   }
 }

@@ -20,34 +20,36 @@ class ConferenceButtonBar extends StatefulWidget {
   final Stream<Map<String, bool>> flashState;
 
   const ConferenceButtonBar({
-    Key? key,
-    required this.onVideoEnabled,
-    required this.onAudioEnabled,
-    required this.onHangup,
-    required this.onSwitchCamera,
-    required this.onPersonAdd,
-    required this.onPersonRemove,
-    required this.toggleFlashlight,
-    required this.videoEnabled,
-    required this.audioEnabled,
-    required this.flashState,
-    required this.onHeight,
-    required this.onHide,
-    required this.onShow,
-  }) : super(key: key);
+    Key key,
+    this.onVideoEnabled,
+    this.onAudioEnabled,
+    this.onHangup,
+    this.onSwitchCamera,
+    this.onPersonAdd,
+    this.onPersonRemove,
+    this.toggleFlashlight,
+    @required this.videoEnabled,
+    @required this.audioEnabled,
+    @required this.flashState,
+    this.onHeight,
+    this.onHide,
+    this.onShow,
+  })  : assert(videoEnabled != null),
+        assert(audioEnabled != null),
+        super(key: key);
 
   @override
   _ConferenceButtonBarState createState() => _ConferenceButtonBarState();
 }
 
 class _ConferenceButtonBarState extends State<ConferenceButtonBar> with AfterLayoutMixin<ConferenceButtonBar> {
-  double? _bottom = -100.0;
-  var _timer;
-  late int _remaining;
+  var _bottom = -100.0;
+  Timer _timer;
+  int _remaining;
   var _videoEnabled = true;
   var _audioEnabled = true;
-  late double _hidden;
-  late double _visible;
+  double _hidden;
+  double _visible;
   final _keyButtonBarHeight = GlobalKey();
   bool hasFlash = false;
   bool flashEnabled = false;
@@ -57,7 +59,7 @@ class _ConferenceButtonBarState extends State<ConferenceButtonBar> with AfterLay
   final Duration periodicDuration = const Duration(milliseconds: 100);
   final List<StreamSubscription> _subscriptions = [];
 
-  Timer startTimeout([int? milliseconds]) {
+  Timer startTimeout([int milliseconds]) {
     final duration = milliseconds == null ? timeout : ms * milliseconds;
     _remaining = duration.inMilliseconds;
     return Timer.periodic(periodicDuration, (Timer timer) {
@@ -70,19 +72,17 @@ class _ConferenceButtonBarState extends State<ConferenceButtonBar> with AfterLay
   }
 
   void _pauseTimer() {
-    final timer = _timer;
-    if (timer == null) {
+    if (_timer == null) {
       return;
     }
-    timer.cancel();
+    _timer.cancel();
     _timer = null;
   }
 
   void _resumeTimer() {
     // resume the timer only when there is no timer active or when
     // the bar is not already hidden.
-    final timer = _timer;
-    if ((timer != null && timer.isActive) || _bottom == _hidden) {
+    if ((_timer != null && _timer.isActive) || _bottom == _hidden) {
       return;
     }
     _timer = startTimeout(_remaining);
@@ -91,20 +91,19 @@ class _ConferenceButtonBarState extends State<ConferenceButtonBar> with AfterLay
   void _toggleBar() {
     setState(() {
       _bottom = _bottom == _visible ? _hidden : _visible;
-      if (_bottom == _visible) {
+      if (_bottom == _visible && widget.onShow != null) {
         widget.onShow();
       }
-      if (_bottom == _hidden) {
+      if (_bottom == _hidden && widget.onHide != null) {
         widget.onHide();
       }
     });
   }
 
   void _toggleBarOnEnd() {
-    final timer = _timer;
-    if (timer != null) {
-      if (timer.isActive) {
-        timer.cancel();
+    if (_timer != null) {
+      if (_timer.isActive) {
+        _timer.cancel();
       }
       _timer = null;
     }
@@ -118,14 +117,8 @@ class _ConferenceButtonBarState extends State<ConferenceButtonBar> with AfterLay
     super.initState();
     _timer = startTimeout();
     _subscriptions.add(widget.flashState.listen((event) => setState(() {
-          final hasFlash = event['hasFlash'];
-          if (hasFlash != null) {
-            this.hasFlash = hasFlash;
-          }
-          final flashEnabled = event['flashEnabled'];
-          if (flashEnabled != null) {
-            this.flashEnabled = flashEnabled;
-          }
+          hasFlash = event['hasFlash'];
+          flashEnabled = event['flashEnabled'];
         })));
   }
 
@@ -137,7 +130,7 @@ class _ConferenceButtonBarState extends State<ConferenceButtonBar> with AfterLay
 
   @override
   void afterFirstLayout(BuildContext context) {
-    final renderBoxButtonBar = _keyButtonBarHeight.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox renderBoxButtonBar = _keyButtonBarHeight.currentContext.findRenderObject();
     final heightButtonBar = renderBoxButtonBar.size.height;
     // Because the `didChangeDependencies` fires before the `afterFirstLayout`, we can use the `_visible` property here.
     _hidden = -(heightButtonBar + _visible);
@@ -148,9 +141,8 @@ class _ConferenceButtonBarState extends State<ConferenceButtonBar> with AfterLay
   @override
   void dispose() {
     super.dispose();
-    final timer = _timer;
-    if (timer != null && timer.isActive) {
-      timer.cancel();
+    if (_timer != null && _timer.isActive) {
+      _timer.cancel();
       _timer = null;
     }
     _subscriptions.forEach((subscription) => subscription.cancel());
@@ -178,8 +170,8 @@ class _ConferenceButtonBarState extends State<ConferenceButtonBar> with AfterLay
               right: 0,
               duration: const Duration(milliseconds: 300),
               curve: Curves.linear,
-              onEnd: _toggleBarOnEnd,
               child: _buildRow(context),
+              onEnd: _toggleBarOnEnd,
             ),
           ],
         ),
@@ -187,13 +179,12 @@ class _ConferenceButtonBarState extends State<ConferenceButtonBar> with AfterLay
     );
   }
 
-  void _onPressed(VoidCallback? callback) {
+  void _onPressed(VoidCallback callback) {
     if (callback != null) {
       callback();
     }
-    final timer = _timer;
-    if (timer != null && timer.isActive) {
-      timer.cancel();
+    if (_timer != null && _timer.isActive) {
+      _timer.cancel();
     }
     _timer = startTimeout();
   }
@@ -206,43 +197,35 @@ class _ConferenceButtonBarState extends State<ConferenceButtonBar> with AfterLay
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
           CircleButton(
-            key: Key('camera-button'),
-            onPressed: () => _onPressed(widget.onVideoEnabled),
             child: StreamBuilder<bool>(
                 stream: widget.videoEnabled,
                 initialData: _videoEnabled,
                 builder: (context, snapshot) {
-                  _videoEnabled = snapshot.data ?? false;
-
+                  _videoEnabled = snapshot.data;
                   return Icon(
                     _videoEnabled ? Icons.videocam : Icons.videocam_off,
                     color: Colors.white,
                   );
                 }),
+            key: Key('camera-button'),
+            onPressed: () => _onPressed(widget.onVideoEnabled),
           ),
           CircleButton(
-            key: Key('microphone-button'),
-            onPressed: () => _onPressed(widget.onAudioEnabled),
             child: StreamBuilder<bool>(
                 stream: widget.audioEnabled,
                 initialData: _audioEnabled,
                 builder: (context, snapshot) {
-                  final audioEnabled = snapshot.data;
-                  if (audioEnabled != null) {
-                    _audioEnabled = audioEnabled;
-                  }
-
+                  _audioEnabled = snapshot.data;
                   return Icon(
                     _audioEnabled ? Icons.mic : Icons.mic_off,
                     color: Colors.white,
                   );
                 }),
+            key: Key('microphone-button'),
+            onPressed: () => _onPressed(widget.onAudioEnabled),
           ),
           CircleButton(
             radius: 35,
-            color: Colors.red.withAlpha(200),
-            key: Key('hangup-button'),
-            onPressed: () => _onPressed(widget.onHangup),
             child: const RotationTransition(
               turns: AlwaysStoppedAnimation<double>(135 / 360),
               child: Icon(
@@ -251,23 +234,26 @@ class _ConferenceButtonBarState extends State<ConferenceButtonBar> with AfterLay
                 size: 40,
               ),
             ),
+            color: Colors.red.withAlpha(200),
+            key: Key('hangup-button'),
+            onPressed: () => _onPressed(widget.onHangup),
           ),
           CircleButton(
+            child: const Icon(Icons.switch_camera, color: Colors.white),
             key: Key('switch-camera-button'),
             onPressed: () => _onPressed(widget.onSwitchCamera),
-            child: const Icon(Icons.switch_camera, color: Colors.white),
           ),
           CircleButton(
+            child: const Icon(Icons.person_add, color: Colors.white),
             key: Key('add-person-button'),
             onPressed: () => _onPressed(widget.onPersonAdd),
             onLongPress: () => _onPressed(widget.onPersonRemove),
-            child: const Icon(Icons.person_add, color: Colors.white),
           ),
           if (hasFlash)
             CircleButton(
+              child: Icon(flashEnabled ? Icons.highlight_off : Icons.highlight, color: Colors.white),
               key: Key('toggle-flashlight-button'),
               onPressed: () => _onPressed(widget.toggleFlashlight),
-              child: Icon(flashEnabled ? Icons.highlight_off : Icons.highlight, color: Colors.white),
             )
         ],
       ),

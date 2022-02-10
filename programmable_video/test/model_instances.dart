@@ -45,7 +45,7 @@ class ModelInstances {
     name: 'name',
     enabled: true,
     maxRetransmits: 1,
-    maxPacketLifeTime: -1,
+    maxPacketLifeTime: 0,
     reliable: true,
     ordered: true,
   );
@@ -58,7 +58,7 @@ class ModelInstances {
   static const localVideoTrackModel = LocalVideoTrackModel(
     name: 'name',
     enabled: true,
-    cameraCapturer: CameraCapturerModel(CameraSource('FRONT_CAMERA', false, false, false), 'CameraCapturer'),
+    cameraCapturer: CameraCapturerModel(CameraSource.FRONT_CAMERA, 'CameraCapturer'),
   );
 
   static const localVideoTrackPublicationModel = LocalVideoTrackPublicationModel(

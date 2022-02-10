@@ -3,10 +3,8 @@ import Foundation
 import TwilioVideo
 
 class RemoteDataTrackListener: BaseListener, RemoteDataTrackDelegate {
-    let TAG = "RemoteDataTrackListener"
-
     func remoteDataTrackDidReceiveData(remoteDataTrack: RemoteDataTrack, message: Data) {
-        debug("didReceiveData => " +
+        SwiftTwilioProgrammableVideoPlugin.debug("RemoteDataTrackListener.didReceiveData => " +
             "sid: \(remoteDataTrack.sid), " +
             "message: \(message)"
         )
@@ -17,7 +15,7 @@ class RemoteDataTrackListener: BaseListener, RemoteDataTrackDelegate {
     }
 
     func remoteDataTrackDidReceiveString(remoteDataTrack: RemoteDataTrack, message: String) {
-        debug("didReceiveString => " +
+        SwiftTwilioProgrammableVideoPlugin.debug("RemoteDataTrackListener.didReceiveString => " +
             "sid: \(remoteDataTrack.sid), " +
             "message: \(message)"
         )
@@ -40,9 +38,5 @@ class RemoteDataTrackListener: BaseListener, RemoteDataTrackDelegate {
             ]
         }
         return nil
-    }
-
-    func debug(_ msg: String) {
-        SwiftTwilioProgrammableVideoPlugin.debug("\(TAG)::\(msg)")
     }
 }

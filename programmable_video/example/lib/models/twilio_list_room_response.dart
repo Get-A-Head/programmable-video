@@ -6,11 +6,14 @@ class TwilioListRoomResponse {
   final TwilioPageMeta meta;
 
   TwilioListRoomResponse({
-    required this.rooms,
-    required this.meta,
+    this.rooms,
+    this.meta,
   });
 
   factory TwilioListRoomResponse.fromMap(Map<String, dynamic> data) {
+    if (data == null) {
+      return null;
+    }
     return TwilioListRoomResponse(
       rooms: (List<Map<String, dynamic>>.from(data['rooms']))
           .map(

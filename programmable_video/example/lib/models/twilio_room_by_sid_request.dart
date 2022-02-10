@@ -2,10 +2,13 @@ class TwilioRoomBySidRequest {
   final String sid;
 
   TwilioRoomBySidRequest({
-    required this.sid,
+    this.sid,
   });
 
   factory TwilioRoomBySidRequest.fromMap(Map<String, dynamic> data) {
+    if (data == null) {
+      return null;
+    }
     return TwilioRoomBySidRequest(
       sid: data['sid'],
     );
