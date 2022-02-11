@@ -14,7 +14,11 @@ dependencies:
   permission_handler: any
   enum_to_string: any
   twilio_programmable_video_platform_interface:
-    path: ../programmable_video_platform_interface
+    git:
+      url: git://github.com/Get-A-head/programmable-video.git
+      ref: applabb_20220210_programmableVideo
+      path: programmable_video_platform_interface
+#    path: ../programmable_video_platform_interface
 # TODO: Remove the pendantic here and remove the override once the following issue is resolved:
 # https://github.com/flutter/flutter/issues/48246
 dev_dependencies:
