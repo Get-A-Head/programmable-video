@@ -305,9 +305,9 @@ class RemoteNetworkQualityLevelChanged extends BaseRemoteParticipantEvent {
 }
 
 /// Use this event if an invalid RemoteParticipantEvent is received from native code which should be skipped.
-class SkippableRemoteParticipantEvent extends BaseRemoteParticipantEvent {
-  const SkippableRemoteParticipantEvent() : super(null);
+class SkipAbleRemoteParticipantEvent extends BaseRemoteParticipantEvent {
+  const SkipAbleRemoteParticipantEvent() : super(null);
 
   @override
-  String toString() => 'SkippableRemoteParticipantEvent';
+  String toString() => 'SkipAbleRemoteParticipantEvent';
 }

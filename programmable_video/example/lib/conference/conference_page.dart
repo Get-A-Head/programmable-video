@@ -26,10 +26,12 @@ class ConferencePage extends StatefulWidget {
 }
 
 class _ConferencePageState extends State<ConferencePage> {
-  final StreamController<bool> _onButtonBarVisibleStreamController = StreamController<bool>.broadcast();
-  final StreamController<double> _onButtonBarHeightStreamController = StreamController<double>.broadcast();
+  final StreamController<bool> _onButtonBarVisibleStreamController =
+      StreamController<bool>.broadcast();
+  final StreamController<double> _onButtonBarHeightStreamController =
+      StreamController<double>.broadcast();
   ConferenceRoom? _conferenceRoom;
-  late StreamSubscription _onConferenceRoomException;
+  StreamSubscription? _onConferenceRoomException;
 
   @override
   void initState() {
@@ -49,7 +51,8 @@ class _ConferencePageState extends State<ConferencePage> {
       await conferenceRoom.connect();
       setState(() {
         _conferenceRoom = conferenceRoom;
-        _onConferenceRoomException = conferenceRoom.onException.listen((err) async {
+        _onConferenceRoomException =
+            conferenceRoom.onException.listen((err) async {
           await _showPlatformAlertDialog(err);
         });
         conferenceRoom.addListener(_conferenceRoomUpdated);
@@ -63,8 +66,12 @@ class _ConferencePageState extends State<ConferencePage> {
 
   Future _showPlatformAlertDialog(err) async {
     await PlatformAlertDialog(
-      title: err is PlatformException ? err.message ?? 'An error occurred' : 'An error occurred',
-      content: err is PlatformException ? (err.details ?? err.toString()) : err.toString(),
+      title: err is PlatformException
+          ? err.message ?? 'An error occurred'
+          : 'An error occurred',
+      content: err is PlatformException
+          ? (err.details ?? err.toString())
+          : err.toString(),
       defaultActionText: 'OK',
     ).show(context);
   }
@@ -97,7 +104,7 @@ class _ConferencePageState extends State<ConferencePage> {
   Future<void> _disposeStreamsAndSubscriptions() async {
     await _onButtonBarVisibleStreamController.close();
     await _onButtonBarHeightStreamController.close();
-    await _onConferenceRoomException.cancel();
+    await _onConferenceRoomException?.cancel();
   }
 
   @override
@@ -120,7 +127,8 @@ class _ConferencePageState extends State<ConferencePage> {
             builder: (BuildContext context, BoxConstraints constraints) {
               return Stack(
                 children: <Widget>[
-                  _buildParticipants(context, constraints.biggest, conferenceRoom),
+                  _buildParticipants(
+                      context, constraints.biggest, conferenceRoom),
                   ConferenceButtonBar(
                     audioEnabled: conferenceRoom.onAudioEnabled,
                     videoEnabled: conferenceRoom.onVideoEnabled,
@@ -206,7 +214,8 @@ class _ConferencePageState extends State<ConferencePage> {
     _conferenceRoom?.removeDummy();
   }
 
-  Widget _buildParticipants(BuildContext context, Size size, ConferenceRoom conferenceRoom) {
+  Widget _buildParticipants(
+      BuildContext context, Size size, ConferenceRoom conferenceRoom) {
     final children = <Widget>[];
     final length = conferenceRoom.participants.length;
 
@@ -215,7 +224,8 @@ class _ConferencePageState extends State<ConferencePage> {
       return Stack(children: children);
     }
 
-    void buildInCols(bool removeLocalBeforeChunking, bool moveLastOfEachRowToNextRow, int columns) {
+    void buildInCols(bool removeLocalBeforeChunking,
+        bool moveLastOfEachRowToNextRow, int columns) {
       _buildLayoutInGrid(
         context,
         size,
@@ -247,7 +257,8 @@ class _ConferencePageState extends State<ConferencePage> {
     );
   }
 
-  void _buildOverlayLayout(BuildContext context, Size size, List<Widget> children) {
+  void _buildOverlayLayout(
+      BuildContext context, Size size, List<Widget> children) {
     final conferenceRoom = _conferenceRoom;
     if (conferenceRoom == null) return;
 
@@ -255,13 +266,15 @@ class _ConferencePageState extends State<ConferencePage> {
     if (participants.length == 1) {
       children.add(_buildNoiseBox());
     } else {
-      final remoteParticipant = participants.firstWhereOrNull((ParticipantWidget participant) => participant.isRemote);
+      final remoteParticipant = participants.firstWhereOrNull(
+          (ParticipantWidget participant) => participant.isRemote);
       if (remoteParticipant != null) {
         children.add(remoteParticipant);
       }
     }
 
-    final localParticipant = participants.firstWhereOrNull((ParticipantWidget participant) => !participant.isRemote);
+    final localParticipant = participants.firstWhereOrNull(
+        (ParticipantWidget participant) => !participant.isRemote);
     if (localParticipant != null) {
       children.add(DraggablePublisher(
         key: Key('publisher'),
@@ -287,7 +300,8 @@ class _ConferencePageState extends State<ConferencePage> {
     final participants = conferenceRoom.participants;
     ParticipantWidget? localParticipant;
     if (removeLocalBeforeChunking) {
-      localParticipant = participants.firstWhereOrNull((ParticipantWidget participant) => !participant.isRemote);
+      localParticipant = participants.firstWhereOrNull(
+          (ParticipantWidget participant) => !participant.isRemote);
       if (localParticipant != null) {
         participants.remove(localParticipant);
       }
@@ -357,7 +371,9 @@ class _ConferencePageState extends State<ConferencePage> {
     }
     var first = 0;
     var last = size;
-    final totalLoop = array.length % size == 0 ? array.length ~/ size : array.length ~/ size + 1;
+    final totalLoop = array.length % size == 0
+        ? array.length ~/ size
+        : array.length ~/ size + 1;
     for (var i = 0; i < totalLoop; i++) {
       if (last > array.length) {
         result.add(array.sublist(first, array.length));
@@ -376,14 +392,15 @@ class _ConferencePageState extends State<ConferencePage> {
 
   void _onShowBar() {
     setState(() {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
+      SystemChrome.setEnabledSystemUIOverlays(
+          [SystemUiOverlay.bottom, SystemUiOverlay.top]);
     });
     _onButtonBarVisibleStreamController.add(true);
   }
 
   void _onHideBar() {
     setState(() {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.bottom]);
+      SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
     });
     _onButtonBarVisibleStreamController.add(false);
   }

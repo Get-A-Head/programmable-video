@@ -3,8 +3,6 @@ import Foundation
 import TwilioVideo
 
 class ParticipantViewFactory: NSObject, FlutterPlatformViewFactory {
-    let TAG = "ParticipantViewFactory"
-
     private var plugin: PluginHandler
 
     init(_ plugin: PluginHandler) {
@@ -23,14 +21,14 @@ class ParticipantViewFactory: NSObject, FlutterPlatformViewFactory {
         if let params = args as? [String: Any] {
             shouldMirror = params["mirror"] as? Bool ?? false
             if let remoteParticipantSid = params["remoteParticipantSid"] as? String, let remoteVideoTrackSid = params["remoteVideoTrackSid"] as? String {
-                debug("create => constructing view with: '\(params)'")
+                SwiftTwilioProgrammableVideoPlugin.debug("ParticipantViewFactory.create => constructing view with: '\(params)'")
                 if let remoteParticipant = plugin.getRemoteParticipant(remoteParticipantSid) {
                     if let remoteVideoTrack = remoteParticipant.remoteVideoTracks.first(where: { $0.trackSid == remoteVideoTrackSid }) {
                         videoTrack = remoteVideoTrack.remoteTrack!
                     }
                 }
             } else {
-                debug("create => constructing local view")
+                SwiftTwilioProgrammableVideoPlugin.debug("ParticipantViewFactory.create => constructing local view")
            }
         }
 
@@ -38,9 +36,5 @@ class ParticipantViewFactory: NSObject, FlutterPlatformViewFactory {
         videoView.shouldMirror = shouldMirror
         videoView.contentMode = .scaleAspectFill
         return ParticipantView(videoView, videoTrack: videoTrack)
-    }
-
-    func debug(_ msg: String) {
-        SwiftTwilioProgrammableVideoPlugin.debug("\(TAG)::\(msg)")
     }
 }

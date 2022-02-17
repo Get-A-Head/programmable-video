@@ -31,47 +31,20 @@ void main() {
     });
   });
 
-  group('.setAudioSettings() & .getAudioSettings()', () {
+  group('.setSpeakerPhoneOn() & .getSpeakerPhoneOn()', () {
     final mockInterface = MockInterface();
-    final speakerphoneOn = true;
-    final bluetoothOn = true;
+    final on = true;
     setUpAll(() => ProgrammableVideoPlatform.instance = mockInterface);
 
     test('should call interface code to enable speakerphone', () async {
-      await TwilioProgrammableVideo.setAudioSettings(
-        speakerphoneEnabled: speakerphoneOn,
-        bluetoothPreferred: bluetoothOn,
-      );
-      expect(mockInterface.setSpeakerPhoneOnWasCalled, false);
-      expect(mockInterface.setAudioSettingsWasCalled, true);
+      await TwilioProgrammableVideo.setSpeakerphoneOn(on);
+      expect(mockInterface.setSpeakerPhoneOnWasCalled, true);
     });
 
     test('should call interface code to check speaker mode', () async {
-      await TwilioProgrammableVideo.setAudioSettings(
-        speakerphoneEnabled: false,
-        bluetoothPreferred: false,
-      );
-
-      final result = await TwilioProgrammableVideo.getAudioSettings();
-      expect(mockInterface.getSpeakerPhoneOnWasCalled, false);
-      expect(mockInterface.getAudioSettingsWasCalled, true);
-
-      expect(result.speakerphoneEnabled, false);
-      expect(result.bluetoothPreferred, false);
-
-      await TwilioProgrammableVideo.setAudioSettings(
-        speakerphoneEnabled: true,
-        bluetoothPreferred: true,
-      );
-
-      final result2 = await TwilioProgrammableVideo.getAudioSettings();
-      expect(result2.speakerphoneEnabled, true);
-      expect(result2.bluetoothPreferred, true);
-    });
-
-    test('should call interface code to disable audio settings', () async {
-      await TwilioProgrammableVideo.disableAudioSettings();
-      expect(mockInterface.disableAudioSettingsWasCalled, true);
+      final result = await TwilioProgrammableVideo.getSpeakerphoneOn();
+      expect(mockInterface.getSpeakerPhoneOnWasCalled, true);
+      expect(result, on);
     });
   });
 

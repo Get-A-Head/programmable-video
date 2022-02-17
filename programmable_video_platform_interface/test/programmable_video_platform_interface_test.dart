@@ -25,10 +25,17 @@ void main() {
     test('Unimplemented methods should throw UnimplementedError', () {
       ProgrammableVideoPlatform.instance = ExtendsProgrammableVideoPlatform();
 
+      expect(() => ProgrammableVideoPlatform.instance.createLocalVideoTrackWidget(), throwsUnimplementedError);
+      expect(
+          () => ProgrammableVideoPlatform.instance.createRemoteVideoTrackWidget(
+                remoteParticipantSid: 'remoteParticipantSid',
+                remoteVideoTrackSid: 'remoteVideoTrackSid',
+              ),
+          throwsUnimplementedError);
       expect(() => ProgrammableVideoPlatform.instance.disconnect(), throwsUnimplementedError);
-      expect(() => ProgrammableVideoPlatform.instance.setNativeDebug(true, true), throwsUnimplementedError);
-      expect(() => ProgrammableVideoPlatform.instance.setAudioSettings(true, true), throwsUnimplementedError);
-      expect(() => ProgrammableVideoPlatform.instance.getAudioSettings(), throwsUnimplementedError);
+      expect(() => ProgrammableVideoPlatform.instance.setNativeDebug(true), throwsUnimplementedError);
+      expect(() => ProgrammableVideoPlatform.instance.setSpeakerphoneOn(true), throwsUnimplementedError);
+      expect(() => ProgrammableVideoPlatform.instance.getSpeakerphoneOn(), throwsUnimplementedError);
       expect(() => ProgrammableVideoPlatform.instance.connectToRoom(MockConnectOptionsModel()), throwsUnimplementedError);
       expect(() => ProgrammableVideoPlatform.instance.enableVideoTrack(true, ''), throwsUnimplementedError);
       expect(() => ProgrammableVideoPlatform.instance.sendMessage('message', 'name'), throwsUnimplementedError);

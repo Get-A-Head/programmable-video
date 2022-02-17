@@ -3,6 +3,7 @@ import 'package:twilio_programmable_video_platform_interface/src/audio_codecs/au
 import 'package:twilio_programmable_video_platform_interface/src/enums/enum_exports.dart';
 import 'package:twilio_programmable_video_platform_interface/src/models/model_exports.dart';
 import 'package:twilio_programmable_video_platform_interface/src/video_codecs/video_codec.dart';
+import 'package:dartlin/dartlin.dart';
 
 import 'model_exports.dart';
 
@@ -40,7 +41,7 @@ class ConnectOptionsModel {
 
   /// Enable or disable the Network Quality API.
   /// Set this to true to enable the Network Quality API when using Group Rooms.
-  final bool? enableNetworkQuality;
+  final bool enableNetworkQuality;
 
   /// Sets the verbosity level for network quality information returned by the
   /// Network Quality API.
@@ -57,7 +58,7 @@ class ConnectOptionsModel {
     this.videoTracks,
     this.enableDominantSpeaker,
     this.enableAutomaticSubscription,
-    this.enableNetworkQuality,
+    this.enableNetworkQuality = false,
     this.networkQualityConfiguration,
   })  : assert(accessToken.isNotEmpty),
         assert((audioTracks != null && audioTracks.isNotEmpty) || audioTracks == null),
@@ -83,7 +84,7 @@ class ConnectOptionsModel {
         'enableDominantSpeaker': enableDominantSpeaker,
         'enableAutomaticSubscription': enableAutomaticSubscription,
         'enableNetworkQuality': enableNetworkQuality,
-        'networkQualityConfiguration': networkQualityConfiguration != null ? networkQualityConfiguration!.toMap() : null
+        'networkQualityConfiguration': networkQualityConfiguration?.let((it) => it.toMap()),
       },
     };
   }

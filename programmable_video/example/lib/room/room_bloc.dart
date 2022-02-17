@@ -22,7 +22,7 @@ class RoomBloc {
 
   Stream<bool> get onLoading => _loadingController.stream;
 
-  RoomModel get model => _modelSubject.value!;
+  RoomModel get model => _modelSubject.value;
 
   void dispose() {
     _modelSubject.close();
@@ -103,7 +103,7 @@ class RoomBloc {
     TwilioRoomType? type,
   }) {
     var raiseLoading = false;
-    if (isLoading != null && _modelSubject.value!.isLoading != isLoading) {
+    if (isLoading != null && _modelSubject.value.isLoading != isLoading) {
       raiseLoading = true;
     }
     _modelSubject.add(model.copyWith(
@@ -116,7 +116,7 @@ class RoomBloc {
     ));
 
     if (raiseLoading) {
-      _loadingController.add(_modelSubject.value!.isLoading);
+      _loadingController.add(_modelSubject.value.isLoading);
     }
   }
 }

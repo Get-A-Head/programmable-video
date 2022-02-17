@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/widgets.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:twilio_programmable_video_platform_interface/src/camera_source.dart';
 import 'package:twilio_programmable_video_platform_interface/src/models/capturers/camera_event.dart';
@@ -41,6 +42,20 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
   }
 
   //#region Functions
+  /// Calls native code to create a widget displaying the LocalVideoTrack's video.
+  Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
+    throw UnimplementedError('createLocalVideoTrackWidget() has not been implemented.');
+  }
+
+  /// Calls native code to create a widget displaying a RemoteVideoTrack's video.
+  Widget createRemoteVideoTrackWidget({
+    required String remoteParticipantSid,
+    required String remoteVideoTrackSid,
+    bool mirror = true,
+    Key? key,
+  }) {
+    throw UnimplementedError('createRemoteVideoTrackWidget() has not been implemented.');
+  }
 
   /// Calls native code to disconnect from a room.
   Future<void> disconnect() {
@@ -48,36 +63,18 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
   }
 
   /// You can listen to these logs on the [loggingStream].
-  Future<void> setNativeDebug(bool native, bool audio) {
+  Future<void> setNativeDebug(bool native) {
     throw UnimplementedError('setNativeDebug() has not been implemented.');
   }
 
   /// Calls native code to set the speaker mode on or off.
-  @Deprecated('Use setAudioSettings for more reliable audio output management.')
+  ///
+  /// Returns the new state of the speaker mode.
   Future<bool?> setSpeakerphoneOn(bool on) {
     throw UnimplementedError('setSpeakerphoneOn() has not been implemented.');
   }
 
-  /// Calls native code to set the speaker and bluetooth settings.
-  /// The native layer will then observe changes to audio state and apply
-  /// these settings as needed.
-  Future setAudioSettings(bool speakerphoneEnabled, bool bluetoothPreferred) {
-    throw UnimplementedError('setAudioSettings() has not been implemented.');
-  }
-
-  /// Calls native code to get the current speaker and bluetooth settings.
-  Future<Map<String, dynamic>> getAudioSettings() {
-    throw UnimplementedError('getAudioSettings() has not been implemented.');
-  }
-
-  /// Calls native code to reset the speaker and bluetooth settings to their default values.
-  /// The native layer will stop observing and managing changes to audio state.
-  Future disableAudioSettings() {
-    throw UnimplementedError('disableAudioSettings() has not been implemented.');
-  }
-
   /// Calls native code to check if speaker mode is enabled.
-  @Deprecated('Use getAudioSettings for more reliable audio output management.')
   Future<bool?> getSpeakerphoneOn() {
     throw UnimplementedError('getSpeakerphoneOn() has not been implemented.');
   }
@@ -97,7 +94,7 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
     throw UnimplementedError('connectToRoom() has not been implemented.');
   }
 
-  /// Calls native code to set the state of the local video track.
+  /// Calls native code to set the state of the LocalVideoTrack.
   ///
   /// The results of this operation are signaled to other Participants in the same Room.
   /// When a video track is disabled, blank frames are sent in place of video frames from a video capturer.
@@ -182,13 +179,6 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
   /// This stream is used to update the RemoteDataTrack in a plugin implementation.
   Stream<BaseRemoteDataTrackEvent>? remoteDataTrackStream(int internalId) {
     throw UnimplementedError('remoteDataTrackStream() has not been implemented');
-  }
-
-  /// Stream of the BaseRemoteDataTrackEvent model.
-  ///
-  /// This stream is used to update the RemoteDataTrack in a plugin implementation.
-  Stream<BaseAudioNotificationEvent> audioNotificationStream() {
-    throw UnimplementedError('audioNotificationStream() has not been implemented');
   }
 
   /// Stream of dynamic that contains all the native logging output.

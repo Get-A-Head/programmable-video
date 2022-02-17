@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
@@ -8,12 +10,8 @@ class MockInterface extends ProgrammableVideoPlatform {
   var setNativeDebugWasCalled = false;
   var nativeDebug;
   var setSpeakerPhoneOnWasCalled = false;
+  var speakerPhoneOn = false;
   var getSpeakerPhoneOnWasCalled = false;
-  var setAudioSettingsWasCalled = false;
-  var getAudioSettingsWasCalled = false;
-  var disableAudioSettingsWasCalled = false;
-  var speakerphoneOn = false;
-  var bluetoothOn = false;
   var deviceHasReceiverWasCalled = false;
   var getStatsWasCalled = false;
   var connectToRoomWasCalled = false;
@@ -27,13 +25,30 @@ class MockInterface extends ProgrammableVideoPlatform {
   var disconnectWasCalled = false;
 
   @override
+  Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
+    key ??= ValueKey('Twilio_LocalParticipant');
+    return Container(key: key);
+  }
+
+  @override
+  Widget createRemoteVideoTrackWidget({
+    required String remoteParticipantSid,
+    required String remoteVideoTrackSid,
+    bool mirror = true,
+    Key? key,
+  }) {
+    key ??= ValueKey(remoteParticipantSid);
+    return Container(key: key);
+  }
+
+  @override
   Future<void> disconnect() {
     disconnectWasCalled = true;
     return Future.delayed(Duration(milliseconds: 1));
   }
 
   @override
-  Future<void> setNativeDebug(bool native, bool audio) {
+  Future<void> setNativeDebug(bool native) {
     setNativeDebugWasCalled = true;
     nativeDebug = native;
     return Future.delayed(Duration(milliseconds: 1));
@@ -41,7 +56,7 @@ class MockInterface extends ProgrammableVideoPlatform {
 
   @override
   Stream<BaseCameraEvent>? cameraStream() {
-    return Stream<BaseCameraEvent>.periodic(Duration(seconds: 1), (x) => SkippableCameraEvent());
+    return Stream<BaseCameraEvent>.periodic(Duration(seconds: 1), (x) => SkipableCameraEvent());
   }
 
   @override
@@ -52,40 +67,14 @@ class MockInterface extends ProgrammableVideoPlatform {
   @override
   Future<bool> setSpeakerphoneOn(bool on) {
     setSpeakerPhoneOnWasCalled = true;
-    speakerphoneOn = on;
-    return Future.delayed(Duration(milliseconds: 1), () => speakerphoneOn);
+    speakerPhoneOn = on;
+    return Future.delayed(Duration(milliseconds: 1), () => speakerPhoneOn);
   }
 
   @override
   Future<bool> getSpeakerphoneOn() {
     getSpeakerPhoneOnWasCalled = true;
-    return Future.delayed(Duration(milliseconds: 1), () => speakerphoneOn);
-  }
-
-  @override
-  Future setAudioSettings(bool speakerphoneEnabled, bool bluetoothPreferred) {
-    setAudioSettingsWasCalled = true;
-    speakerphoneOn = speakerphoneEnabled;
-    bluetoothOn = bluetoothPreferred;
-    return Future.delayed(Duration(milliseconds: 1), () => null);
-  }
-
-  @override
-  Future<Map<String, dynamic>> getAudioSettings() {
-    getAudioSettingsWasCalled = true;
-    final result = {
-      'speakerphoneEnabled': speakerphoneOn,
-      'bluetoothPreferred': bluetoothOn,
-    };
-    return Future.delayed(Duration(milliseconds: 1), () => result);
-  }
-
-  @override
-  Future disableAudioSettings() {
-    disableAudioSettingsWasCalled = true;
-    speakerphoneOn = false;
-    bluetoothOn = false;
-    return Future.delayed(Duration(milliseconds: 1), () => null);
+    return Future.delayed(Duration(milliseconds: 1), () => speakerPhoneOn);
   }
 
   @override

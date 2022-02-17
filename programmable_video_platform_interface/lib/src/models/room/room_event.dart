@@ -121,9 +121,9 @@ class DominantSpeakerChanged extends BaseRoomEvent {
 }
 
 /// Use this event if an invalid RoomEvent is received from native code which should be skipped.
-class SkippableRoomEvent extends BaseRoomEvent {
-  const SkippableRoomEvent() : super(null);
+class SkipAbleRoomEvent extends BaseRoomEvent {
+  const SkipAbleRoomEvent() : super(null);
 
   @override
-  String toString() => 'SkippableRoomEvent';
+  String toString() => 'SkipAbleRoomEvent';
 }

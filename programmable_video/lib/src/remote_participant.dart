@@ -252,7 +252,7 @@ class RemoteParticipant implements Participant {
   }
 
   void _parseEvents(BaseRemoteParticipantEvent event) {
-    if (event is SkippableRemoteParticipantEvent) return;
+    if (event is SkipAbleRemoteParticipantEvent) return;
 
     RemoteAudioTrackPublication findOrCreateRemoteAudioTrackPublication(RemoteAudioTrackPublicationModel model) {
       final remoteAudioTrackPublication = _remoteAudioTrackPublications.firstWhere((RemoteAudioTrackPublication p) => p.trackSid == model.sid, orElse: () => RemoteAudioTrackPublication._fromModel(model));

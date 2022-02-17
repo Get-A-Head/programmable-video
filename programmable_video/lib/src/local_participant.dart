@@ -173,7 +173,7 @@ class LocalParticipant implements Participant {
 
   /// Parse the native local participant events to the right event streams.
   void _parseEvents(BaseLocalParticipantEvent event) {
-    if (event is SkippableLocalParticipantEvent) return;
+    if (event is SkipAbleLocalParticipantEvent) return;
     _updateFromModel(event.localParticipantModel!);
 
     if (event is LocalAudioTrackPublished) {

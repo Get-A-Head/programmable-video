@@ -35,7 +35,7 @@ class ConferenceRoom with ChangeNotifier {
 
   late CameraCapturer _cameraCapturer;
   late Room _room;
-  late Timer _timer;
+  Timer? _timer;
 
   bool flashEnabled = false;
   var trackId;
@@ -63,10 +63,7 @@ class ConferenceRoom with ChangeNotifier {
     Debug.log('ConferenceRoom.connect()');
     try {
       await TwilioProgrammableVideo.debug(dart: true, native: true);
-      _streamSubscriptions.add(TwilioProgrammableVideo.onAudioNotification.listen((event) {
-        print('ConferenceRoom::onAudioNotificationEvent => $event');
-      }));
-      await TwilioProgrammableVideo.setAudioSettings(speakerphoneEnabled: true, bluetoothPreferred: true);
+      await TwilioProgrammableVideo.setSpeakerphoneOn(true);
 
       final sources = await CameraSource.getSources();
       _cameraCapturer = CameraCapturer(
@@ -111,8 +108,7 @@ class ConferenceRoom with ChangeNotifier {
 
   Future<void> disconnect() async {
     Debug.log('ConferenceRoom.disconnect()');
-    _timer.cancel();
-    await TwilioProgrammableVideo.disableAudioSettings();
+    _timer?.cancel();
     await _room.disconnect();
   }
 
@@ -266,12 +262,12 @@ class ConferenceRoom with ChangeNotifier {
 
   void _onDisconnected(RoomDisconnectedEvent event) {
     Debug.log('ConferenceRoom._onDisconnected');
-    _timer.cancel();
+    _timer?.cancel();
   }
 
   void _onReconnecting(RoomReconnectingEvent room) {
     Debug.log('ConferenceRoom._onReconnecting');
-    _timer.cancel();
+    _timer?.cancel();
   }
 
   void _onConnected(Room room) {
@@ -569,11 +565,8 @@ class ConferenceRoom with ChangeNotifier {
     );
     if (participant != null) {
       Debug.log('Participant found: ${participant.id}, updating A/V enabled values');
-      if (event is RemoteVideoTrackEvent) {
-        _setRemoteVideoEnabled(event);
-      } else if (event is RemoteAudioTrackEvent) {
-        _setRemoteAudioEnabled(event);
-      }
+      if (event is RemoteVideoTrackEvent) _setRemoteVideoEnabled(event);
+      if (event is RemoteAudioTrackEvent) _setRemoteAudioEnabled(event);
     } else {
       final bufferedParticipant = _participantBuffer.firstWhereOrNull(
         (ParticipantBuffer participant) => participant.id == event.remoteParticipant.sid,

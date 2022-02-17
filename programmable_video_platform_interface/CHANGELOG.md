@@ -1,7 +1,6 @@
-## 0.7.0
+## 1.0.0-alpha.1
 
-- Added `setAudioSettings`.
-- Added `disableAudioSettings`.
+- Initial pre-release of the web implementation.
 
 ## 0.6.0+1
 
@@ -20,11 +19,11 @@
 
 ## 0.4.0+1
 
-- Removed incorrect `!` from `local_video_track_model.dart`.
+- Resolve "'!' used on CameraSource enum which does not include 'null'"
 
 ## 0.4.0
 
-- **BREAKING CHANGE**: Added null safety support.
+- Resolve "Sound null safety"
 
 ## 0.3.2
 
@@ -59,13 +58,13 @@
 - **BREAKING CHANGE**: SwitchCamera() can now throw a FormatException if it failed to parse to a CameraSource
 - **BREAKING CHANGE**: `DataTrackModel` has been replaced by `LocalDataTrackModel`
 - **BREAKING CHANGE**: `RemoteDataTrackModel` no longer extends `DataTrackModel` as `DataTrackModel`
-    has been removed.
+  has been removed.
 - **BREAKING CHANGE**: `TrackModel` is now an abstract class and is no longer meant to be used directly.
-    Various implementations of `TrackModel` should now be used depending on the use case.
+  Various implementations of `TrackModel` should now be used depending on the use case.
 - **BREAKING CHANGE**: `LocalAudioTrackModel` has been added so the `TrackModel` should not be used
-    anymore to represent LocalAudioTrack's.
+  anymore to represent LocalAudioTrack's.
 - The models now assert that all needed data is available when using the `FromEventChannelMap`
-    factory. To see what data is needed for a model see the asserts on the model's constructor.
+  factory. To see what data is needed for a model see the asserts on the model's constructor.
 - `LocalDataTrackModel` now has a toMap function.
 
 ## 0.1.0+3

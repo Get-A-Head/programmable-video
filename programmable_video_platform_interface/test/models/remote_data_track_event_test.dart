@@ -34,11 +34,11 @@ void main() {
       );
     });
 
-    test('SkippableRemoteDataTrackEvent.toString() should return correct String', () {
-      final event = SkippableRemoteDataTrackEvent();
+    test('SkipAbleRemoteDataTrackEvent.toString() should return correct String', () {
+      final event = SkipAbleRemoteDataTrackEvent();
       expect(
         event.toString(),
-        'SkippableRemoteDataTrackEvent',
+        'SkipAbleRemoteDataTrackEvent',
       );
     });
   });
