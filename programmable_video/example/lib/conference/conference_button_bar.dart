@@ -11,12 +11,14 @@ class ConferenceButtonBar extends StatefulWidget {
   final VoidCallback onSwitchCamera;
   final VoidCallback onPersonAdd;
   final VoidCallback onPersonRemove;
+  final VoidCallback onToggleSpeaker;
   final VoidCallback toggleFlashlight;
   final void Function(double) onHeight;
   final VoidCallback onHide;
   final VoidCallback onShow;
   final Stream<bool> videoEnabled;
   final Stream<bool> audioEnabled;
+  final Stream<Map<String, bool>> speakerState;
   final Stream<Map<String, bool>> flashState;
 
   const ConferenceButtonBar({
@@ -27,13 +29,15 @@ class ConferenceButtonBar extends StatefulWidget {
     required this.onSwitchCamera,
     required this.onPersonAdd,
     required this.onPersonRemove,
+    required this.onToggleSpeaker,
     required this.toggleFlashlight,
     required this.videoEnabled,
     required this.audioEnabled,
-    required this.flashState,
     required this.onHeight,
     required this.onHide,
     required this.onShow,
+    required this.speakerState,
+    required this.flashState,
   }) : super(key: key);
 
   @override
@@ -51,6 +55,7 @@ class _ConferenceButtonBarState extends State<ConferenceButtonBar> with AfterLay
   final _keyButtonBarHeight = GlobalKey();
   bool hasFlash = false;
   bool flashEnabled = false;
+  bool speakerOn = false;
 
   final Duration timeout = const Duration(seconds: 5);
   final Duration ms = const Duration(milliseconds: 1);
@@ -127,6 +132,15 @@ class _ConferenceButtonBarState extends State<ConferenceButtonBar> with AfterLay
             this.flashEnabled = flashEnabled;
           }
         })));
+
+    _subscriptions.add(widget.speakerState.listen((event) {
+      setState(() {
+        final speakerOn = event['speakerOn'];
+        if (speakerOn != null) {
+          this.speakerOn = speakerOn;
+        }
+      });
+    }));
   }
 
   @override
@@ -262,6 +276,11 @@ class _ConferenceButtonBarState extends State<ConferenceButtonBar> with AfterLay
             onPressed: () => _onPressed(widget.onPersonAdd),
             onLongPress: () => _onPressed(widget.onPersonRemove),
             child: const Icon(Icons.person_add, color: Colors.white),
+          ),
+          CircleButton(
+            key: Key('toggle-speaker-button'),
+            onPressed: () => _onPressed(widget.onToggleSpeaker),
+            child: Icon(speakerOn ? Icons.speaker : Icons.volume_mute, color: Colors.white),
           ),
           if (hasFlash)
             CircleButton(

@@ -1,3 +1,7 @@
+## 0.12.1
+
+- **Android**: Fixed the Speaker Not Working when Bluetooth is OFF
+
 ## 0.12.0
 
 - **BREAKING**: Updated permission_handler dependency from 7.0.0 to 8.3.0

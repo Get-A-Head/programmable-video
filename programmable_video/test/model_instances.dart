@@ -1,5 +1,4 @@
 import 'package:twilio_programmable_video/src/parts.dart';
-import 'package:twilio_programmable_video_platform_interface/src/enums/enum_exports.dart';
 import 'package:twilio_programmable_video_platform_interface/src/models/model_exports.dart';
 
 class ModelInstances {
