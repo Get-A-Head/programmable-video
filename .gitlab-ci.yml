@@ -10,7 +10,8 @@ dartdoc_programmable_video:
   script:
     - cd programmable_video
     - flutter pub get
-    - dartdoc --no-auto-include-dependencies --quiet
+    - flutter pub global activate dartdoc 4.1.0
+    - flutter pub global run dartdoc 4.1.0 --no-auto-include-dependencies --quiet # until the issue is resolved https://github.com/dart-lang/dartdoc/issues/2934
   only:
     refs:
       - merge_requests
@@ -24,7 +25,8 @@ dartdoc_platform_interface:
   script:
     - cd programmable_video_platform_interface
     - flutter pub get
-    - dartdoc --no-auto-include-dependencies --quiet
+    - flutter pub global activate dartdoc 4.1.0
+    - flutter pub global run dartdoc 4.1.0 --no-auto-include-dependencies --quiet # until the issue is resolved https://github.com/dart-lang/dartdoc/issues/2934 
   only:
     refs:
       - merge_requests

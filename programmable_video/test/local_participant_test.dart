@@ -6,8 +6,8 @@ import 'mock_platform_interface.dart';
 import 'model_instances.dart';
 
 void main() {
-  final roomModel = ModelInstances.roomModel;
-  final localParticipantModel = ModelInstances.localParticipantModel;
+  const roomModel = ModelInstances.roomModel;
+  const localParticipantModel = ModelInstances.localParticipantModel;
 
   MockInterface? mockInterface;
   Room room;
@@ -18,7 +18,7 @@ void main() {
     ProgrammableVideoPlatform.instance = mockInterface!;
     room = Room(0);
 
-    mockInterface!.addRoomEvent(Connected(roomModel));
+    mockInterface!.addRoomEvent(const Connected(roomModel));
     await room.onConnected.first;
     localParticipant = room.localParticipant;
   });
@@ -35,6 +35,7 @@ void main() {
         localVideoTrackPublications: <LocalVideoTrackPublicationModel>[],
       );
 
+      // ignore: prefer_const_constructors
       mockInterface!.addLocalParticipantEvent(LocalAudioTrackPublished(
         updateModel,
         ModelInstances.localAudioTrackPublicationModel,
@@ -46,7 +47,7 @@ void main() {
 
   group('.onAudioTrackPublished', () {
     test('should process `LocalAudioTrackPublished` correctly', () async {
-      mockInterface!.addLocalParticipantEvent(LocalAudioTrackPublished(
+      mockInterface!.addLocalParticipantEvent(const LocalAudioTrackPublished(
         localParticipantModel,
         ModelInstances.localAudioTrackPublicationModel,
       ));
@@ -62,7 +63,7 @@ void main() {
 
   group('.onAudioTrackPublicationFailed', () {
     test('should process `LocalAudioTrackPublicationFailed` correctly', () async {
-      mockInterface!.addLocalParticipantEvent(LocalAudioTrackPublicationFailed(
+      mockInterface!.addLocalParticipantEvent(const LocalAudioTrackPublicationFailed(
         localParticipantModel: localParticipantModel,
         localAudioTrack: ModelInstances.localAudioTrackModel,
         exception: ModelInstances.twilioExceptionModel,
@@ -79,7 +80,7 @@ void main() {
 
   group('.onDataTrackPublished', () {
     test('should process `LocalDataTrackPublished` correctly', () async {
-      final interfaceEvent = LocalDataTrackPublished(
+      const interfaceEvent = LocalDataTrackPublished(
         localParticipantModel,
         ModelInstances.localDataTrackPublicationModel,
       );
@@ -96,7 +97,7 @@ void main() {
 
   group('.onDataTrackPublicationFailed', () {
     test('should process `LocalDataTrackPublicationFailed` correctly', () async {
-      mockInterface!.addLocalParticipantEvent(LocalDataTrackPublicationFailed(
+      mockInterface!.addLocalParticipantEvent(const LocalDataTrackPublicationFailed(
         localParticipantModel: localParticipantModel,
         localDataTrack: ModelInstances.localDataTrackModel,
         exception: ModelInstances.twilioExceptionModel,
@@ -113,7 +114,7 @@ void main() {
 
   group('.onVideoTrackPublished', () {
     test('should process `LocalVideoTrackPublished` correctly', () async {
-      mockInterface!.addLocalParticipantEvent(LocalVideoTrackPublished(
+      mockInterface!.addLocalParticipantEvent(const LocalVideoTrackPublished(
         localParticipantModel,
         ModelInstances.localVideoTrackPublicationModel,
       ));
@@ -129,7 +130,7 @@ void main() {
 
   group('.onVideoTrackPublicationFailed', () {
     test('should process `LocalVideoTrackPublicationFailed` correctly', () async {
-      mockInterface!.addLocalParticipantEvent(LocalVideoTrackPublicationFailed(
+      mockInterface!.addLocalParticipantEvent(const LocalVideoTrackPublicationFailed(
         localParticipantModel: localParticipantModel,
         localVideoTrack: ModelInstances.localVideoTrackModel,
         exception: ModelInstances.twilioExceptionModel,

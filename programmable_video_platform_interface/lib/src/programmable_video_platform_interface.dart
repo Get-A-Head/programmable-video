@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:twilio_programmable_video_platform_interface/src/camera_source.dart';
-import 'package:twilio_programmable_video_platform_interface/src/models/capturers/camera_event.dart';
 
 import 'method_channel_programmable_video.dart';
 import 'models/model_exports.dart';
@@ -95,6 +94,26 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
   /// Calls native code to connect to a room.
   Future<int?> connectToRoom(ConnectOptionsModel connectOptions) {
     throw UnimplementedError('connectToRoom() has not been implemented.');
+  }
+
+  /// Calls native code to create video track
+  Future<void> createVideoTrack(LocalVideoTrackModel localVideoTrack) {
+    throw UnimplementedError('createVideoTrack() has not been implemented.');
+  }
+
+  /// Calls native code to publish video track
+  Future<void> publishVideoTrack(String name) {
+    throw UnimplementedError('publishVideoTrack() has not been implemented.');
+  }
+
+  /// Calls native code to unpublish video track
+  Future<void> unpublishVideoTrack(String name) {
+    throw UnimplementedError('unpublishVideoTrack() has not been implemented.');
+  }
+
+  /// Calls native code to release video track
+  Future<void> releaseVideoTrack(String name) {
+    throw UnimplementedError('releaseVideoTrack() has not been implemented.');
   }
 
   /// Calls native code to set the state of the local video track.

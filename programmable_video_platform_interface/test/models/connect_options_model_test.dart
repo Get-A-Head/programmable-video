@@ -1,11 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:twilio_programmable_video_platform_interface/src/audio_codecs/audio_codec.dart';
-import 'package:twilio_programmable_video_platform_interface/src/camera_source.dart';
-import 'package:twilio_programmable_video_platform_interface/src/enums/region.dart';
-import 'package:twilio_programmable_video_platform_interface/src/models/model_exports.dart';
-import 'package:twilio_programmable_video_platform_interface/src/video_codecs/video_codec.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 void main() {

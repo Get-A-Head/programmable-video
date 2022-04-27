@@ -1,10 +1,10 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:twilio_programmable_video_example/debug.dart';
-import 'package:twilio_programmable_video_example/room/join_room_page.dart';
+import 'package:twilio_programmable_video_example/room/selection_page.dart';
 import 'package:twilio_programmable_video_example/shared/services/backend_service.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 void main() {
   Debug.enabled = true;
@@ -40,7 +40,7 @@ class TwilioProgrammableVideoExample extends StatelessWidget {
                   ),
                 ),
               ),
-              home: JoinRoomPage(),
+              home: SelectionPage(),
             ),
           );
         } else {

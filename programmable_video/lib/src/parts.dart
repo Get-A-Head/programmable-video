@@ -46,6 +46,7 @@ part 'local_video_track.dart';
 part 'local_video_track_publication.dart';
 part 'network_quality_configuration.dart';
 part 'participant.dart';
+part 'preview_options.dart';
 part 'programmable_video.dart';
 part 'remote_audio_track.dart';
 part 'remote_audio_track_publication.dart';

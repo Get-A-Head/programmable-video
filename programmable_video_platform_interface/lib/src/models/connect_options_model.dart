@@ -64,9 +64,7 @@ class ConnectOptionsModel {
         assert((dataTracks != null && dataTracks.isNotEmpty) || dataTracks == null),
         assert((preferredAudioCodecs != null && preferredAudioCodecs.isNotEmpty) || preferredAudioCodecs == null),
         assert((preferredVideoCodecs != null && preferredVideoCodecs.isNotEmpty) || preferredVideoCodecs == null),
-        assert((region != null && region is Region) || region == null),
-        assert((videoTracks != null && videoTracks.isNotEmpty) || videoTracks == null),
-        assert((networkQualityConfiguration != null && networkQualityConfiguration is NetworkQualityConfigurationModel) || networkQualityConfiguration == null);
+        assert((videoTracks != null && videoTracks.isNotEmpty) || videoTracks == null);
 
   /// Create map from properties.
   Map<String, Object> toMap() {

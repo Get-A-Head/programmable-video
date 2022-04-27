@@ -49,8 +49,16 @@ public class PluginHandler: BaseListener {
             localDataTrackSendString(call, result: result)
         case "LocalDataTrack#sendByteBuffer":
             localDataTrackSendByteBuffer(call, result: result)
+        case "LocalVideoTrack#create":
+            localVideoTrackCreate(call, result: result)
         case "LocalVideoTrack#enable":
             localVideoTrackEnable(call, result: result)
+        case "LocalVideoTrack#publish":
+            localVideoTrackPublish(call, result: result)
+        case "LocalVideoTrack#unpublish":
+            localVideoTrackUnpublish(call, result: result)
+        case "LocalVideoTrack#release":
+            localVideoTrackRelease(call, result: result)
         case "RemoteAudioTrack#enablePlayback":
             remoteAudioTrackEnable(call, result: result)
         case "RemoteAudioTrack#isPlaybackEnabled":
@@ -145,6 +153,60 @@ public class PluginHandler: BaseListener {
         }
     }
 
+    private func localVideoTrackCreate(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let arguments = call.arguments as? [String: Any?] else {
+            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'name', 'enable' and 'videoCapturer' parameters", details: nil))
+        }
+
+        guard let localVideoTrackName = arguments["name"] as? String else {
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("name"), details: nil))
+        }
+
+        guard let localVideoTrackEnable = arguments["enable"] as? Bool else {
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("enable"), details: nil))
+        }
+
+        guard let videoCapturer = arguments["videoCapturer"] as? [String: Any?] else {
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("videoCapturer"), details: nil))
+        }
+
+        debug("localVideoTrackCreate => called for \(localVideoTrackName), enable=\(localVideoTrackEnable), videoCapturer=\(videoCapturer)")
+
+        let videoSourceType = videoCapturer["type"] as? String
+
+        switch videoSourceType {
+        default: // or CameraCapturer
+            let cameraSource = videoCapturer["source"] as? [String: Any]
+            let cameraId = cameraSource?["cameraId"] as? String
+            let cameraDeviceRequested: AVCaptureDevice? = cameraId == "BACK_CAMERA" ?
+                CameraSource.captureDevice(position: .back) :
+                CameraSource.captureDevice(position: .front)
+
+            guard let cameraDevice = cameraDeviceRequested else {
+                return result(FlutterError(code: "MISSING_CAMERA", message: "No camera found for \(cameraId ?? "FRONT_CAMERA")", details: nil))
+            }
+
+            let videoSource = CameraSource()!
+
+            if SwiftTwilioProgrammableVideoPlugin.localVideoTracks[localVideoTrackName] == nil {
+                let localVideoTrack = LocalVideoTrack(source: videoSource, enabled: localVideoTrackEnable, name: localVideoTrackName)!
+
+                SwiftTwilioProgrammableVideoPlugin.localVideoTracks[localVideoTrackName] = localVideoTrack
+
+                videoSource.startCapture(device: cameraDevice) { (device: AVCaptureDevice, _: VideoFormat, error: Error?) in
+                    if let error = error {
+                        self.sendEvent("cameraError", data: ["capturer": self.videoSourceToDict(SwiftTwilioProgrammableVideoPlugin.cameraSource, newCameraSource: nil)], error: error)
+                    } else {
+                        self.sendEvent("firstFrameAvailable", data: ["capturer": self.videoSourceToDict(SwiftTwilioProgrammableVideoPlugin.cameraSource, newCameraSource: device.position)], error: nil)
+                    }
+                }
+                SwiftTwilioProgrammableVideoPlugin.cameraSource = videoSource
+            }
+
+            return result(nil)
+        }
+    }
+
     private func localVideoTrackEnable(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let arguments = call.arguments as? [String: Any?] else {
             return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'name' and 'enable' parameters", details: nil))
@@ -166,6 +228,50 @@ public class PluginHandler: BaseListener {
             return result(nil)
         }
         return result(FlutterError(code: "NOT_FOUND", message: "No LocalVideoTrack found with the name '\(localVideoTrackName)'", details: nil))
+    }
+
+    private func localVideoTrackPublish(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let arguments = call.arguments as? [String: Any?] else {
+            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'name' parameter", details: nil))
+        }
+
+        guard let localVideoTrackName = arguments["name"] as? String else {
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("name"), details: nil))
+        }
+
+        debug("localVideoTrackPublish => called for \(localVideoTrackName)")
+
+        if let localVideoTrack = SwiftTwilioProgrammableVideoPlugin.localVideoTracks[localVideoTrackName] {
+            getLocalParticipant()?.publishVideoTrack(localVideoTrack)
+            SwiftTwilioProgrammableVideoPlugin.localVideoTracks.removeValue(forKey: localVideoTrackName)
+            return result(nil)
+        } else {
+            return result(FlutterError(code: "NOT_FOUND", message: "No LocalVideoTrack found with the name '\(localVideoTrackName)'", details: nil))
+        }
+    }
+
+    private func localVideoTrackUnpublish(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let arguments = call.arguments as? [String: Any?] else {
+            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'name' parameter", details: nil))
+        }
+
+        guard let localVideoTrackName = arguments["name"] as? String else {
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("name"), details: nil))
+        }
+
+        debug("localVideoTrackUnpublish => called for \(localVideoTrackName)")
+
+        if let localVideoTrack = getLocalParticipant()?.localVideoTracks.first(where: {$0.trackName == localVideoTrackName})?.localTrack {
+            getLocalParticipant()?.unpublishVideoTrack(localVideoTrack)
+            SwiftTwilioProgrammableVideoPlugin.localVideoTracks[localVideoTrackName] = localVideoTrack
+            return result(nil)
+        } else {
+            return result(FlutterError(code: "NOT_FOUND", message: "No LocalVideoTrack found with the name '\(localVideoTrackName)'", details: nil))
+        }
+    }
+
+    private func localVideoTrackRelease(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        return result(nil)
     }
 
     private func localAudioTrackEnable(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -599,7 +705,13 @@ public class PluginHandler: BaseListener {
                         }
 
                         let videoSource = CameraSource()!
-                        let localVideoTrack = LocalVideoTrack(source: videoSource, enabled: enable ?? true, name: name ?? nil)!
+
+                        if let localVideoTrack = SwiftTwilioProgrammableVideoPlugin.localVideoTracks[name ?? ""] {
+                            videoTracks.append(localVideoTrack)
+                            SwiftTwilioProgrammableVideoPlugin.localVideoTracks.removeValue(forKey: name ?? "")
+                        } else {
+                            videoTracks.append(LocalVideoTrack(source: videoSource, enabled: enable ?? true, name: name ?? nil)!)
+                        }
 
                         videoSource.startCapture(device: cameraDevice) { (device: AVCaptureDevice, _: VideoFormat, error: Error?) in
                             if let error = error {
@@ -608,7 +720,6 @@ public class PluginHandler: BaseListener {
                                 self.sendEvent("firstFrameAvailable", data: ["capturer": self.videoSourceToDict(SwiftTwilioProgrammableVideoPlugin.cameraSource, newCameraSource: device.position)], error: nil)
                             }
                         }
-                        videoTracks.append(localVideoTrack)
                         SwiftTwilioProgrammableVideoPlugin.cameraSource = videoSource
                     }
                 }

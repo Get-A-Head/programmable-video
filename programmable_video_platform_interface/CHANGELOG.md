@@ -1,3 +1,10 @@
+## 0.7.1
+
+- Added `createVideoTrack`.
+- Added `publishVideoTrack`.
+- Added `unpublishVideoTrack`.
+- Added `releaseVideoTrack`.
+
 ## 0.7.0
 
 - Added `setAudioSettings`.

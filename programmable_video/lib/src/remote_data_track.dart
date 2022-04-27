@@ -17,6 +17,7 @@ class RemoteDataTrack extends DataTrack {
   String get sid => _sid;
 
   @override
+  // ignore: overridden_fields
   late String _name;
 
   RemoteDataTrack(this._sid) : super('') {

@@ -33,12 +33,12 @@ class TwilioRoomRequest {
       mediaRegion: EnumToString.fromString(Region.values, data['mediaRegion']),
       recordParticipantsOnConnect: data['recordParticipantsOnConnect'],
       statusCallback: data['statusCallback'],
-      statusCallbackMethod: EnumToString.fromString(TwilioStatusCallbackMethod.values, data['statusCallbackMethod']),
+      statusCallbackMethod: EnumToString.fromString(TwilioStatusCallbackMethod.values, data['statusCallbackMethod'].toString().camelCase),
       type: EnumToString.fromString(TwilioRoomType.values, data['type'].toString().camelCase) ?? TwilioRoomType.peerToPeer,
       uniqueName: data['uniqueName'],
       videoCodecs: (data['videoCodecs'] as List<String>)
           .map(
-            (String videoCodec) => EnumToString.fromString(TwilioVideoCodec.values, videoCodec),
+            (String videoCodec) => EnumToString.fromString(TwilioVideoCodec.values, videoCodec.toString().camelCase),
           )
           .toList(),
     );
@@ -54,7 +54,7 @@ class TwilioRoomRequest {
       'statusCallbackMethod': mediaRegion != null ? EnumToString.convertToString(statusCallbackMethod) : null,
       'type': EnumToString.convertToString(type).paramCase,
       'uniqueName': uniqueName,
-      'videoCodecs': videoCodecs?.map((TwilioVideoCodec? videoCodec) => EnumToString.convertToString(videoCodec)).toList()
+      'videoCodecs': videoCodecs?.map((TwilioVideoCodec? videoCodec) => EnumToString.convertToString(videoCodec).toString().camelCase).toList()
     };
   }
 }

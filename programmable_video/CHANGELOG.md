@@ -1,3 +1,9 @@
+## 0.12.2
+
+- Added a `create` function to the `LocalVideoTrack` class that will trigger initialization at the native layer.
+- Maintain a map of `LocalVideoTracks` at the native layer to avoid initializing a second track with the same id should the end developer then provide this when connecting.
+- Added a `publishTrack` method to `LocalParticipants` to allow for publishing `LocalVideoTracks` as needed.
+
 ## 0.12.1
 
 - **Android**: Fixed the Speaker Not Working when Bluetooth is OFF

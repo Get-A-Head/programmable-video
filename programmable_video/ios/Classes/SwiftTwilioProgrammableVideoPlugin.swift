@@ -29,6 +29,8 @@ public class SwiftTwilioProgrammableVideoPlugin: NSObject, FlutterPlugin {
 
     internal static var audioDeviceOnDisconnected: (() -> Void)?
 
+    public static var localVideoTracks: [String: LocalVideoTrack] = [:]
+
     public static func debug(_ msg: String) {
         if SwiftTwilioProgrammableVideoPlugin.nativeDebug {
             NSLog(msg)

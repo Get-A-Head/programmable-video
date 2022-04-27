@@ -3,6 +3,7 @@ part of twilio_programmable_video;
 /// Represents a local audio source.
 class LocalAudioTrack extends AudioTrack {
   @override
+  // ignore: overridden_fields
   bool _enabled;
 
   /// Check if it is enabled.
