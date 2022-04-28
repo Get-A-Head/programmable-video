@@ -10,9 +10,9 @@ import io.flutter.plugin.platform.PlatformViewFactory
 class ParticipantViewFactory(createArgsCodec: MessageCodec<Any>, private val plugin: PluginHandler) : PlatformViewFactory(createArgsCodec) {
     private val TAG = "RoomListener"
 
-    override fun create(context: Context, viewId: Int, args: Any?): PlatformView? {
+    override fun create(context: Context?, viewId: Int, args: Any?): PlatformView {
         var videoTrack: VideoTrack? = null
-        val params = args as? Map<*, *> ?: return null
+        val params = args as? Map<*, *> ?: throw IllegalStateException("args cannot be null")
 
         if (params["isLocal"] == true) {
             debug("create => constructing local view with params: '${params.values.joinToString(", ")}'")
@@ -36,8 +36,10 @@ class ParticipantViewFactory(createArgsCodec: MessageCodec<Any>, private val plu
             }
         }
 
-        if (videoTrack == null) return null
-        val videoView = VideoView(context)
+        if (videoTrack == null) {
+            throw IllegalStateException("Could not create VideoTrack")
+        }
+        val videoView = VideoView(context as Context)
         videoView.mirror = params["mirror"] as Boolean
         return ParticipantView(videoView, videoTrack)
     }
