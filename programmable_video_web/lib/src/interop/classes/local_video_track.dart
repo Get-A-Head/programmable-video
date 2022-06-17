@@ -19,6 +19,7 @@ class LocalVideoTrack extends VideoTrack {
 
   external LocalVideoTrack disable();
   external LocalVideoTrack enable();
+  external LocalVideoTrack stop();
 }
 
 extension Interop on LocalVideoTrack {
