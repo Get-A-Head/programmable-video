@@ -19,6 +19,7 @@ class LocalAudioTrack extends AudioTrack {
   external AudioElement attach();
   external LocalAudioTrack disable();
   external LocalAudioTrack enable();
+  external LocalAudioTrack stop();
 }
 
 extension Interop on LocalAudioTrack {
