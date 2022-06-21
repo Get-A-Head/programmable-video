@@ -125,39 +125,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     }
   }
 
-  Future<html.MediaStream> _getDisplayMedia(Map<String, dynamic> mediaConstraints) async {
-    try {
-      final mediaDevices = html.window.navigator.mediaDevices;
-      if (mediaDevices == null) throw Exception('MediaDevices is null');
-
-      if (jsutil.hasProperty(mediaDevices, 'getDisplayMedia')) {
-        final arg = jsutil.jsify(mediaConstraints);
-        return await jsutil.promiseToFuture<html.MediaStream>(jsutil.callMethod(mediaDevices, 'getDisplayMedia', [arg]));
-      } else {
-        return await html.window.navigator.getUserMedia(video: {'mediaSource': 'screen'}, audio: mediaConstraints['audio'] ?? false);
-      }
-    } catch (err) {
-      throw 'Unable to getDisplayMedia: ${err.toString()}';
-    }
-  }
-
-  @override
-  void startScreenShare() async {
-    final room = _room;
-    if (room != null) {
-      try {
-        await _getDisplayMedia({'video': true}).then((mediaStream) async {
-          final shareTrack = mediaStream.getTracks().first;
-
-          await room.localParticipant.publishTrack(shareTrack);
-
-          debug('Publishing startShareScreen() >> ${shareTrack.label}');
-        });
-      } catch (err) {
-        debug('Error at startShareScreen() >> ${err}');
-      }
-    }
-  }
 
   @override
   Future<int> connectToRoom(ConnectOptionsModel connectOptions) async {
@@ -260,6 +227,39 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     }
   }
 
+  Future<html.MediaStream> _getDisplayMedia(Map<String, dynamic> mediaConstraints) async {
+    try {
+      final mediaDevices = html.window.navigator.mediaDevices;
+      if (mediaDevices == null) throw Exception('MediaDevices is null');
+
+      if (jsutil.hasProperty(mediaDevices, 'getDisplayMedia')) {
+        final arg = jsutil.jsify(mediaConstraints);
+        return await jsutil.promiseToFuture<html.MediaStream>(jsutil.callMethod(mediaDevices, 'getDisplayMedia', [arg]));
+      } else {
+        return await html.window.navigator.getUserMedia(video: {'mediaSource': 'screen'}, audio: mediaConstraints['audio'] ?? false);
+      }
+    } catch (err) {
+      throw 'Unable to getDisplayMedia: ${err.toString()}';
+    }
+  }
+
+  @override
+  void startScreenShare() async {
+    final room = _room;
+    if (room != null) {
+      try {
+        await _getDisplayMedia({'video': true}).then((mediaStream) async {
+          final shareTrack = mediaStream.getTracks().first;
+
+          await room.localParticipant.publishTrack(shareTrack);
+
+          debug('Publishing startShareScreen() >> ${shareTrack.label}');
+        });
+      } catch (err) {
+        debug('Error at startShareScreen() >> ${err}');
+      }
+    }
+  }
   @override
   Future<void> setNativeDebug(bool native) async {
     final logger = Logger.getLogger('twilio-video');
