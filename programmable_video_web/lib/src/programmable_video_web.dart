@@ -146,10 +146,10 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     final room = _room;
     if (room != null) {
       try {
-        _getDisplayMedia({'video': true}).then((mediaStream) async {
-          html.MediaStreamTrack shareTrack = mediaStream.getTracks()[0];
+        await _getDisplayMedia({'video': true}).then((mediaStream) async {
+          final shareTrack = mediaStream.getTracks().first;
 
-          room.localParticipant.publishTrack(shareTrack);
+          await room.localParticipant.publishTrack(shareTrack);
 
           debug('Publishing startShareScreen() >> ${shareTrack.label}');
         });
