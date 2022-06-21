@@ -125,7 +125,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     }
   }
 
-
   @override
   Future<int> connectToRoom(ConnectOptionsModel connectOptions) async {
     _roomStreamController.onListen = _onConnected;
@@ -260,6 +259,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       }
     }
   }
+
   @override
   Future<void> setNativeDebug(bool native) async {
     final logger = Logger.getLogger('twilio-video');
