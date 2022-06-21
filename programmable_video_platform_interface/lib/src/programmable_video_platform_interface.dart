@@ -137,6 +137,11 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
     throw UnimplementedError('switchCamera() has not been implemented.');
   }
 
+  /// Calls native code to start screen share
+  void startScreenShare() {
+    throw UnimplementedError('switchCamera() has not been implemented.');
+  }
+
   /// Calls native code to change the torch state.
   Future<void> setTorch(bool enabled) {
     throw UnimplementedError('setTorch(bool enabled) has not been implemented.');

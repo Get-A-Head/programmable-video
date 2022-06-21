@@ -1,27 +1,28 @@
 import 'dart:async';
-import 'dart:html';
+import 'dart:html' as html;
+import 'dart:js_util' as jsutil;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:js/js.dart';
+import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/js_map.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_audio_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_data_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_video_track_publication.dart';
+import 'package:twilio_programmable_video_web/src/interop/classes/logger.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/remote_audio_track.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/remote_audio_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/remote_participant.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/room.dart';
 import 'package:twilio_programmable_video_web/src/interop/connect.dart';
-import 'package:twilio_programmable_video_web/src/interop/classes/logger.dart';
 import 'package:twilio_programmable_video_web/src/interop/version.dart';
-import 'package:twilio_programmable_video_web/src/listeners/room_event_listener.dart';
 import 'package:twilio_programmable_video_web/src/listeners/local_participant_event_listener.dart';
-
-import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
+import 'package:twilio_programmable_video_web/src/listeners/room_event_listener.dart';
 import 'package:version/version.dart';
 
 class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
@@ -59,7 +60,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         return localVideoTrackElement;
       } else {
         // TODO: review behaviour in scenario where `_room` is `null`.
-        return DivElement();
+        return html.DivElement();
       }
     });
   }
@@ -74,7 +75,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         return remoteVideoTrackElement;
       } else {
         // TODO: review behaviour in scenario where `_room` is `null`.
-        return DivElement();
+        return html.DivElement();
       }
     });
   }
@@ -124,6 +125,40 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     }
   }
 
+  Future<html.MediaStream> _getDisplayMedia(Map<String, dynamic> mediaConstraints) async {
+    try {
+      final mediaDevices = html.window.navigator.mediaDevices;
+      if (mediaDevices == null) throw Exception('MediaDevices is null');
+
+      if (jsutil.hasProperty(mediaDevices, 'getDisplayMedia')) {
+        final arg = jsutil.jsify(mediaConstraints);
+        return await jsutil.promiseToFuture<html.MediaStream>(jsutil.callMethod(mediaDevices, 'getDisplayMedia', [arg]));
+      } else {
+        return await html.window.navigator.getUserMedia(video: {'mediaSource': 'screen'}, audio: mediaConstraints['audio'] ?? false);
+      }
+    } catch (err) {
+      throw 'Unable to getDisplayMedia: ${err.toString()}';
+    }
+  }
+
+  @override
+  void startScreenShare() async {
+    final room = _room;
+    if (room != null) {
+      try {
+        _getDisplayMedia({'video': true}).then((mediaStream) async {
+          html.MediaStreamTrack shareTrack = mediaStream.getTracks()[0];
+
+          room.localParticipant.publishTrack(shareTrack);
+
+          debug('Publishing startShareScreen() >> ${shareTrack.label}');
+        });
+      } catch (err) {
+        debug('Error at startShareScreen() >> ${err}');
+      }
+    }
+  }
+
   @override
   Future<int> connectToRoom(ConnectOptionsModel connectOptions) async {
     _roomStreamController.onListen = _onConnected;
@@ -151,10 +186,10 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     if (localParticipant != null) {
       final audioTracks = localParticipant.audioTracks.values();
       iteratorForEach<LocalAudioTrackPublication>(audioTracks, (publication) {
-        try{
+        try {
           debug('ProgrammableVideoWeb::stopping => ${publication.track.kind} track ${publication.trackSid}');
           publication.track.stop();
-        }catch(err){
+        } catch (err) {
           debug('Error at disabling track ${err}');
         }
         debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
@@ -164,10 +199,10 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
       final videoTracks = localParticipant.videoTracks.values();
       iteratorForEach<LocalVideoTrackPublication>(videoTracks, (publication) {
-        try{
+        try {
           debug('ProgrammableVideoWeb::stopping => ${publication.track.kind} track ${publication.trackSid}');
           publication.track.stop();
-        }catch(err){
+        } catch (err) {
           debug('Error at disabling track ${err}');
         }
         debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
@@ -313,7 +348,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       );
     }
 
-    final remoteTrackElement = document.getElementById(remoteAudioTrack.name) as AudioElement?;
+    final remoteTrackElement = html.document.getElementById(remoteAudioTrack.name) as html.AudioElement?;
     if (remoteTrackElement == null) {
       throw PlatformException(
         code: 'NOT_FOUND',
@@ -334,7 +369,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     if (remoteAudioTrack == null) {
       return Future.value(false);
     }
-    final remoteTrackElement = document.getElementById(remoteAudioTrack.name) as AudioElement?;
+    final remoteTrackElement = html.document.getElementById(remoteAudioTrack.name) as html.AudioElement?;
     final isEnabled = remoteTrackElement != null ? !remoteTrackElement.muted : false;
     return Future(() => isEnabled);
   }
