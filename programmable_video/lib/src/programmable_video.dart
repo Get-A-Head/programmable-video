@@ -77,6 +77,11 @@ class TwilioProgrammableVideo {
     return await ProgrammableVideoPlatform.instance.getSpeakerphoneOn();
   }
 
+  /// Start a share screen
+  static void startScreenShare() async {
+    return ProgrammableVideoPlatform.instance.startScreenShare();
+  }
+
   /// This check is extraneous to the plugin itself, and its reliability and implementation varies by platform
   /// as follows:
   ///
