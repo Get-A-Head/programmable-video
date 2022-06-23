@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:html' as html;
-import 'dart:js_util' as jsutil;
+import 'dart:js_util' as js_util;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -30,7 +30,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static RoomEventListener? _roomListener;
   static LocalParticipantEventListener? _localParticipantListener;
 
-  // TODO add listeners for camera and remotedatatrack stream
+  // add listeners for camera and remotedatatrack stream
+
   static final _roomStreamController = StreamController<BaseRoomEvent>.broadcast();
   static final _cameraStreamController = StreamController<BaseCameraEvent>.broadcast();
   static final _localParticipantController = StreamController<BaseLocalParticipantEvent>.broadcast();
@@ -41,6 +42,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static var _nativeDebug = false;
   static var _sdkDebugSetup = false;
   static final _registeredRemoteParticipantViewFactories = [];
+  static html.MediaStreamTrack? shareTrack;
 
   static void debug(String msg) {
     if (_nativeDebug) _loggingStreamController.add(msg);
@@ -68,7 +70,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static void _createRemoteViewFactory(String remoteParticipantSid, String remoteVideoTrackSid) {
     ui.platformViewRegistry.registerViewFactory('remote-video-track-#$remoteVideoTrackSid-html', (int viewId) {
       final remoteVideoTrack = _room?.participants.toDartMap()[remoteParticipantSid]?.videoTracks.toDartMap()[remoteVideoTrackSid]?.track;
-      // TODO: flatten this out
+      // flatten this out
+
       if (remoteVideoTrack != null) {
         final remoteVideoTrackElement = remoteVideoTrack.attach()..style.objectFit = 'cover';
         debug('Created remote video track view for: $remoteParticipantSid');
@@ -226,36 +229,97 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     }
   }
 
+  /// ### Gets the [MediaStream] from the `getDisplayMedia` method natively.
+  ///
+  /// - If it is not supported, it will fallback to `getUserMedia` with the `video: {mediaSource: 'screen'}` constraint.
+  ///
+  /// - If it fails, it will throw an error.
+  ///
+  /// #### Note: `dart:html` does not support `getDisplayMedia` yet as it uses the sky_engine implementation.
+  ///
   Future<html.MediaStream> _getDisplayMedia(Map<String, dynamic> mediaConstraints) async {
     try {
       final mediaDevices = html.window.navigator.mediaDevices;
       if (mediaDevices == null) throw Exception('MediaDevices is null');
 
-      if (jsutil.hasProperty(mediaDevices, 'getDisplayMedia')) {
-        final arg = jsutil.jsify(mediaConstraints);
-        return await jsutil.promiseToFuture<html.MediaStream>(jsutil.callMethod(mediaDevices, 'getDisplayMedia', [arg]));
+      if (js_util.hasProperty(mediaDevices, 'getDisplayMedia')) {
+        final arg = js_util.jsify(mediaConstraints);
+        return await js_util.promiseToFuture<html.MediaStream>(js_util.callMethod(mediaDevices, 'getDisplayMedia', [arg]));
       } else {
         return await html.window.navigator.getUserMedia(video: {'mediaSource': 'screen'}, audio: mediaConstraints['audio'] ?? false);
       }
     } catch (err) {
-      throw 'Unable to getDisplayMedia: ${err.toString()}';
+      throw Exception('Failed to getDisplayMedia (Permission Denied or User canceled): $err');
+    } on Exception catch (err) {
+      throw UnsupportedError('Unable to getDisplayMedia: ${err.toString()}');
     }
   }
 
+  /// Calls native code to start screen share
+  ///
+  /// * Returns a [Future] that completes with a [bool] indicating whether the screen share init was successful.
+  ///
+  /// ### Possible outcomes:
+  /// [true] : the screen share was _**successful**_
+  ///
+  /// [false] : the screen share was _**cancelled**_ or _**permission is not granted**_
+  ///
+  /// [Exception] : screen share _**failed**_ or is _**not supported by the browser**_
+  ///
+  /// This function uses the Twilio Programmable Video SDK to [publish a track](https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/LocalParticipant.html#publishTrack__anchor)
   @override
-  void startScreenShare() async {
+  Future<bool?> startScreenShare() async {
     final room = _room;
     if (room != null) {
       try {
-        await _getDisplayMedia({'video': true}).then((mediaStream) async {
-          final shareTrack = mediaStream.getTracks().first;
+        var mediaStream = await _getDisplayMedia({'video': true});
+        shareTrack = mediaStream.getTracks().first;
 
-          await room.localParticipant.publishTrack(shareTrack);
+        debug(' >>> shareTrack.kind: ${shareTrack!.kind}');
+        debug(' >>> shareTrack.id: ${shareTrack!.id}');
 
-          debug('Publishing startShareScreen() >> ${shareTrack.label}');
+        final localParticipant = room.localParticipant;
+
+        // Add the track to the local participant tracks
+        debug('Publishing startShareScreen() >> ${shareTrack!.label}');
+        await localParticipant.publishTrack(shareTrack);
+
+        // listen to the track and unpublish it when it ends
+        shareTrack!.onEnded.listen((_) {
+          debug('Screen share track ended');
+          shareTrack!.stop();
+          localParticipant.unpublishTrack(shareTrack);
+        });
+        return true;
+      } catch (err) {
+        debug('Screen share permission not allowed: ${err.toString()}');
+        return false;
+      } on Exception catch (err) {
+        debug('Screen share failed: ${err.toString()}');
+        throw Exception('Screen share failed: ${err.toString()}');
+      }
+    }
+  }
+
+  /// Calls native code to stop screen share
+  ///
+  /// This function uses the Twilio Programmable Video SDK to [unpublish a track](https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/LocalParticipant.html#unpublishTrack__anchor)
+  void stopScreenShare() async {
+    final room = _room;
+    if (room != null) {
+      try {
+        final localParticipant = room.localParticipant;
+        final localVideoTracks = localParticipant.videoTracks.values();
+        iteratorForEach<LocalVideoTrackPublication>(localVideoTracks, (localVideoTrack) {
+          final found = localVideoTrack.track.id == shareTrack!.id;
+          if (found) {
+            localVideoTrack.track.stop();
+            localParticipant.unpublishTrack(localVideoTrack.track);
+          }
+          return found;
         });
       } catch (err) {
-        debug('Error at startShareScreen() >> ${err}');
+        debug('Error at stopScreenShare() >> ${err}');
       }
     }
   }
@@ -377,6 +441,15 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   //#endregion
 
   //#region Streams
+
+  /// Stream of the Screen share ended event.
+  ///
+  /// This stream is used to listen screen share termination from the user (not from ui).
+  @override
+  Stream<dynamic>? onScreenShareEndedStream() {
+    return shareTrack?.onEnded;
+  }
+
   @override
   Stream<BaseCameraEvent> cameraStream() {
     return _cameraStreamController.stream;

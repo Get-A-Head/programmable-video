@@ -77,10 +77,34 @@ class TwilioProgrammableVideo {
     return await ProgrammableVideoPlatform.instance.getSpeakerphoneOn();
   }
 
-  /// Start a share screen
-  static void startScreenShare() async {
+  /// Calls native code to start screen share
+  ///
+  /// * Returns a [Future] that completes with a [bool] indicating whether the screen share init was successful.
+  ///
+  /// ### Possible outcomes:
+  /// [true] : the screen share was _**successful**_
+  ///
+  /// [false] : the screen share was _**cancelled**_ or _**permission is not granted**_
+  ///
+  /// [Exception] : screen share _**failed**_ or is _**not supported by the browser**_
+  ///
+  /// This function uses the Twilio Programmable Video SDK to [publish a track](https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/LocalParticipant.html#publishTrack__anchor)
+  static Future<bool?> startScreenShare() async {
     return ProgrammableVideoPlatform.instance.startScreenShare();
   }
+
+  /// Calls native code to stop screen share
+  ///
+  /// This function uses the Twilio Programmable Video SDK to [unpublish a track](https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/LocalParticipant.html#unpublishTrack__anchor)
+  static void stopScreenShare() async {
+    return ProgrammableVideoPlatform.instance.stopScreenShare();
+  }
+
+  /// Stream of the Screen share ended event.
+  ///
+  /// This stream is used to listen screen share termination from the user (not from ui).
+  static Stream<dynamic>? onScreenShareEndedStream () => ProgrammableVideoPlatform.instance.onScreenShareEndedStream();
+
 
   /// This check is extraneous to the plugin itself, and its reliability and implementation varies by platform
   /// as follows:

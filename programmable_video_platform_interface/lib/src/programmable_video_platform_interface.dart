@@ -138,8 +138,26 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
   }
 
   /// Calls native code to start screen share
-  void startScreenShare() {
-    throw UnimplementedError('switchCamera() has not been implemented.');
+  ///
+  /// * Returns a [Future] that completes with a [bool] indicating whether the screen share init was successful.
+  ///
+  /// ### Possible outcomes:
+  /// [true] : the screen share was _**successful**_
+  ///
+  /// [false] : the screen share was _**cancelled**_ or _**permission is not granted**_
+  ///
+  /// [Exception] : screen share _**failed**_ or is _**not supported by the browser**_
+  ///
+  /// This function uses the Twilio Programmable Video SDK to [publish a track](https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/LocalParticipant.html#publishTrack__anchor)
+  Future<bool?> startScreenShare() {
+    throw UnimplementedError('startScreenShare() has not been implemented.');
+  }
+
+  /// Calls native code to stop screen share
+  ///
+  /// This function uses the Twilio Programmable Video SDK to [unpublish a track](https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/LocalParticipant.html#unpublishTrack__anchor)
+  void stopScreenShare() async {
+    throw UnimplementedError('stopScreenShare() has not been implemented.');
   }
 
   /// Calls native code to change the torch state.
@@ -150,6 +168,13 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
   //#endregion
 
   //#region Streams
+
+  /// Stream of the Screen share ended event.
+  ///
+  /// This stream is used to listen screen share termination from the user (not from ui).
+  Stream<dynamic>? onScreenShareEndedStream() {
+    throw UnimplementedError('cameraStream() has not been implemented');
+  }
 
   /// Stream of the CameraEvent model.
   ///
