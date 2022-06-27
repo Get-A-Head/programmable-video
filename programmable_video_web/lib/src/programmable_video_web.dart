@@ -13,6 +13,7 @@ import 'package:twilio_programmable_video_platform_interface/twilio_programmable
 import 'package:twilio_programmable_video_web/src/interop/classes/js_map.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_audio_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_data_track_publication.dart';
+import 'package:twilio_programmable_video_web/src/interop/classes/local_video_track.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_video_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/logger.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/remote_audio_track.dart';
@@ -159,7 +160,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
           debug('ProgrammableVideoWeb::stopping => ${publication.track.kind} track ${publication.trackSid}');
           publication.track.stop();
         } catch (err) {
-          debug('Error at disabling track ${err}');
+          debug('Error at disabling track $err');
         }
         debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
         _room?.localParticipant.unpublishTrack(publication.track);
@@ -172,7 +173,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
           debug('ProgrammableVideoWeb::stopping => ${publication.track.kind} track ${publication.trackSid}');
           publication.track.stop();
         } catch (err) {
-          debug('Error at disabling track ${err}');
+          debug('Error at disabling track $err');
         }
         debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
         _room?.localParticipant.unpublishTrack(publication.track);
@@ -250,8 +251,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       }
     } catch (err) {
       throw Exception('Failed to getDisplayMedia (Permission Denied or User canceled): $err');
-    } on Exception catch (err) {
-      throw UnsupportedError('Unable to getDisplayMedia: ${err.toString()}');
     }
   }
 
@@ -272,17 +271,28 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     final room = _room;
     if (room != null) {
       try {
-        var mediaStream = await _getDisplayMedia({'video': true});
+        final mediaStream = await _getDisplayMedia({'video': true});
         shareTrack = mediaStream.getTracks().first;
 
         debug(' >>> shareTrack.kind: ${shareTrack!.kind}');
         debug(' >>> shareTrack.id: ${shareTrack!.id}');
+        debug(' >>> shareTrack.constraints: ${shareTrack!.getConstraints()}');
+        debug(' >>> shareTrack.settings: ${shareTrack!.getSettings()}');
+        debug(' >>> shareTrack.capabilities: ${shareTrack!.getCapabilities()}');
 
         final localParticipant = room.localParticipant;
 
         // Add the track to the local participant tracks
         debug('Publishing startShareScreen() >> ${shareTrack!.label}');
-        await localParticipant.publishTrack(shareTrack);
+
+        final shareLocalTrack = LocalVideoTrack(
+          shareTrack!,
+          CreateLocalTrackOptions(name: 'screen-share:${shareTrack!.label ?? 'screen:0'}'),
+        );
+
+        final publishedTrack = await localParticipant.publishTrack(shareLocalTrack);
+        debug('Published track >> ${publishedTrack.trackName}');
+        debug('Published track >> ${publishedTrack.track.toString()}');
 
         // listen to the track and unpublish it when it ends
         shareTrack!.onEnded.listen((_) {
@@ -294,9 +304,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       } catch (err) {
         debug('Screen share permission not allowed: ${err.toString()}');
         return false;
-      } on Exception catch (err) {
-        debug('Screen share failed: ${err.toString()}');
-        throw Exception('Screen share failed: ${err.toString()}');
       }
     }
   }
@@ -319,7 +326,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
           return found;
         });
       } catch (err) {
-        debug('Error at stopScreenShare() >> ${err}');
+        debug('Error at stopScreenShare() >> $err');
       }
     }
   }
@@ -445,7 +452,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   /// Stream of the Screen share ended event.
   ///
   /// This stream is used to listen screen share termination from the user (not from ui).
-  @override
   Stream<dynamic>? onScreenShareEndedStream() {
     return shareTrack?.onEnded;
   }
