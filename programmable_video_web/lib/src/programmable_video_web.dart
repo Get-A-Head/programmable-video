@@ -193,43 +193,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     _localParticipantListener = null;
   }
 
-  @override
-  Future<bool> enableAudioTrack(bool enable, String name) {
-    final localAudioTracks = _room?.localParticipant.audioTracks.values();
-    if (localAudioTracks != null) {
-      iteratorForEach<LocalAudioTrackPublication>(localAudioTracks, (localAudioTrack) {
-        final found = localAudioTrack.trackName == name;
-        if (found) {
-          enable ? localAudioTrack.track.enable() : localAudioTrack.track.disable();
-        }
-        return found;
-      });
-      debug('${enable ? 'Enabled' : 'Disabled'} Local Audio Track');
-      return Future(() => enable);
-    } else {
-      throw PlatformException(code: 'NOT_FOUND', message: 'No LocalAudioTrack found with the name \'$name\'');
-    }
-  }
-
-  @override
-  Future<bool> enableVideoTrack(bool enabled, String name) {
-    final localVideoTracks = _room?.localParticipant.videoTracks.values();
-    if (localVideoTracks != null) {
-      iteratorForEach<LocalVideoTrackPublication>(localVideoTracks, (localVideoTrack) {
-        final found = localVideoTrack.trackName == name;
-        if (found) {
-          enabled ? localVideoTrack.track.enable() : localVideoTrack.track.disable();
-        }
-        return found;
-      });
-
-      debug('${enabled ? 'Enabled' : 'Disabled'} Local Video Track');
-      return Future(() => enabled);
-    } else {
-      throw PlatformException(code: 'NOT_FOUND', message: 'No LocalVideoTrack found with the name \'$name\'');
-    }
-  }
-
   /// ### Gets the [MediaStream] from the `getDisplayMedia` method natively.
   ///
   /// - If it is not supported, it will fallback to `getUserMedia` with the `video: {mediaSource: 'screen'}` constraint.
@@ -328,6 +291,43 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       } catch (err) {
         debug('Error at stopScreenShare() >> $err');
       }
+    }
+  }
+
+  @override
+  Future<bool> enableAudioTrack(bool enable, String name) {
+    final localAudioTracks = _room?.localParticipant.audioTracks.values();
+    if (localAudioTracks != null) {
+      iteratorForEach<LocalAudioTrackPublication>(localAudioTracks, (localAudioTrack) {
+        final found = localAudioTrack.trackName == name;
+        if (found) {
+          enable ? localAudioTrack.track.enable() : localAudioTrack.track.disable();
+        }
+        return found;
+      });
+      debug('${enable ? 'Enabled' : 'Disabled'} Local Audio Track');
+      return Future(() => enable);
+    } else {
+      throw PlatformException(code: 'NOT_FOUND', message: 'No LocalAudioTrack found with the name \'$name\'');
+    }
+  }
+
+  @override
+  Future<bool> enableVideoTrack(bool enabled, String name) {
+    final localVideoTracks = _room?.localParticipant.videoTracks.values();
+    if (localVideoTracks != null) {
+      iteratorForEach<LocalVideoTrackPublication>(localVideoTracks, (localVideoTrack) {
+        final found = localVideoTrack.trackName == name;
+        if (found) {
+          enabled ? localVideoTrack.track.enable() : localVideoTrack.track.disable();
+        }
+        return found;
+      });
+
+      debug('${enabled ? 'Enabled' : 'Disabled'} Local Video Track');
+      return Future(() => enabled);
+    } else {
+      throw PlatformException(code: 'NOT_FOUND', message: 'No LocalVideoTrack found with the name \'$name\'');
     }
   }
 
