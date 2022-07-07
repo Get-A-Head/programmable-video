@@ -18,7 +18,7 @@ class CameraSource {
   ///
   /// **NOTE**: Should not be used outside of the plugin.
   /// Use [CameraSource.getSources] to retrieve a list of [CameraSource]s.
-  const CameraSource(
+  CameraSource(
     this.cameraId,
     bool? isFrontFacing,
     bool? isBackFacing,
