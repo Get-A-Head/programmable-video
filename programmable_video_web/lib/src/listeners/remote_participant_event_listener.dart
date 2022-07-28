@@ -3,6 +3,8 @@ import 'dart:html';
 
 import 'package:dartlin/control_flow.dart';
 import 'package:js/js.dart';
+import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
+import 'package:twilio_programmable_video_web/src/interop/classes/js_map.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/remote_audio_track.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/remote_audio_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/remote_data_track.dart';
@@ -15,7 +17,6 @@ import 'package:twilio_programmable_video_web/src/interop/classes/track.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/twilio_error.dart';
 import 'package:twilio_programmable_video_web/src/interop/network_quality_level.dart';
 import 'package:twilio_programmable_video_web/src/listeners/base_listener.dart';
-import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 class RemoteParticipantEventListener extends BaseListener {
   final RemoteParticipant _remoteParticipant;
@@ -124,12 +125,14 @@ class RemoteParticipantEventListener extends BaseListener {
     );
   }
 
-  void onTrackPublishedVideo(RemoteVideoTrackPublication publication) => _remoteParticipantController.add(
-        RemoteVideoTrackPublished(
-          _remoteParticipant.toModel(),
-          publication.toModel(),
-        ),
-      );
+  void onTrackPublishedVideo(RemoteVideoTrackPublication publication) {
+    _remoteParticipantController.add(
+      RemoteVideoTrackPublished(
+        _remoteParticipant.toModel(),
+        publication.toModel(),
+      ),
+    );
+  }
 
   void onTrackUnpublished(RemoteTrackPublication publication) {
     debug('Added Remote${capitalize(publication.kind)}TrackUnpublished Event');
@@ -195,6 +198,10 @@ class RemoteParticipantEventListener extends BaseListener {
             remoteVideoTrackModel: (track as RemoteVideoTrack).toModel(),
           ),
         );
+        if (_remoteParticipant.videoTracks.toDartMap()[publication.trackSid] != null) {
+          debug('Remote participant >> Adding missing video track to remote participants video track list');
+          _remoteParticipant.videoTracks.toDartMap()[publication.trackSid] = publication;
+        }
       },
     });
   }

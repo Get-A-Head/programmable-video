@@ -54,8 +54,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     _createLocalViewFactory();
   }
 
-  static void _createLocalViewFactory() {
-    ui.platformViewRegistry.registerViewFactory('local-video-track-html', (int viewId) {
+  static void _createLocalViewFactory({String name = 'local-video-track-html'}) {
+    ui.platformViewRegistry.registerViewFactory(name, (int viewId) {
       final room = _room;
       if (room != null) {
         final localVideoTrackElement = room.localParticipant.videoTracks.values().next().value.track.attach()..style.objectFit = 'cover';
@@ -70,15 +70,22 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   static void _createRemoteViewFactory(String remoteParticipantSid, String remoteVideoTrackSid) {
     ui.platformViewRegistry.registerViewFactory('remote-video-track-#$remoteVideoTrackSid-html', (int viewId) {
-      final remoteVideoTrack = _room?.participants.toDartMap()[remoteParticipantSid]?.videoTracks.toDartMap()[remoteVideoTrackSid]?.track;
-      // flatten this out
+      final remoteParticipant = _room?.participants.toDartMap()[remoteParticipantSid];
+      final remoteVideoTrackPublication = remoteParticipant?.videoTracks.toDartMap()[remoteVideoTrackSid];
+      if (remoteVideoTrackPublication != null) {
+        //This assumes that the remote video track is already attached to the remote participant.
+        //If the remote video track is not attached to the remote participant, the view will not be created.
+        final remoteVideoTrack = remoteVideoTrackPublication.track;
+        // flatten this out
 
-      if (remoteVideoTrack != null) {
-        final remoteVideoTrackElement = remoteVideoTrack.attach()..style.objectFit = 'cover';
-        debug('Created remote video track view for: $remoteParticipantSid');
-        return remoteVideoTrackElement;
+        if (remoteVideoTrack != null) {
+          final remoteVideoTrackElement = remoteVideoTrack.attach()..style.objectFit = 'cover';
+          debug('Created remote video track view for: $remoteParticipantSid');
+          return remoteVideoTrackElement;
+        } else {
+          return html.DivElement();
+        }
       } else {
-        // TODO: review behaviour in scenario where `_room` is `null`.
         return html.DivElement();
       }
     });
@@ -106,11 +113,11 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   }) {
     key ??= ValueKey(remoteVideoTrackSid);
 
-    if (!_registeredRemoteParticipantViewFactories.contains(remoteParticipantSid)) {
+    if (!_registeredRemoteParticipantViewFactories.contains(remoteVideoTrackSid)) {
       _createRemoteViewFactory(remoteParticipantSid, remoteVideoTrackSid);
-      _registeredRemoteParticipantViewFactories.add(remoteParticipantSid);
+      _registeredRemoteParticipantViewFactories.add(remoteVideoTrackSid);
+      debug('Created remote video track widget for: $remoteVideoTrackSid');
     }
-    debug('Created remote video track widget for: $remoteParticipantSid');
     return HtmlElementView(viewType: 'remote-video-track-#$remoteVideoTrackSid-html', key: key);
   }
 
@@ -254,8 +261,13 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         );
 
         final publishedTrack = await localParticipant.publishTrack(shareLocalTrack);
-        debug('Published track >> ${publishedTrack.trackName}');
+
+        localParticipant.videoTracks.toDartMap()[publishedTrack.trackSid] = publishedTrack as LocalVideoTrackPublication;
+        debug('Published track >> ${publishedTrack.trackSid}');
         debug('Published track >> ${publishedTrack.track.toString()}');
+
+        _createLocalViewFactory(name: 'local-video-track-#${publishedTrack.trackSid}-html');
+        debug('Created view factory for >> ${publishedTrack.trackSid}');
 
         // listen to the track and unpublish it when it ends
         shareTrack!.onEnded.listen((_) {
