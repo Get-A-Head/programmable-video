@@ -25,7 +25,7 @@ class MockInterface extends ProgrammableVideoPlatform {
   var disconnectWasCalled = false;
 
   @override
-  Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
+  Widget createLocalVideoTrackWidget({String videoTrackSid = '', bool mirror = true, Key? key}) {
     key ??= ValueKey('Twilio_LocalParticipant');
     return Container(key: key);
   }

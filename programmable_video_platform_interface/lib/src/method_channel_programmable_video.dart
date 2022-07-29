@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
-import 'package:twilio_programmable_video_platform_interface/src/models/capturers/camera_event.dart';
 import 'package:twilio_programmable_video_platform_interface/src/camera_source.dart';
+import 'package:twilio_programmable_video_platform_interface/src/models/capturers/camera_event.dart';
 
 import 'enums/enum_exports.dart';
 import 'models/local_participant/local_participant_event.dart';
@@ -64,7 +64,7 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
   //#region Functions
   /// Calls native code to create a widget displaying the LocalVideoTrack's video.
   @override
-  Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
+  Widget createLocalVideoTrackWidget({String videoTrackSid = '', bool mirror = true, Key? key}) {
     key ??= ValueKey('Twilio_LocalParticipant');
 
     final creationParams = {
@@ -330,12 +330,14 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
 
     LocalParticipantModel? localParticipant;
     if (roomMap['localParticipant'] != null) {
-      localParticipant = LocalParticipantModel.fromEventChannelMap(Map<String, dynamic>.from(roomMap['localParticipant']));
+      localParticipant =
+          LocalParticipantModel.fromEventChannelMap(Map<String, dynamic>.from(roomMap['localParticipant']));
     }
 
     final remoteParticipants = <RemoteParticipantModel>[];
     if (roomMap['remoteParticipants'] != null) {
-      final List<Map<String, dynamic>> remoteParticipantsList = roomMap['remoteParticipants'].map<Map<String, dynamic>>((r) => Map<String, dynamic>.from(r)).toList();
+      final List<Map<String, dynamic>> remoteParticipantsList =
+          roomMap['remoteParticipants'].map<Map<String, dynamic>>((r) => Map<String, dynamic>.from(r)).toList();
 
       for (final remoteParticipantMap in remoteParticipantsList) {
         remoteParticipants.add(RemoteParticipantModel.fromEventChannelMap(remoteParticipantMap));
@@ -414,7 +416,8 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
   /// This stream is used to update the RemoteParticipants in a plugin implementation.
   @override
   Stream<BaseRemoteParticipantEvent> remoteParticipantStream(int internalId) {
-    _remoteParticipantStream ??= _remoteParticipantChannel.receiveBroadcastStream(internalId).map(_parseRemoteParticipantEvent);
+    _remoteParticipantStream ??=
+        _remoteParticipantChannel.receiveBroadcastStream(internalId).map(_parseRemoteParticipantEvent);
     return _remoteParticipantStream!;
   }
 
@@ -433,11 +436,13 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
     late RemoteAudioTrackPublicationModel remoteAudioTrackPublicationModel;
     if (data['remoteAudioTrackPublication'] != null) {
       final remoteAudioTrackPublicationMap = Map<String, dynamic>.from(data['remoteAudioTrackPublication']);
-      remoteAudioTrackPublicationModel = RemoteAudioTrackPublicationModel.fromEventChannelMap(remoteAudioTrackPublicationMap);
+      remoteAudioTrackPublicationModel =
+          RemoteAudioTrackPublicationModel.fromEventChannelMap(remoteAudioTrackPublicationMap);
     }
 
     RemoteAudioTrackModel? remoteAudioTrackModel;
-    if (['audioTrackSubscribed', 'audioTrackUnsubscribed', 'audioTrackEnabled', 'audioTrackDisabled'].contains(eventName)) {
+    if (['audioTrackSubscribed', 'audioTrackUnsubscribed', 'audioTrackEnabled', 'audioTrackDisabled']
+        .contains(eventName)) {
       remoteAudioTrackModel = remoteAudioTrackPublicationModel.remoteAudioTrack;
       if (remoteAudioTrackModel == null) {
         final remoteAudioTrackMap = Map<String, dynamic>.from(data['remoteAudioTrack']);
@@ -448,7 +453,8 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
     late RemoteDataTrackPublicationModel remoteDataTrackPublicationModel;
     if (data['remoteDataTrackPublication'] != null) {
       final remoteDataTrackPublicationMap = Map<String, dynamic>.from(data['remoteDataTrackPublication']);
-      remoteDataTrackPublicationModel = RemoteDataTrackPublicationModel.fromEventChannelMap(remoteDataTrackPublicationMap);
+      remoteDataTrackPublicationModel =
+          RemoteDataTrackPublicationModel.fromEventChannelMap(remoteDataTrackPublicationMap);
     }
 
     RemoteDataTrackModel? remoteDataTrackModel;
@@ -463,11 +469,13 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
     late RemoteVideoTrackPublicationModel remoteVideoTrackPublicationModel;
     if (data['remoteVideoTrackPublication'] != null) {
       final remoteVideoTrackPublicationMap = Map<String, dynamic>.from(data['remoteVideoTrackPublication']);
-      remoteVideoTrackPublicationModel = RemoteVideoTrackPublicationModel.fromEventChannelMap(remoteVideoTrackPublicationMap);
+      remoteVideoTrackPublicationModel =
+          RemoteVideoTrackPublicationModel.fromEventChannelMap(remoteVideoTrackPublicationMap);
     }
 
     RemoteVideoTrackModel? remoteVideoTrackModel;
-    if (['videoTrackSubscribed', 'videoTrackUnsubscribed', 'videoTrackEnabled', 'videoTrackDisabled'].contains(eventName)) {
+    if (['videoTrackSubscribed', 'videoTrackUnsubscribed', 'videoTrackEnabled', 'videoTrackDisabled']
+        .contains(eventName)) {
       remoteVideoTrackModel = remoteVideoTrackPublicationModel.remoteVideoTrack;
       if (remoteVideoTrackModel == null) {
         final remoteVideoTrackMap = Map<String, dynamic>.from(data['remoteVideoTrack']);
@@ -606,7 +614,8 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
       case 'networkQualityLevelChanged':
         NetworkQualityLevel? networkQualityLevel;
         if (data['networkQualityLevel'] != null) {
-          networkQualityLevel = EnumToString.fromString(NetworkQualityLevel.values, data['networkQualityLevel']) ?? NetworkQualityLevel.NETWORK_QUALITY_LEVEL_UNKNOWN;
+          networkQualityLevel = EnumToString.fromString(NetworkQualityLevel.values, data['networkQualityLevel']) ??
+              NetworkQualityLevel.NETWORK_QUALITY_LEVEL_UNKNOWN;
         }
 
         final networkQualityLevelEnum = networkQualityLevel;
@@ -631,7 +640,8 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
   /// This stream is used to update the LocalParticipant in a plugin implementation.
   @override
   Stream<BaseLocalParticipantEvent> localParticipantStream(int internalId) {
-    _localParticipantStream ??= _localParticipantChannel.receiveBroadcastStream(internalId).map(_parseLocalParticipantEvent);
+    _localParticipantStream ??=
+        _localParticipantChannel.receiveBroadcastStream(internalId).map(_parseLocalParticipantEvent);
     return _localParticipantStream!;
   }
 
@@ -643,7 +653,8 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
       return SkipAbleLocalParticipantEvent();
     }
 
-    final localParticipantModel = LocalParticipantModel.fromEventChannelMap(Map<String, dynamic>.from(data['localParticipant']));
+    final localParticipantModel =
+        LocalParticipantModel.fromEventChannelMap(Map<String, dynamic>.from(data['localParticipant']));
 
     final String? eventName = event['name'];
 
@@ -660,7 +671,8 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
         LocalAudioTrackPublicationModel? localAudioTrackPublication;
         if (data['localAudioTrackPublication'] != null) {
           final localAudioTrackPublicationMap = Map<String, dynamic>.from(data['localAudioTrackPublication']);
-          localAudioTrackPublication = LocalAudioTrackPublicationModel.fromEventChannelMap(localAudioTrackPublicationMap);
+          localAudioTrackPublication =
+              LocalAudioTrackPublicationModel.fromEventChannelMap(localAudioTrackPublicationMap);
         }
 
         final localAudioTrackPublicationModel = localAudioTrackPublication;
@@ -746,7 +758,8 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
       case 'networkQualityLevelChanged':
         NetworkQualityLevel? networkQualityLevel;
         if (data['networkQualityLevel'] != null) {
-          networkQualityLevel = EnumToString.fromString(NetworkQualityLevel.values, data['networkQualityLevel']) ?? NetworkQualityLevel.NETWORK_QUALITY_LEVEL_UNKNOWN;
+          networkQualityLevel = EnumToString.fromString(NetworkQualityLevel.values, data['networkQualityLevel']) ??
+              NetworkQualityLevel.NETWORK_QUALITY_LEVEL_UNKNOWN;
         }
 
         final networkQualityLevelEnum = networkQualityLevel;
@@ -775,7 +788,8 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
   /// This stream is used to update the RemoteDataTrack in a plugin implementation.
   @override
   Stream<BaseRemoteDataTrackEvent> remoteDataTrackStream(int internalId) {
-    _remoteDataTrackStream ??= _remoteDataTrackChannel.receiveBroadcastStream(internalId).map(_parseRemoteDataTrackEvent);
+    _remoteDataTrackStream ??=
+        _remoteDataTrackChannel.receiveBroadcastStream(internalId).map(_parseRemoteDataTrackEvent);
     return _remoteDataTrackStream!;
   }
 
@@ -787,7 +801,8 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
     if (data['remoteDataTrack'] == null) {
       return SkipAbleRemoteDataTrackEvent();
     }
-    final remoteDataTrackModel = RemoteDataTrackModel.fromEventChannelMap(Map<String, dynamic>.from(data['remoteDataTrack']));
+    final remoteDataTrackModel =
+        RemoteDataTrackModel.fromEventChannelMap(Map<String, dynamic>.from(data['remoteDataTrack']));
     switch (eventName) {
       case 'stringMessage':
         return StringMessage(remoteDataTrackModel, data['message'] as String?);

@@ -17,7 +17,9 @@ class LocalVideoTrack extends VideoTrack {
 
   /// Construct from a [LocalVideoTrackModel].
   factory LocalVideoTrack._fromModel(LocalVideoTrackModel model) {
-    var videoCapturer = model.cameraCapturer.type == 'CameraCapturer' ? CameraCapturer._fromModel(model.cameraCapturer) : throw Exception('Received unknown VideoCapturer');
+    var videoCapturer = model.cameraCapturer.type == 'CameraCapturer'
+        ? CameraCapturer._fromModel(model.cameraCapturer)
+        : throw Exception('Received unknown VideoCapturer');
     var localVideoTrack = LocalVideoTrack(model.enabled, videoCapturer, name: model.name);
     localVideoTrack._updateFromModel(model);
     return localVideoTrack;
@@ -48,10 +50,11 @@ class LocalVideoTrack extends VideoTrack {
   ///
   /// By default the widget will be mirrored, to change that set [mirror] to false.
   /// If you provide a [key] make sure it is unique among all [VideoTrack]s otherwise Flutter might send the wrong creation params to the native side.
-  Widget widget({bool mirror = true, Key? key}) {
+  Widget widget({String videoTrackSid = '', bool mirror = true, Key? key}) {
     key ??= ValueKey('Twilio_LocalParticipant');
 
     return ProgrammableVideoPlatform.instance.createLocalVideoTrackWidget(
+      videoTrackSid: videoTrackSid,
       mirror: mirror,
       key: key,
     );

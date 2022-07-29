@@ -43,7 +43,7 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
 
   //#region Functions
   /// Calls native code to create a widget displaying the LocalVideoTrack's video.
-  Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
+  Widget createLocalVideoTrackWidget({String videoTrackSid = '', bool mirror = true, Key? key}) {
     throw UnimplementedError('createLocalVideoTrackWidget() has not been implemented.');
   }
 
