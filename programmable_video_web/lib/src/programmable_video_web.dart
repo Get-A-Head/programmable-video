@@ -43,8 +43,11 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static var _nativeDebug = false;
   static var _sdkDebugSetup = false;
   static final _registeredRemoteParticipantViewFactories = [];
-  static final _registeredLocalParticipantViewFactories = [];
+  // static final _registeredLocalParticipantViewFactories = [];
   static html.MediaStreamTrack? shareTrack;
+  static html.VideoElement? _webcamVideoElement;
+  static Widget? _webcamWidget;
+  static var _shareTrackSid = '';
 
   static void debug(String msg) {
     if (_nativeDebug) _loggingStreamController.add(msg);
@@ -55,19 +58,21 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     _createLocalViewFactory();
   }
 
-  static void _createLocalViewFactory({String videoTrackSid = 'local-video-track-html'}) {
-    ui.platformViewRegistry.registerViewFactory(videoTrackSid, (int viewId) {
+  static void _createLocalViewFactory({bool isScreenShare = false}) {
+    final htmlTag = !isScreenShare ? 'local-video-track-html' : 'local-screen-share-track-html';
+    ui.platformViewRegistry.registerViewFactory(htmlTag, (int viewId) {
       final room = _room;
       if (room != null) {
         debug('Creating local video track view for:  ${room.localParticipant.sid}');
-        if (videoTrackSid == 'local-video-track-html') {
+        if (!isScreenShare) {
           final localVideoTrackElement = room.localParticipant.videoTracks.values().next().value.track.attach()
             ..style.objectFit = 'cover';
           return localVideoTrackElement;
         } else {
           final localVideoTrackElement;
-          final localVideoTrackPublication = room.localParticipant.videoTracks.toDartMap()[videoTrackSid];
+          final localVideoTrackPublication = room.localParticipant.videoTracks.toDartMap()[_shareTrackSid];
           if (localVideoTrackPublication != null) {
+            // localVideoTrackElement = localVideoTrackPublication.track.attach()
             localVideoTrackElement = localVideoTrackPublication.track.attach()..style.objectFit = 'cover';
           } else {
             return html.DivElement();
@@ -105,19 +110,14 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   //#region Functions
   @override
-  Widget createLocalVideoTrackWidget({String videoTrackSid = '', bool mirror = true, Key? key}) {
+  Widget createLocalVideoTrackWidget({bool isScreenShare = false, bool mirror = true, Key? key}) {
     final room = _room;
 
     if (room != null) {
-      var sid = 'local-video-track-html';
-      if (videoTrackSid.isNotEmpty) sid = 'local-video-track-#$videoTrackSid-html';
-      if (!_registeredLocalParticipantViewFactories.contains(videoTrackSid)) {
-        debug('Local video track not registered for:  $videoTrackSid');
-        _createLocalViewFactory(videoTrackSid: sid);
-        _registeredLocalParticipantViewFactories.add(videoTrackSid);
-      }
+      _createLocalViewFactory(isScreenShare: isScreenShare);
       debug('Created local video track widget for: ${room.localParticipant.sid}');
-      return HtmlElementView(viewType: sid, key: key);
+      return HtmlElementView(
+          viewType: !isScreenShare ? 'local-video-track-html' : 'local-screen-share-track-html', key: key);
     } else {
       throw Exception('NotConnected. LocalVideoTrack is not fully initialized until connection.');
     }
@@ -261,13 +261,20 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   /// [Exception] : screen share _**failed**_ or is _**not supported by the browser**_
   ///
   /// This function uses the Twilio Programmable Video SDK to [publish a track](https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/LocalParticipant.html#publishTrack__anchor)
-  @override
-  Future<bool?> startScreenShare() async {
+  Future<Widget?> startScreenShare() async {
     final room = _room;
     if (room != null) {
       try {
+        final tag = 'screen-share-html';
+        _webcamVideoElement = html.VideoElement();
+        ui.platformViewRegistry.registerViewFactory(tag, (int viewId) => _webcamVideoElement);
+
+        _webcamWidget = HtmlElementView(viewType: tag);
+
         final mediaStream = await _getDisplayMedia({'video': true});
         shareTrack = mediaStream.getTracks().first;
+        _webcamVideoElement!.srcObject = mediaStream;
+        _webcamVideoElement!.autoplay = true;
 
         debug(' >>> shareTrack.kind: ${shareTrack!.kind}');
         debug(' >>> shareTrack.id: ${shareTrack!.id}');
@@ -287,24 +294,25 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
         final publishedTrack = await localParticipant.publishTrack(shareLocalTrack);
 
-        localParticipant.videoTracks.toDartMap()[publishedTrack.trackSid] =
-            publishedTrack as LocalVideoTrackPublication;
-        debug('Published track >> ${publishedTrack.trackSid}');
+        _shareTrackSid = publishedTrack.trackSid;
+
+        localParticipant.videoTracks.toDartMap()[_shareTrackSid] = publishedTrack as LocalVideoTrackPublication;
+        debug('Published track sid >> $_shareTrackSid');
         debug('Published track >> ${publishedTrack.track.toString()}');
 
-        // _createLocalViewFactory(name: 'local-video-track-#${publishedTrack.trackSid}-html');
-        debug('Created view factory for >> ${publishedTrack.trackSid}');
+        debug('Created view factory for >> local screen share');
 
         // listen to the track and unpublish it when it ends
         shareTrack!.onEnded.listen((_) {
           debug('Screen share track ended');
           shareTrack!.stop();
           localParticipant.unpublishTrack(shareTrack);
+          _shareTrackSid = '';
         });
-        return true;
+        return _webcamWidget;
       } catch (err) {
         debug('Screen share permission not allowed: ${err.toString()}');
-        return false;
+        return Container();
       }
     }
   }
@@ -323,6 +331,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
           if (found) {
             localVideoTrack.track.stop();
             localParticipant.unpublishTrack(localVideoTrack.track);
+            _shareTrackSid = '';
           }
           return found;
         });

@@ -89,7 +89,7 @@ class TwilioProgrammableVideo {
   /// [Exception] : screen share _**failed**_ or is _**not supported by the browser**_
   ///
   /// This function uses the Twilio Programmable Video SDK to [publish a track](https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/LocalParticipant.html#publishTrack__anchor)
-  static Future<bool?> startScreenShare() async {
+  static Future<Widget?> startScreenShare() async {
     return ProgrammableVideoPlatform.instance.startScreenShare();
   }
 

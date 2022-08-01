@@ -43,7 +43,7 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
 
   //#region Functions
   /// Calls native code to create a widget displaying the LocalVideoTrack's video.
-  Widget createLocalVideoTrackWidget({String videoTrackSid = '', bool mirror = true, Key? key}) {
+  Widget createLocalVideoTrackWidget({bool isScreenShare = false, bool mirror = true, Key? key}) {
     throw UnimplementedError('createLocalVideoTrackWidget() has not been implemented.');
   }
 
@@ -149,7 +149,7 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
   /// [Exception] : screen share _**failed**_ or is _**not supported by the browser**_
   ///
   /// This function uses the Twilio Programmable Video SDK to [publish a track](https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/LocalParticipant.html#publishTrack__anchor)
-  Future<bool?> startScreenShare() {
+  Future<Widget?> startScreenShare() {
     throw UnimplementedError('startScreenShare() has not been implemented.');
   }
 

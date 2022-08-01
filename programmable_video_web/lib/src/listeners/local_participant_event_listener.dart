@@ -67,7 +67,7 @@ class LocalParticipantEventListener extends BaseListener {
           (publication as LocalVideoTrackPublication).toModel(),
         ));
         if (_localParticipant.videoTracks.toDartMap()[publication.trackSid] != null) {
-          debug('Remote participant >> Adding missing video track to remote participants video track list');
+          debug('Remote participant >> Adding video track publication to remote participant video track list');
           _localParticipant.videoTracks.toDartMap()[publication.trackSid] = publication;
         }
       },
