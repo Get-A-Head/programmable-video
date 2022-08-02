@@ -251,7 +251,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   /// Calls native code to start screen share
   ///
-  /// * Returns a [Future] that completes with a [bool] indicating whether the screen share init was successful.
+  /// * Returns a [Future] that completes with a [Widget] indicating whether the screen share init was successful.
   ///
   /// ### Possible outcomes:
   /// [true] : the screen share was _**successful**_
@@ -267,7 +267,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       try {
         final tag = 'screen-share-html';
         _webcamVideoElement = html.VideoElement();
-        ui.platformViewRegistry.registerViewFactory(tag, (int viewId) => _webcamVideoElement);
+        ui.platformViewRegistry.registerViewFactory(tag, (int viewId) => _webcamVideoElement!);
 
         _webcamWidget = HtmlElementView(viewType: tag);
 
