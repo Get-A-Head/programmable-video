@@ -49,14 +49,14 @@ class RemoteParticipantEventListener extends BaseListener {
   }
 
   void _on(String eventName, Function eventHandler) => _remoteParticipant.on(
-    eventName,
-    allowInterop(eventHandler),
-  );
+        eventName,
+        allowInterop(eventHandler),
+      );
 
   void _off(String eventName, Function eventHandler) => _remoteParticipant.off(
-    eventName,
-    allowInterop(eventHandler),
-  );
+        eventName,
+        allowInterop(eventHandler),
+      );
 
   void onTrackDisabled(RemoteTrackPublication publication) {
     debug('Added Remote${capitalize(publication.kind)}TrackDisabled Event');
@@ -66,10 +66,11 @@ class RemoteParticipantEventListener extends BaseListener {
     });
   }
 
-  void onTrackDisabledAudio(RemoteAudioTrackPublication publication) => _remoteParticipantController.add(RemoteAudioTrackDisabled(
-    _remoteParticipant.toModel(),
-    publication.toModel(),
-  ));
+  void onTrackDisabledAudio(RemoteAudioTrackPublication publication) =>
+      _remoteParticipantController.add(RemoteAudioTrackDisabled(
+        _remoteParticipant.toModel(),
+        publication.toModel(),
+      ));
 
   void onTrackDisabledVideo(RemoteVideoTrackPublication publication) {
     _remoteParticipantController.add(RemoteVideoTrackDisabled(
@@ -87,18 +88,18 @@ class RemoteParticipantEventListener extends BaseListener {
   }
 
   void onTrackEnabledAudio(RemoteAudioTrackPublication publication) => _remoteParticipantController.add(
-    RemoteAudioTrackEnabled(
-      _remoteParticipant.toModel(),
-      publication.toModel(),
-    ),
-  );
+        RemoteAudioTrackEnabled(
+          _remoteParticipant.toModel(),
+          publication.toModel(),
+        ),
+      );
 
   void onTrackEnabledVideo(RemoteVideoTrackPublication publication) => _remoteParticipantController.add(
-    RemoteVideoTrackEnabled(
-      _remoteParticipant.toModel(),
-      publication.toModel(),
-    ),
-  );
+        RemoteVideoTrackEnabled(
+          _remoteParticipant.toModel(),
+          publication.toModel(),
+        ),
+      );
 
   void onTrackPublished(RemoteTrackPublication publication) {
     debug('Added Remote${capitalize(publication.kind)}TrackPublished Event');
@@ -110,11 +111,11 @@ class RemoteParticipantEventListener extends BaseListener {
   }
 
   void onTrackPublishedAudio(RemoteAudioTrackPublication publication) => _remoteParticipantController.add(
-    RemoteAudioTrackPublished(
-      _remoteParticipant.toModel(),
-      publication.toModel(),
-    ),
-  );
+        RemoteAudioTrackPublished(
+          _remoteParticipant.toModel(),
+          publication.toModel(),
+        ),
+      );
 
   void onTrackPublishedData(RemoteDataTrackPublication publication) {
     _remoteParticipantController.add(
@@ -147,25 +148,25 @@ class RemoteParticipantEventListener extends BaseListener {
   }
 
   void onTrackUnpublishedAudio(RemoteAudioTrackPublication publication) => _remoteParticipantController.add(
-    RemoteAudioTrackUnpublished(
-      _remoteParticipant.toModel(),
-      publication.toModel(),
-    ),
-  );
+        RemoteAudioTrackUnpublished(
+          _remoteParticipant.toModel(),
+          publication.toModel(),
+        ),
+      );
 
   void onTrackUnpublishedData(RemoteDataTrackPublication publication) => _remoteParticipantController.add(
-    RemoteDataTrackUnpublished(
-      _remoteParticipant.toModel(),
-      publication.toModel(),
-    ),
-  );
+        RemoteDataTrackUnpublished(
+          _remoteParticipant.toModel(),
+          publication.toModel(),
+        ),
+      );
 
   void onTrackUnpublishedVideo(RemoteVideoTrackPublication publication) => _remoteParticipantController.add(
-    RemoteVideoTrackUnpublished(
-      _remoteParticipant.toModel(),
-      publication.toModel(),
-    ),
-  );
+        RemoteVideoTrackUnpublished(
+          _remoteParticipant.toModel(),
+          publication.toModel(),
+        ),
+      );
 
   void onTrackSubscribed(Track track, RemoteTrackPublication publication) {
     debug('Added Remote${capitalize(track.kind)}TrackSubscribed Event');
@@ -240,7 +241,6 @@ class RemoteParticipantEventListener extends BaseListener {
         );
         debug('Remote participant >> Removing video track to remote participants video track list');
         _remoteParticipant.videoTracks.toDartMap().remove(publication.trackSid);
-
       },
     });
   }
