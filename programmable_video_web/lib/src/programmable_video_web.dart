@@ -97,7 +97,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
         if (remoteVideoTrack != null) {
           final remoteVideoTrackElement = remoteVideoTrack.attach()..style.objectFit = 'cover';
-          debug('Created remote video track view for: $remoteParticipantSid');
+          debug('Created remote video track view for: $remoteVideoTrackSid');
           return remoteVideoTrackElement;
         } else {
           return html.DivElement();
@@ -251,7 +251,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   /// Calls native code to start screen share
   ///
-  /// * Returns a [Future] that completes with a [Widget] indicating whether the screen share init was successful.
+  /// * Returns a [Future] that completes with a [bool] indicating whether the screen share init was successful.
   ///
   /// ### Possible outcomes:
   /// [true] : the screen share was _**successful**_
