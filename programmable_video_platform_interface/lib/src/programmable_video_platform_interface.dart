@@ -160,6 +160,21 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
     throw UnimplementedError('stopScreenShare() has not been implemented.');
   }
 
+  /// Calls native code to set the preferred camera device id.
+  Future<bool> setCameraDeviceId(String deviceId) async {
+    throw UnimplementedError('setCameraDeviceId has not been implemented.');
+  }
+
+  /// Calls native code to set the preferred microphone device id.
+  Future<bool> setMicrophoneDeviceId(String deviceId) async {
+    throw UnimplementedError('setCameraDeviceId has not been implemented.');
+  }
+
+  /// Calls native code to set the preferred speaker device id.
+  Future<bool> setSpeakerDeviceId(String deviceId) async {
+    throw UnimplementedError('setCameraDeviceId has not been implemented.');
+  }
+
   /// Calls native code to change the torch state.
   Future<void> setTorch(bool enabled) {
     throw UnimplementedError('setTorch(bool enabled) has not been implemented.');
