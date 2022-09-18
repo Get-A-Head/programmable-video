@@ -43,11 +43,24 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static var _nativeDebug = false;
   static var _sdkDebugSetup = false;
   static final _registeredRemoteParticipantViewFactories = [];
-  // static final _registeredLocalParticipantViewFactories = [];
+
+  //Variables to support screen share
   static html.MediaStreamTrack? shareTrack;
-  static html.VideoElement? _webcamVideoElement;
-  static Widget? _webcamWidget;
+  static html.VideoElement? _screenShareVideoElement;
+  static Widget? _screenShareWidget;
   static var _shareTrackSid = '';
+
+  // Camera variables
+  static html.MediaStream? cameraMediaStream;
+  static html.MediaStreamTrack? cameraTrack;
+  static html.VideoElement? _cameraVideoElement;
+
+  // Microphone variables
+  static html.MediaStream? microphoneMediaStream;
+  static html.MediaStreamTrack? microphoneTrack;
+  static html.AudioElement? _microphoneElement;
+
+  static String speakerDeviceId = 'default';
 
   static void debug(String msg) {
     if (_nativeDebug) _loggingStreamController.add(msg);
@@ -65,19 +78,18 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       if (room != null) {
         debug('Creating local video track view for:  ${room.localParticipant.sid}');
         if (!isScreenShare) {
-          final localVideoTrackElement = room.localParticipant.videoTracks.values().next().value.track.attach()
+          _cameraVideoElement = room.localParticipant.videoTracks.values().next().value.track.attach()
             ..style.objectFit = 'cover';
-          return localVideoTrackElement;
+          return _cameraVideoElement!;
         } else {
-          final localVideoTrackElement;
           final localVideoTrackPublication = room.localParticipant.videoTracks.toDartMap()[_shareTrackSid];
           if (localVideoTrackPublication != null) {
             // localVideoTrackElement = localVideoTrackPublication.track.attach()
-            localVideoTrackElement = localVideoTrackPublication.track.attach()..style.objectFit = 'cover';
+            _cameraVideoElement = localVideoTrackPublication.track.attach()..style.objectFit = 'cover';
           } else {
             return html.DivElement();
           }
-          return localVideoTrackElement;
+          return _cameraVideoElement!;
         }
       } else {
         return html.DivElement();
@@ -251,30 +263,31 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   /// Calls native code to start screen share
   ///
-  /// * Returns a [Future] that completes with a [bool] indicating whether the screen share init was successful.
+  /// * Returns a [Future] that completes with a [Widget] indicating whether the screen share init was successful.
   ///
   /// ### Possible outcomes:
-  /// [true] : the screen share was _**successful**_
+  /// [Widget] : the screen share was _**successful**_
   ///
-  /// [false] : the screen share was _**cancelled**_ or _**permission is not granted**_
+  /// [null] : the screen share was _**cancelled**_ or _**permission is not granted**_
   ///
   /// [Exception] : screen share _**failed**_ or is _**not supported by the browser**_
   ///
   /// This function uses the Twilio Programmable Video SDK to [publish a track](https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/LocalParticipant.html#publishTrack__anchor)
+  @override
   Future<Widget?> startScreenShare() async {
     final room = _room;
     if (room != null) {
       try {
         final tag = 'screen-share-html';
-        _webcamVideoElement = html.VideoElement();
-        ui.platformViewRegistry.registerViewFactory(tag, (int viewId) => _webcamVideoElement!);
+        _screenShareVideoElement = html.VideoElement();
+        ui.platformViewRegistry.registerViewFactory(tag, (int viewId) => _screenShareVideoElement!);
 
-        _webcamWidget = HtmlElementView(viewType: tag);
+        _screenShareWidget = HtmlElementView(viewType: tag);
 
         final mediaStream = await _getDisplayMedia({'video': true});
         shareTrack = mediaStream.getTracks().first;
-        _webcamVideoElement!.srcObject = mediaStream;
-        _webcamVideoElement!.autoplay = true;
+        _screenShareVideoElement!.srcObject = mediaStream;
+        _screenShareVideoElement!.autoplay = true;
 
         debug(' >>> shareTrack.kind: ${shareTrack!.kind}');
         debug(' >>> shareTrack.id: ${shareTrack!.id}');
@@ -309,7 +322,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
           localParticipant.unpublishTrack(shareTrack);
           _shareTrackSid = '';
         });
-        return _webcamWidget;
+        return _screenShareWidget;
       } catch (err) {
         debug('Screen share permission not allowed: ${err.toString()}');
         return Container();
@@ -320,6 +333,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   /// Calls native code to stop screen share
   ///
   /// This function uses the Twilio Programmable Video SDK to [unpublish a track](https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/LocalParticipant.html#unpublishTrack__anchor)
+  @override
   void stopScreenShare() async {
     final room = _room;
     if (room != null) {
@@ -339,6 +353,74 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         debug('Error at stopScreenShare() >> $err');
       }
     }
+  }
+
+  /// Calls native code to set the preferred camera device id.
+  @override
+  Future<bool> setCameraDeviceId(String deviceId) async {
+    final localVideoTracks = _room?.localParticipant.videoTracks.values();
+    if (localVideoTracks != null) {
+      final mediaDevices = html.window.navigator.mediaDevices;
+      await mediaDevices!.getUserMedia({
+        'video': {'deviceId': deviceId},
+      }).then((html.MediaStream stream) {
+        if (cameraMediaStream != null) {
+          cameraMediaStream!.getTracks().forEach((track) {
+            track.stop();
+          });
+          _room?.localParticipant.unpublishTrack(cameraTrack);
+        }
+        cameraMediaStream = stream;
+        cameraTrack = cameraMediaStream!.getTracks().first;
+        _cameraVideoElement!.srcObject = cameraMediaStream;
+        _cameraVideoElement!.autoplay = true;
+
+        _room?.localParticipant
+            .publishTrack(LocalVideoTrack(cameraTrack, CreateLocalTrackOptions(name: 'camera-device-' + deviceId)));
+      });
+      return Future(() => true);
+    } else {
+      throw PlatformException(code: 'NOT_FOUND', message: 'No LocalAudioTrack found with the name \'$deviceId\'');
+    }
+  }
+
+  /// Calls native code to set the preferred microphone device id.
+  @override
+  Future<bool> setMicrophoneDeviceId(String deviceId) {
+    final localAudioTracks = _room?.localParticipant.audioTracks.values();
+    if (localAudioTracks != null) {
+      final mediaDevices = html.window.navigator.mediaDevices;
+      mediaDevices!.getUserMedia({
+        'audio': {'deviceId': deviceId},
+      }).then((html.MediaStream stream) {
+        if (microphoneMediaStream != null) {
+          microphoneMediaStream!.getTracks().forEach((track) {
+            track.stop();
+          });
+          _room?.localParticipant.unpublishTrack(microphoneTrack);
+        }
+        microphoneMediaStream = stream;
+        microphoneTrack = microphoneMediaStream!.getTracks().first;
+        _room?.localParticipant.publishTrack(
+            LocalVideoTrack(microphoneTrack, CreateLocalTrackOptions(name: 'microphone-device-' + deviceId)));
+        // try {
+        //   _microphoneElement!.srcObject = microphoneMediaStream;
+        //   _microphoneElement!.autoplay = true;
+        // } catch (err) {
+        //   debug('Error at setMicrophoneDeviceId() >> $err');
+        // }
+      });
+      return Future(() => true);
+    } else {
+      throw PlatformException(code: 'NOT_FOUND', message: 'No LocalAudioTrack found with the name \'$deviceId\'');
+    }
+  }
+
+  /// Calls native code to set the preferred speaker device id.
+  @override
+  Future<bool> setSpeakerDeviceId(String deviceId) async {
+    speakerDeviceId = deviceId;
+    return Future(() => true);
   }
 
   @override
@@ -499,6 +581,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   /// Stream of the Screen share ended event.
   ///
   /// This stream is used to listen screen share termination from the user (not from ui).
+  @override
   Stream<dynamic>? onScreenShareEndedStream() {
     return shareTrack?.onEnded;
   }

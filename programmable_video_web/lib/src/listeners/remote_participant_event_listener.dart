@@ -17,6 +17,7 @@ import 'package:twilio_programmable_video_web/src/interop/classes/track.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/twilio_error.dart';
 import 'package:twilio_programmable_video_web/src/interop/network_quality_level.dart';
 import 'package:twilio_programmable_video_web/src/listeners/base_listener.dart';
+import 'package:twilio_programmable_video_web/src/programmable_video_web.dart';
 
 class RemoteParticipantEventListener extends BaseListener {
   final RemoteParticipant _remoteParticipant;
@@ -174,8 +175,11 @@ class RemoteParticipantEventListener extends BaseListener {
       'audio': () {
         final audioTrack = track as RemoteAudioTrack;
         final audioElement = audioTrack.attach();
-        audioElement.id = track.name;
-        document.body?.append(audioElement);
+        audioElement.setSinkId(ProgrammableVideoPlugin.speakerDeviceId).then((value) {
+          audioElement.id = track.name;
+          document.body?.append(audioElement);
+        });
+
         debug('Attached audio element');
         _remoteParticipantController.add(
           RemoteAudioTrackSubscribed(
@@ -221,6 +225,8 @@ class RemoteParticipantEventListener extends BaseListener {
             remoteAudioTrackModel: audioTrack.toModel(),
           ),
         );
+        debug('Remote participant >> Removing microphone track to remote participants audio track list');
+        _remoteParticipant.audioTracks.toDartMap().remove(publication.trackSid);
       },
       'data': () {
         _remoteParticipantController.add(
