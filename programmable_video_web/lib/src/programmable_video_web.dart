@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:html' as html;
+import 'dart:html';
 import 'dart:js_util' as js_util;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -25,6 +26,8 @@ import 'package:twilio_programmable_video_web/src/interop/version.dart';
 import 'package:twilio_programmable_video_web/src/listeners/local_participant_event_listener.dart';
 import 'package:twilio_programmable_video_web/src/listeners/room_event_listener.dart';
 import 'package:version/version.dart';
+
+import 'interop/classes/local_audio_track.dart';
 
 class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static Room? _room;
@@ -54,11 +57,12 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static html.MediaStream? cameraMediaStream;
   static html.MediaStreamTrack? cameraTrack;
   static html.VideoElement? _cameraVideoElement;
+  static LocalVideoTrack? _cameraLocalTrack;
 
   // Microphone variables
   static html.MediaStream? microphoneMediaStream;
   static html.MediaStreamTrack? microphoneTrack;
-  static html.AudioElement? _microphoneElement;
+  static LocalAudioTrack? _microphoneLocalTrack;
 
   static String speakerDeviceId = 'default';
 
@@ -374,9 +378,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         cameraTrack = cameraMediaStream!.getTracks().first;
         _cameraVideoElement!.srcObject = cameraMediaStream;
         _cameraVideoElement!.autoplay = true;
+        _cameraLocalTrack = LocalVideoTrack(cameraTrack, CreateLocalTrackOptions(name: 'camera-device-' + deviceId));
 
-        _room?.localParticipant
-            .publishTrack(LocalVideoTrack(cameraTrack, CreateLocalTrackOptions(name: 'camera-device-' + deviceId)));
+        _room?.localParticipant.publishTrack(_cameraLocalTrack);
       });
       return Future(() => true);
     } else {
@@ -401,14 +405,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         }
         microphoneMediaStream = stream;
         microphoneTrack = microphoneMediaStream!.getTracks().first;
-        _room?.localParticipant.publishTrack(
-            LocalVideoTrack(microphoneTrack, CreateLocalTrackOptions(name: 'microphone-device-' + deviceId)));
-        // try {
-        //   _microphoneElement!.srcObject = microphoneMediaStream;
-        //   _microphoneElement!.autoplay = true;
-        // } catch (err) {
-        //   debug('Error at setMicrophoneDeviceId() >> $err');
-        // }
+        _microphoneLocalTrack =
+            LocalAudioTrack(microphoneTrack, CreateLocalTrackOptions(name: 'microphone-device-' + deviceId));
+        _room?.localParticipant.publishTrack(_microphoneLocalTrack!);
       });
       return Future(() => true);
     } else {
@@ -420,6 +419,28 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   @override
   Future<bool> setSpeakerDeviceId(String deviceId) async {
     speakerDeviceId = deviceId;
+    final remoteParticipants = _room?.participants.values();
+
+    if (remoteParticipants != null) {
+      iteratorForEach<RemoteParticipant>(remoteParticipants, (remoteParticipant) {
+        final remoteAudioTracks = remoteParticipant.audioTracks.values();
+        iteratorForEach<RemoteAudioTrackPublication>(remoteAudioTracks, (remoteAudioTrack) {
+          final audioTrack = remoteAudioTrack.track;
+          if (audioTrack != null) {
+            debug('Detaching remote audio track >> ${audioTrack.name}');
+            audioTrack.detach();
+            debug('Attaching remote audio track >> ${audioTrack.name} to device >> $deviceId');
+            final audioElement = audioTrack.attach();
+            audioElement.setSinkId(speakerDeviceId).then((value) {
+              audioElement.id = audioTrack.name;
+              document.body?.append(audioElement);
+            });
+          }
+          return true;
+        });
+        return true;
+      });
+    }
     return Future(() => true);
   }
 
@@ -427,13 +448,12 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   Future<bool> enableAudioTrack(bool enable, String name) {
     final localAudioTracks = _room?.localParticipant.audioTracks.values();
     if (localAudioTracks != null) {
-      iteratorForEach<LocalAudioTrackPublication>(localAudioTracks, (localAudioTrack) {
-        final found = localAudioTrack.trackName == name;
-        if (found) {
-          enable ? localAudioTrack.track.enable() : localAudioTrack.track.disable();
-        }
-        return found;
-      });
+      final localAudioTrack = localAudioTracks.next().value;
+      if (enable) {
+        localAudioTrack.track.enable();
+      } else {
+        localAudioTrack.track.disable();
+      }
       debug('${enable ? 'Enabled' : 'Disabled'} Local Audio Track');
       return Future(() => enable);
     } else {
@@ -442,19 +462,17 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   }
 
   @override
-  Future<bool> enableVideoTrack(bool enabled, String name) {
+  Future<bool> enableVideoTrack(bool enable, String name) {
     final localVideoTracks = _room?.localParticipant.videoTracks.values();
     if (localVideoTracks != null) {
-      iteratorForEach<LocalVideoTrackPublication>(localVideoTracks, (localVideoTrack) {
-        final found = localVideoTrack.trackName == name;
-        if (found) {
-          enabled ? localVideoTrack.track.enable() : localVideoTrack.track.disable();
-        }
-        return found;
-      });
-
-      debug('${enabled ? 'Enabled' : 'Disabled'} Local Video Track');
-      return Future(() => enabled);
+      final localVideoTrack = localVideoTracks.next().value;
+      if (enable) {
+        localVideoTrack.track.enable();
+      } else {
+        localVideoTrack.track.disable();
+      }
+      debug('${enable ? 'Enabled' : 'Disabled'} Local Video Track');
+      return Future(() => enable);
     } else {
       throw PlatformException(code: 'NOT_FOUND', message: 'No LocalVideoTrack found with the name \'$name\'');
     }

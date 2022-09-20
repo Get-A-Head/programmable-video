@@ -152,6 +152,7 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
   /// Calls native code to set the state of the LocalVideoTrack.
   ///
   /// The results of this operation are signaled to other Participants in the same Room.
+  ///
   /// When a video track is disabled, blank frames are sent in place of video frames from a video capturer.
   @override
   Future<bool?> enableVideoTrack(bool enabled, String name) {
@@ -256,7 +257,7 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
 
 //#endregion
 
-//#region cameraStream
+  //#region cameraStream
   /// EventChannel over which the native code sends updates concerning the Room.
   final EventChannel _cameraChannel;
 
@@ -300,9 +301,9 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
     return SkipableCameraEvent();
   }
 
-//#endregion
+  //#endregion
 
-//#region roomStream
+  //#region roomStream
   /// EventChannel over which the native code sends updates concerning the Room.
   final EventChannel _roomChannel;
 
@@ -402,9 +403,9 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
     }
   }
 
-//#endregion
+  //#endregion
 
-//#region remoteParticipantStream
+  //#region remoteParticipantStream
 
   /// EventChannel over which the native code sends updates concerning the RemoteParticipants.
   final EventChannel _remoteParticipantChannel;
@@ -774,9 +775,9 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
     }
   }
 
-//#endregion
+  //#endregion
 
-//#region remoteDataTrackStream
+  //#region remoteDataTrackStream
 
   /// EventChannel over which the native code sends updates concerning the RemoteDataTrack.
   final EventChannel _remoteDataTrackChannel;
@@ -822,7 +823,7 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
     }
   }
 
-//#endregion
+  //#endregion
 
   /// Stream of dynamic that contains all the native logging output.
   @override
