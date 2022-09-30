@@ -1,4 +1,4 @@
 {
-    // This project requires a length of 240 characters.
-    "dart.lineLength": 240
+    "dart.lineLength": 240,
+    "editor.formatOnSave": true
 }

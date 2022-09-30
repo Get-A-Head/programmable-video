@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/widgets.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 class MockInterface extends ProgrammableVideoPlatform {
@@ -25,6 +26,23 @@ class MockInterface extends ProgrammableVideoPlatform {
   var sendMessageWasCalled = false;
   var sendBufferWasCalled = false;
   var disconnectWasCalled = false;
+
+  @override
+  Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
+    key ??= const ValueKey('Twilio_LocalParticipant');
+    return Container(key: key);
+  }
+
+  @override
+  Widget createRemoteVideoTrackWidget({
+    required String remoteParticipantSid,
+    required String remoteVideoTrackSid,
+    bool mirror = true,
+    Key? key,
+  }) {
+    key ??= ValueKey(remoteParticipantSid);
+    return Container(key: key);
+  }
 
   @override
   Future<void> disconnect() {

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/widgets.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:twilio_programmable_video_platform_interface/src/camera_source.dart';
 
@@ -40,6 +41,20 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
   }
 
   //#region Functions
+  /// Calls native code to create a widget displaying the LocalVideoTrack's video.
+  Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
+    throw UnimplementedError('createLocalVideoTrackWidget() has not been implemented.');
+  }
+
+  /// Calls native code to create a widget displaying a RemoteVideoTrack's video.
+  Widget createRemoteVideoTrackWidget({
+    required String remoteParticipantSid,
+    required String remoteVideoTrackSid,
+    bool mirror = true,
+    Key? key,
+  }) {
+    throw UnimplementedError('createRemoteVideoTrackWidget() has not been implemented.');
+  }
 
   /// Calls native code to disconnect from a room.
   Future<void> disconnect() {

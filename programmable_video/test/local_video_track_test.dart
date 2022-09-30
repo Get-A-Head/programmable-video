@@ -47,14 +47,4 @@ void main() {
       expect(localVideoTrack.isEnabled, !constructionBool);
     });
   });
-
-  group('.widget()', () {
-    test('should throw exception when not running on a platform', () async {
-      final localVideoTrack = LocalVideoTrack(
-        true,
-        CameraCapturer(const CameraSource('BACK_CAMERA', false, false, false)),
-      );
-      expect(() => localVideoTrack.widget(), throwsException);
-    });
-  });
 }

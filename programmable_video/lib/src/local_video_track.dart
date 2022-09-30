@@ -2,8 +2,6 @@ part of twilio_programmable_video;
 
 /// A local video track that gets video frames from a specified [VideoCapturer].
 class LocalVideoTrack extends VideoTrack {
-  Widget? _widget;
-
   final VideoCapturer _videoCapturer;
 
   /// Check if it is enabled.
@@ -97,37 +95,10 @@ class LocalVideoTrack extends VideoTrack {
   Widget widget({bool mirror = true, Key? key}) {
     key ??= const ValueKey('Twilio_LocalParticipant');
 
-    var creationParams = {
-      'isLocal': true,
-      'mirror': mirror,
-      'name': name,
-    };
-
-    if (Platform.isAndroid) {
-      return _widget ??= AndroidView(
-        key: key,
-        viewType: 'twilio_programmable_video/views',
-        creationParams: creationParams,
-        creationParamsCodec: const StandardMessageCodec(),
-        onPlatformViewCreated: (int viewId) {
-          TwilioProgrammableVideo._log('LocalVideoTrack => View created: $viewId, creationParams: $creationParams');
-        },
-      );
-    }
-
-    if (Platform.isIOS) {
-      return _widget ??= UiKitView(
-        key: key,
-        viewType: 'twilio_programmable_video/views',
-        creationParams: creationParams,
-        creationParamsCodec: const StandardMessageCodec(),
-        onPlatformViewCreated: (int viewId) {
-          TwilioProgrammableVideo._log('LocalVideoTrack => View created: $viewId, creationParams: $creationParams');
-        },
-      );
-    }
-
-    throw Exception('No widget implementation found for platform \'${Platform.operatingSystem}\'');
+    return ProgrammableVideoPlatform.instance.createLocalVideoTrackWidget(
+      mirror: mirror,
+      key: key,
+    );
   }
 
   /// Create [LocalVideoTrackModel] from properties.

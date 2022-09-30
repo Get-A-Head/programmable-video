@@ -1,7 +1,5 @@
 import 'package:twilio_programmable_video_platform_interface/src/models/model_exports.dart';
 
-import 'model_exports.dart';
-
 class PreviewOptionsModel {
   final LocalAudioTrackModel audioTrack;
   final LocalVideoTrackModel videoTrack;
