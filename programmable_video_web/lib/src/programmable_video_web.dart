@@ -5,7 +5,6 @@ import 'dart:js_util' as js_util;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
@@ -22,10 +21,8 @@ import 'package:twilio_programmable_video_web/src/interop/classes/remote_audio_t
 import 'package:twilio_programmable_video_web/src/interop/classes/remote_participant.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/room.dart';
 import 'package:twilio_programmable_video_web/src/interop/connect.dart';
-import 'package:twilio_programmable_video_web/src/interop/version.dart';
 import 'package:twilio_programmable_video_web/src/listeners/local_participant_event_listener.dart';
 import 'package:twilio_programmable_video_web/src/listeners/room_event_listener.dart';
-import 'package:version/version.dart';
 
 import 'interop/classes/local_audio_track.dart';
 
@@ -175,12 +172,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   Future<int> connectToRoom(ConnectOptionsModel connectOptions) async {
     _roomStreamController.onListen = _onConnected;
 
-    final twilioVersion = Version.parse(version);
-    if (twilioVersion.major != supportedVersion.major ||
-        (twilioVersion.major == supportedVersion.major && twilioVersion.minor > supportedVersion.minor)) {
-      throw UnsupportedError('Current supported JS version is: $supportedVersion');
-    }
-
     try {
       _room = await connectWithModel(connectOptions);
     } catch (err) {
@@ -310,28 +301,36 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         );
 
         final publishedTrack = await localParticipant.publishTrack(shareLocalTrack);
+        try {
+          // listen to the track and unpublish it when it ends
+          shareTrack!.onEnded.listen((_) {
+            debug('Screen share track ended');
+            shareTrack!.stop();
+            localParticipant.unpublishTrack(shareTrack);
+            _shareTrackSid = '';
+          });
+          final sid = publishedTrack.trackSid as String?;
+          if (sid != null) {
+            _shareTrackSid = sid;
+          } else {
+            _shareTrackSid = shareTrack!.id!;
+          }
 
-        _shareTrackSid = publishedTrack.trackSid;
+          debug('Published track sid >> $_shareTrackSid');
+          debug('Published track >> ${shareTrack!.id!}');
+          debug('Created view factory for >> local screen share');
 
-        localParticipant.videoTracks.toDartMap()[_shareTrackSid] = publishedTrack as LocalVideoTrackPublication;
-        debug('Published track sid >> $_shareTrackSid');
-        debug('Published track >> ${publishedTrack.track.toString()}');
-
-        debug('Created view factory for >> local screen share');
-
-        // listen to the track and unpublish it when it ends
-        shareTrack!.onEnded.listen((_) {
-          debug('Screen share track ended');
-          shareTrack!.stop();
-          localParticipant.unpublishTrack(shareTrack);
-          _shareTrackSid = '';
-        });
+          localParticipant.videoTracks.toDartMap()[_shareTrackSid] = publishedTrack as LocalVideoTrackPublication;
+        } catch (err) {
+          debug('Error at saving video tracks: $err');
+        }
         return _screenShareWidget;
       } catch (err) {
         debug('Screen share permission not allowed: ${err.toString()}');
         return Container();
       }
     }
+    return Container();
   }
 
   /// Calls native code to stop screen share
