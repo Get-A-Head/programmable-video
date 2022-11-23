@@ -30,4 +30,5 @@ export 'tracks/remote_audio_track_model.dart';
 
 export 'connect_options_model.dart';
 export 'network_quality_configuration_model.dart';
+export 'preview_options_model.dart';
 export 'remote_data_track_event.dart';

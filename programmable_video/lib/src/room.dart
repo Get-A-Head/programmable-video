@@ -276,13 +276,13 @@ class Room {
 
     final remoteDataTrackModel = event.remoteDataTrackModel;
 
-    _remoteParticipants.forEach((RemoteParticipant remoteParticipant) {
-      remoteParticipant.remoteDataTracks.forEach((RemoteDataTrackPublication dataTrackPublication) {
+    for (final remoteParticipant in _remoteParticipants) {
+      for (final dataTrackPublication in remoteParticipant.remoteDataTracks) {
         if (dataTrackPublication.trackSid == remoteDataTrackModel!.sid) {
           dataTrackPublication.remoteDataTrack!._parseEvents(event);
         }
-      });
-    });
+      }
+    }
   }
 
   /// Update this instances state from RoomEvents

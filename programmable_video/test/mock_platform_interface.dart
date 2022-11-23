@@ -1,13 +1,18 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+<<<<<<< HEAD
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+=======
+import 'package:flutter/widgets.dart';
+>>>>>>> programmable-video_v1.0.0
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 class MockInterface extends ProgrammableVideoPlatform {
   var setNativeDebugWasCalled = false;
+  // ignore: prefer_typing_uninitialized_variables
   var nativeDebug;
   var setSpeakerPhoneOnWasCalled = false;
   var speakerPhoneOn = false;
@@ -44,91 +49,117 @@ class MockInterface extends ProgrammableVideoPlatform {
   @override
   Future<void> disconnect() {
     disconnectWasCalled = true;
-    return Future.delayed(Duration(milliseconds: 1));
+    return Future.delayed(const Duration(milliseconds: 1));
   }
 
   @override
   Future<void> setNativeDebug(bool native) {
     setNativeDebugWasCalled = true;
     nativeDebug = native;
-    return Future.delayed(Duration(milliseconds: 1));
+    return Future.delayed(const Duration(milliseconds: 1));
   }
 
   @override
   Stream<BaseCameraEvent>? cameraStream() {
-    return Stream<BaseCameraEvent>.periodic(Duration(seconds: 1), (x) => SkipableCameraEvent());
+    return Stream<BaseCameraEvent>.periodic(const Duration(seconds: 1), (x) => const SkippableCameraEvent());
   }
 
   @override
   Stream<dynamic> loggingStream() {
-    return Stream<dynamic>.periodic(Duration(seconds: 1));
+    return Stream<dynamic>.periodic(const Duration(seconds: 1));
   }
 
   @override
   Future<bool> setSpeakerphoneOn(bool on) {
     setSpeakerPhoneOnWasCalled = true;
-    speakerPhoneOn = on;
-    return Future.delayed(Duration(milliseconds: 1), () => speakerPhoneOn);
+    speakerphoneOn = on;
+    return Future.delayed(const Duration(milliseconds: 1), () => speakerphoneOn);
   }
 
   @override
   Future<bool> getSpeakerphoneOn() {
     getSpeakerPhoneOnWasCalled = true;
-    return Future.delayed(Duration(milliseconds: 1), () => speakerPhoneOn);
+    return Future.delayed(const Duration(milliseconds: 1), () => speakerphoneOn);
+  }
+
+  @override
+  Future setAudioSettings(bool speakerphoneEnabled, bool bluetoothPreferred) {
+    setAudioSettingsWasCalled = true;
+    speakerphoneOn = speakerphoneEnabled;
+    bluetoothOn = bluetoothPreferred;
+    return Future.delayed(const Duration(milliseconds: 1), () => null);
+  }
+
+  @override
+  Future<Map<String, dynamic>> getAudioSettings() {
+    getAudioSettingsWasCalled = true;
+    final result = {
+      'speakerphoneEnabled': speakerphoneOn,
+      'bluetoothPreferred': bluetoothOn,
+    };
+    return Future.delayed(const Duration(milliseconds: 1), () => result);
+  }
+
+  @override
+  Future disableAudioSettings() {
+    disableAudioSettingsWasCalled = true;
+    speakerphoneOn = false;
+    bluetoothOn = false;
+    return Future.delayed(const Duration(milliseconds: 1), () => null);
   }
 
   @override
   Future<bool> deviceHasReceiver() {
     deviceHasReceiverWasCalled = true;
-    return Future.delayed(Duration(milliseconds: 1), () => true);
+    return Future.delayed(const Duration(milliseconds: 1), () => true);
   }
 
   @override
   Future<Map<dynamic, dynamic>> getStats() {
     getStatsWasCalled = true;
-    return Future.delayed(Duration(milliseconds: 1), () => {});
+    return Future.delayed(const Duration(milliseconds: 1), () => {});
   }
 
   @override
   Future<int> connectToRoom(ConnectOptionsModel connectOptions) {
     connectToRoomWasCalled = true;
-    return Future.delayed(Duration(milliseconds: 1), () => 1);
+    return Future.delayed(const Duration(milliseconds: 1), () => 1);
   }
 
   @override
   Future<bool> enableVideoTrack([bool enabled = false, String name = '']) {
     enableVideoTrackWasCalled = true;
-    return Future.delayed(Duration(milliseconds: 1), () => enabled);
+    return Future.delayed(const Duration(milliseconds: 1), () => enabled);
   }
 
   @override
   Future<bool> enableAudioTrack([bool enable = false, String sid = '']) {
     enableAudioTrackWasCalled = true;
-    return Future.delayed(Duration(milliseconds: 1), () => enable);
+    return Future.delayed(const Duration(milliseconds: 1), () => enable);
   }
 
   @override
   Future<void> sendMessage([String message = '', String name = '']) {
     sendMessageWasCalled = true;
-    return Future.delayed(Duration(milliseconds: 1));
+    return Future.delayed(const Duration(milliseconds: 1));
   }
 
   @override
   Future<void> sendBuffer([ByteBuffer? message, String name = '']) {
     sendBufferWasCalled = true;
-    return Future.delayed(Duration(milliseconds: 1));
+    return Future.delayed(const Duration(milliseconds: 1));
   }
 
   @override
   Future<CameraSource> switchCamera(CameraSource newSource) async {
     switchCameraWasCalled = true;
-    return Future.delayed(Duration(milliseconds: 1), () => CameraSource('FRONT_CAMERA', false, false, false));
+    return Future.delayed(const Duration(milliseconds: 1), () => const CameraSource('FRONT_CAMERA', false, false, false));
   }
 
   @override
   Future<void> setTorch(bool enable) async {
     torchEnabled = enable;
-    return Future.delayed(Duration(milliseconds: 1), () {});
+    return Future.delayed(const Duration(milliseconds: 1), () {});
   }
 
   final _roomController = StreamController<BaseRoomEvent>();

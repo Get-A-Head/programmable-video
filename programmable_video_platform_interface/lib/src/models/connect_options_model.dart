@@ -4,8 +4,7 @@ import 'package:twilio_programmable_video_platform_interface/src/audio_codecs/au
 import 'package:twilio_programmable_video_platform_interface/src/enums/enum_exports.dart';
 import 'package:twilio_programmable_video_platform_interface/src/models/model_exports.dart';
 import 'package:twilio_programmable_video_platform_interface/src/video_codecs/video_codec.dart';
-
-import 'model_exports.dart';
+import 'package:dartlin/dartlin.dart';
 
 class ConnectOptionsModel {
   /// This Access Token is the credential you must use to identify and authenticate your request.

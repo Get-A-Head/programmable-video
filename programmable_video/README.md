@@ -395,7 +395,16 @@ Remember, you will not receive messages that were send before you started listen
 
 #### Display a Camera Preview
 
-Just like Twilio we totally get that you want to look fantastic before entering a Room. Sadly that isn't yet implemented so you should go analog and use a mirror.
+Just like Twilio we totally get that you want to look fantastic before entering a Room. 
+
+```dart
+// Provide a `create` function to the `LocalVideoTrack` class that will trigger initialization at the native layer.
+await localVideoTrack?.create(); 
+
+//Add a publishTrack method to LocalParticipants to allow for publishing LocalVideoTracks as needed.
+await localVideoTrack?.publish();
+```
+
 
 #### Disconnect from a Room
 

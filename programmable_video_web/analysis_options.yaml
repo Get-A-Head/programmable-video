@@ -8,3 +8,4 @@ linter:
 analyzer:
   errors:
     undefined_prefixed_name: ignore
+    invalid_dependency: ignore # Ignored for local platform_interface dependency

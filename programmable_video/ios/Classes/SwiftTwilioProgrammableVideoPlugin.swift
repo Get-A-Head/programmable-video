@@ -21,6 +21,8 @@ public class SwiftTwilioProgrammableVideoPlugin: NSObject, FlutterPlugin {
 
     public static var nativeDebug = false
 
+    public static var localVideoTracks: [String: LocalVideoTrack] = [:]
+
     public static func debug(_ msg: String) {
         if SwiftTwilioProgrammableVideoPlugin.nativeDebug {
             NSLog(msg)

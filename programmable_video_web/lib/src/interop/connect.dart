@@ -2,12 +2,10 @@
 library interop;
 
 import 'dart:html';
-
 import 'package:collection/collection.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:js/js.dart';
 import 'package:js/js_util.dart';
-import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/js_map.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_audio_track.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_audio_track_publication.dart';
@@ -15,8 +13,8 @@ import 'package:twilio_programmable_video_web/src/interop/classes/local_data_tra
 import 'package:twilio_programmable_video_web/src/interop/classes/local_video_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/room.dart';
 import 'package:twilio_programmable_video_web/twilio_programmable_video_web.dart';
-
 import 'classes/local_video_track.dart';
+import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 @JS('Twilio.Video.connect')
 external Future<Room> connect(
@@ -174,12 +172,12 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
     return false;
   });
 
+  //TODO: handle multiple cameras using the CameraCapturer enum from the platform interface
   iteratorForEach<LocalVideoTrackPublication>(room.localParticipant.videoTracks.values(), (publication) {
     if (videoTracks != null) {
       final modelTrack = videoTracks.firstWhereOrNull((track) => track.name == publication.trackName);
       if (modelTrack != null) {
-        ProgrammableVideoPlugin.debug(
-            'ProgrammableVideoWeb::connectWithModel => enableVideoTrack(${modelTrack.name}): ${modelTrack.enabled}');
+        ProgrammableVideoPlugin.debug('ProgrammableVideoWeb::connectWithModel => enableVideoTrack(${modelTrack.name}): ${modelTrack.enabled}');
         modelTrack.enabled ? publication.track.enable() : publication.track.disable();
       }
     }

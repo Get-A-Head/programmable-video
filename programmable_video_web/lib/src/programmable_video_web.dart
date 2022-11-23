@@ -23,16 +23,17 @@ import 'package:twilio_programmable_video_web/src/interop/classes/room.dart';
 import 'package:twilio_programmable_video_web/src/interop/connect.dart';
 import 'package:twilio_programmable_video_web/src/listeners/local_participant_event_listener.dart';
 import 'package:twilio_programmable_video_web/src/listeners/room_event_listener.dart';
-
 import 'interop/classes/local_audio_track.dart';
+import 'package:twilio_programmable_video_web/src/interop/classes/logger.dart';
+import 'package:twilio_programmable_video_web/src/interop/version.dart';
+import 'package:version/version.dart';
 
 class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static Room? _room;
   static RoomEventListener? _roomListener;
   static LocalParticipantEventListener? _localParticipantListener;
 
-  // add listeners for camera and remotedatatrack stream
-
+  // TODO add listeners for camera and remotedatatrack stream
   static final _roomStreamController = StreamController<BaseRoomEvent>.broadcast();
   static final _cameraStreamController = StreamController<BaseCameraEvent>.broadcast();
   static final _localParticipantController = StreamController<BaseLocalParticipantEvent>.broadcast();
@@ -145,11 +146,11 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   }) {
     key ??= ValueKey(remoteVideoTrackSid);
 
-    if (!_registeredRemoteParticipantViewFactories.contains(remoteVideoTrackSid)) {
+    if (!_registeredRemoteParticipantViewFactories.contains(remoteParticipantSid)) {
       _createRemoteViewFactory(remoteParticipantSid, remoteVideoTrackSid);
-      _registeredRemoteParticipantViewFactories.add(remoteVideoTrackSid);
-      debug('Created remote video track widget for: $remoteVideoTrackSid');
+      _registeredRemoteParticipantViewFactories.add(remoteParticipantSid);
     }
+    debug('Created remote video track widget for: $remoteParticipantSid');
     return HtmlElementView(viewType: 'remote-video-track-#$remoteVideoTrackSid-html', key: key);
   }
 
@@ -171,6 +172,11 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   @override
   Future<int> connectToRoom(ConnectOptionsModel connectOptions) async {
     _roomStreamController.onListen = _onConnected;
+
+    final twilioVersion = Version.parse(version);
+    if (twilioVersion.major != supportedVersion.major || (twilioVersion.major == supportedVersion.major && twilioVersion.minor > supportedVersion.minor)) {
+      throw UnsupportedError('Current supported JS version is: $supportedVersion');
+    }
 
     try {
       _room = await connectWithModel(connectOptions);
@@ -443,6 +449,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     return Future(() => true);
   }
 
+  /* RMC - 20221123 - merge from gitlab v1.0.0 this is our code
   @override
   Future<bool> enableAudioTrack(bool enable, String name) {
     final localAudioTracks = _room?.localParticipant.audioTracks.values();
@@ -453,6 +460,19 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       } else {
         localAudioTrack.track.disable();
       }
+      */
+  @override
+  Future<bool> enableAudioTrack(bool enable, String name) {
+    final localAudioTracks = _room?.localParticipant.audioTracks.values();
+    if (localAudioTracks != null) {
+      iteratorForEach<LocalAudioTrackPublication>(localAudioTracks, (localAudioTrack) {
+        final found = localAudioTrack.trackName == name;
+        if (found) {
+          enable ? localAudioTrack.track.enable() : localAudioTrack.track.disable();
+        }
+        return found;
+      });
+      /* RMC - 20221123 - merge end */
       debug('${enable ? 'Enabled' : 'Disabled'} Local Audio Track');
       return Future(() => enable);
     } else {
@@ -461,6 +481,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   }
 
   @override
+  /* RMC 20221123 - merge - GAH side */
   Future<bool> enableVideoTrack(bool enable, String name) {
     final localVideoTracks = _room?.localParticipant.videoTracks.values();
     if (localVideoTracks != null) {
@@ -472,13 +493,28 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       }
       debug('${enable ? 'Enabled' : 'Disabled'} Local Video Track');
       return Future(() => enable);
+  /* merge side end*/
+  Future<bool> enableVideoTrack(bool enabled, String name) {
+    final localVideoTracks = _room?.localParticipant.videoTracks.values();
+    if (localVideoTracks != null) {
+      iteratorForEach<LocalVideoTrackPublication>(localVideoTracks, (localVideoTrack) {
+        final found = localVideoTrack.trackName == name;
+        if (found) {
+          enabled ? localVideoTrack.track.enable() : localVideoTrack.track.disable();
+        }
+        return found;
+      });
+
+      debug('${enabled ? 'Enabled' : 'Disabled'} Local Video Track');
+      return Future(() => enabled);
+    /* their side of merge end */
     } else {
       throw PlatformException(code: 'NOT_FOUND', message: 'No LocalVideoTrack found with the name \'$name\'');
     }
   }
 
   @override
-  Future<void> setNativeDebug(bool native) async {
+  Future<void> setNativeDebug(bool native, bool audio) async {
     final logger = Logger.getLogger('twilio-video');
     // Currently also enabling SDK debugging when native is true
     if (native && !_sdkDebugSetup) {
@@ -552,6 +588,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       }
       return remoteAudioTrack;
     }
+    return null;
   }
 
   @override

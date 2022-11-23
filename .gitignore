@@ -103,6 +103,8 @@ captures/
 .idea/dynamic.xml
 .idea/uiDesigner.xml
 .idea/assetWizardSettings.xml
+.idea/codeStyles/Project.xml
+.idea/runConfigurations/
 
 # OS-specific files
 .DS_Store
@@ -146,5 +148,8 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
+pubspec.lock
+
 # End of https://www.gitignore.io/api/flutter,androidstudio
 \ No newline at end of file
+
