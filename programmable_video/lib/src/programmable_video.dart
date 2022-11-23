@@ -50,7 +50,7 @@ class TwilioProgrammableVideo {
   /// Enable debug logging.
   ///
   /// For native logging set [native] to `true` and for dart set [dart] to `true`.
-  static Future<void> debug({bool dart = false, bool native = false}) async {
+  static Future<void> debug({bool dart = false, bool native = false, bool audio = false}) async {
     _dartDebug = dart;
     await ProgrammableVideoPlatform.instance.setNativeDebug(native);
     if (native && _loggingStream == null) {
@@ -103,8 +103,7 @@ class TwilioProgrammableVideo {
   /// Stream of the Screen share ended event.
   ///
   /// This stream is used to listen screen share termination from the user (not from ui).
-  static Stream<dynamic>? onScreenShareEndedStream () => ProgrammableVideoPlatform.instance.onScreenShareEndedStream();
-
+  static Stream<dynamic>? onScreenShareEndedStream() => ProgrammableVideoPlatform.instance.onScreenShareEndedStream();
 
   /// This check is extraneous to the plugin itself, and its reliability and implementation varies by platform
   /// as follows:
