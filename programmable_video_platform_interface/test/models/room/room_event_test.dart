@@ -83,9 +83,9 @@ void main() {
       );
     });
 
-    test('SkippableRoomEvent.toString() should return correct String', () {
-      final event = SkippableRoomEvent();
-      expect(event.toString(), 'SkippableRoomEvent');
+    test('SkipAbleRoomEvent.toString() should return correct String', () {
+      final event = SkipAbleRoomEvent();
+      expect(event.toString(), 'SkipAbleRoomEvent');
     });
   });
 }

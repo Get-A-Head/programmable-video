@@ -11,10 +11,9 @@ import com.twilio.video.NetworkQualityLevel
 import com.twilio.video.TwilioException
 
 class LocalParticipantListener : BaseListener(), LocalParticipant.Listener {
-    private val TAG = "LocalParticipantListener"
 
     override fun onVideoTrackPublicationFailed(localParticipant: LocalParticipant, localVideoTrack: LocalVideoTrack, twilioException: TwilioException) {
-        debug("onVideoTrackPublicationFailed => $twilioException")
+        TwilioProgrammableVideoPlugin.debug("LocalParticipantListener.onVideoTrackPublicationFailed => $twilioException")
         sendEvent("videoTrackPublicationFailed", mapOf(
                 "localParticipant" to localParticipantToMap(localParticipant),
                 "localVideoTrack" to localVideoTrackToMap(localVideoTrack)
@@ -22,7 +21,7 @@ class LocalParticipantListener : BaseListener(), LocalParticipant.Listener {
     }
 
     override fun onDataTrackPublished(localParticipant: LocalParticipant, localDataTrackPublication: LocalDataTrackPublication) {
-        debug("onDataTrackPublished => " +
+        TwilioProgrammableVideoPlugin.debug("LocalParticipantListener.onDataTrackPublished => " +
                 "trackSid: ${localDataTrackPublication.trackSid}")
         sendEvent("dataTrackPublished", mapOf(
                 "localParticipant" to localParticipantToMap(localParticipant),
@@ -31,7 +30,7 @@ class LocalParticipantListener : BaseListener(), LocalParticipant.Listener {
     }
 
     override fun onDataTrackPublicationFailed(localParticipant: LocalParticipant, localDataTrack: LocalDataTrack, twilioException: TwilioException) {
-        debug("onDataTrackPublicationFailed => $twilioException")
+        TwilioProgrammableVideoPlugin.debug("LocalParticipantListener.onDataTrackPublicationFailed => $twilioException")
         sendEvent("dataTrackPublicationFailed", mapOf(
                 "localParticipant" to localParticipantToMap(localParticipant),
                 "localDataTrack" to localDataTrackToMap(localDataTrack)
@@ -39,7 +38,7 @@ class LocalParticipantListener : BaseListener(), LocalParticipant.Listener {
     }
 
     override fun onNetworkQualityLevelChanged(localParticipant: LocalParticipant, networkQualityLevel: NetworkQualityLevel) {
-        debug("onNetworkQualityLevelChanged => " +
+        TwilioProgrammableVideoPlugin.debug("LocalParticipantListener.onNetworkQualityLevelChanged => " +
                 "sid: ${localParticipant.sid}")
         sendEvent("networkQualityLevelChanged", mapOf(
                 "localParticipant" to localParticipantToMap(localParticipant),
@@ -48,7 +47,7 @@ class LocalParticipantListener : BaseListener(), LocalParticipant.Listener {
     }
 
     override fun onAudioTrackPublished(localParticipant: LocalParticipant, localAudioTrackPublication: LocalAudioTrackPublication) {
-        debug("onAudioTrackPublished => " +
+        TwilioProgrammableVideoPlugin.debug("LocalParticipantListener.onAudioTrackPublished => " +
                 "trackSid: ${localAudioTrackPublication.trackSid}")
         sendEvent("audioTrackPublished", mapOf(
                 "localParticipant" to localParticipantToMap(localParticipant),
@@ -57,7 +56,7 @@ class LocalParticipantListener : BaseListener(), LocalParticipant.Listener {
     }
 
     override fun onAudioTrackPublicationFailed(localParticipant: LocalParticipant, localAudioTrack: LocalAudioTrack, twilioException: TwilioException) {
-        debug("onAudioTrackPublicationFailed => $twilioException")
+        TwilioProgrammableVideoPlugin.debug("LocalParticipantListener.onAudioTrackPublicationFailed => $twilioException")
         sendEvent("audioTrackPublicationFailed", mapOf(
                 "localParticipant" to localParticipantToMap(localParticipant),
                 "localAudioTrack" to localAudioTrackToMap(localAudioTrack)
@@ -65,7 +64,7 @@ class LocalParticipantListener : BaseListener(), LocalParticipant.Listener {
     }
 
     override fun onVideoTrackPublished(localParticipant: LocalParticipant, localVideoTrackPublication: LocalVideoTrackPublication) {
-        debug("onVideoTrackPublished => " +
+        TwilioProgrammableVideoPlugin.debug("LocalParticipantListener.onVideoTrackPublished => " +
                 "trackSid: ${localVideoTrackPublication.trackSid}")
         sendEvent("videoTrackPublished", mapOf(
                 "localParticipant" to localParticipantToMap(localParticipant),
@@ -148,9 +147,5 @@ class LocalParticipantListener : BaseListener(), LocalParticipant.Listener {
                     "videoCapturer" to VideoCapturerHandler.videoCapturerToMap(localVideoTrack.videoCapturer)
             )
         }
-    }
-
-    internal fun debug(msg: String) {
-        TwilioProgrammableVideoPlugin.debug("$TAG::$msg")
     }
 }

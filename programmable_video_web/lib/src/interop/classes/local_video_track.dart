@@ -19,15 +19,27 @@ class LocalVideoTrack extends VideoTrack {
 
   external LocalVideoTrack disable();
   external LocalVideoTrack enable();
+  external LocalVideoTrack stop();
 }
 
 extension Interop on LocalVideoTrack {
   LocalVideoTrackModel toModel() {
+  /* RMC 20221224 - THEIRS
     return LocalVideoTrackModel(
       cameraCapturer: CameraCapturerModel(
         CameraSource('FRONT_CAMERA', true, false, false),
         'CameraCapturer',
       ),
+      enabled: isEnabled,
+      name: name,
+    );
+      */
+    final isScreenShare = name.contains('screen-share');
+    return LocalVideoTrackModel(
+      cameraCapturer: CameraCapturerModel(
+        CameraSource(isScreenShare ? 'SCREEN_SHARE' : 'FRONT_CAMERA', false, false, false),
+        'CameraCapturer',
+      )..isScreencast = isScreenShare,
       enabled: isEnabled,
       name: name,
     );

@@ -24,30 +24,15 @@
 
 ## 0.12.0
 
-- **BREAKING**: Updated permission_handler dependency from 7.0.0 to 8.3.0
+- Added `web` as supported platform.
 
-## 0.11.1
+## 1.0.0-alpha.1
 
-- Added null-safety check for `BluetoothAdapter.getDefaultAdapter()`. It returns null when called on an Android Emulator.
-- Updated TwilioVideo iOS SDK from v4.4 to v4.6.
-- Replaced `jcenter` with `mavenCentral` in the `build.gradle`.
-
-## 0.11.0+1
-
-- Throw `ActiveCallException` if we cannot activate the `AVAudioSession` (iOS) or get Audio Focus (Android) on `connect`.
-
-## 0.11.0
-
-- Added responsive management of audio settings using `setAudioSettings`.
-- Added optional integration with `ocarina` on Android to allow for integrated audio focus management.
-- Made improvements to `AVAudioEngineDevice`.
-- Deprecated `setSpeakerPhoneOn`.
-- Added audio device notifications to dart layer.
-- **Android** Normalized camera ID when interacting with `CameraManager` to address a crash introduced by the formatting used by `Camera1Enumerator`.
+- Initial pre-release of the web implementation.
 
 ## 0.10.0+1
 
-- Bumped minor versions of dependencies.
+- Bumped minor versions of dependencies
 
 ## 0.10.0
 

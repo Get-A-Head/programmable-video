@@ -17,7 +17,9 @@ class LocalVideoTrack extends VideoTrack {
 
   /// Construct from a [LocalVideoTrackModel].
   factory LocalVideoTrack._fromModel(LocalVideoTrackModel model) {
-    var videoCapturer = model.cameraCapturer.type == 'CameraCapturer' ? CameraCapturer._fromModel(model.cameraCapturer) : throw Exception('Received unknown VideoCapturer');
+    var videoCapturer = model.cameraCapturer.type == 'CameraCapturer'
+        ? CameraCapturer._fromModel(model.cameraCapturer)
+        : throw Exception('Received unknown VideoCapturer');
     var localVideoTrack = LocalVideoTrack(model.enabled, videoCapturer, name: model.name);
     localVideoTrack._updateFromModel(model);
     return localVideoTrack;
@@ -88,6 +90,9 @@ class LocalVideoTrack extends VideoTrack {
     }
   }
 
+
+  /* RMC 20221124 - This is programmable video code.  Left commented out as I think ours might be better
+
   /// Returns a native widget.
   ///
   /// By default the widget will be mirrored, to change that set [mirror] to false.
@@ -96,6 +101,19 @@ class LocalVideoTrack extends VideoTrack {
     key ??= const ValueKey('Twilio_LocalParticipant');
 
     return ProgrammableVideoPlatform.instance.createLocalVideoTrackWidget(
+      mirror: mirror,
+      key: key,
+    );
+  }
+  */
+
+  /// By default the widget will be mirrored, to change that set [mirror] to false.
+  /// If you provide a [key] make sure it is unique among all [VideoTrack]s otherwise Flutter might send the wrong creation params to the native side.
+  Widget widget({bool isScreenShare = false, bool mirror = true, Key? key}) {
+    key ??= ValueKey('Twilio_LocalParticipant');
+
+    return ProgrammableVideoPlatform.instance.createLocalVideoTrackWidget(
+      isScreenShare: isScreenShare,
       mirror: mirror,
       key: key,
     );

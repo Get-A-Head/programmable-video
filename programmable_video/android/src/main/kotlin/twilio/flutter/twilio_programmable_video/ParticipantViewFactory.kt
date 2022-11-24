@@ -25,7 +25,29 @@ class ParticipantViewFactory(createArgsCodec: MessageCodec<Any>, private val plu
                     videoTrack = localParticipant.localVideoTracks.firstOrNull()?.localVideoTrack
                 }
             }
-        } else {
+        }
+        /* RMC 20221124 - OUR VERSION
+        if (args != null) {
+            val params = args as Map<String, Any>
+            if (params.containsKey("isLocal")) {
+                TwilioProgrammableVideoPlugin.debug("ParticipantViewFactory.create => constructing local view")
+                val localParticipant = plugin.getLocalParticipant()
+                if (localParticipant != null && localParticipant.localVideoTracks != null && localParticipant.localVideoTracks?.size != 0) {
+                    videoTrack = localParticipant.localVideoTracks!![0].localVideoTrack
+                }
+            } else {
+                TwilioProgrammableVideoPlugin.debug("ParticipantViewFactory.create => constructing view with params: '${params.values.joinToString(", ")}'")
+                if (params.containsKey("remoteParticipantSid") && params.containsKey("remoteVideoTrackSid")) {
+                    val remoteParticipant = plugin.getRemoteParticipant(params["remoteParticipantSid"] as String)
+                    val remoteVideoTrack = remoteParticipant?.remoteVideoTracks?.find { it.trackSid == params["remoteVideoTrackSid"] }
+                    if (remoteParticipant != null && remoteVideoTrack != null) {
+                        videoTrack = remoteVideoTrack.remoteVideoTrack
+                    }
+                }
+            }
+        } 
+        */
+        else {
             debug("create => constructing view with params: '${params.values.joinToString(", ")}'")
             if ("remoteParticipantSid" in params && "remoteVideoTrackSid" in params) {
                 val remoteParticipant = plugin.getRemoteParticipant(params["remoteParticipantSid"] as String)
@@ -42,9 +64,5 @@ class ParticipantViewFactory(createArgsCodec: MessageCodec<Any>, private val plu
         val videoView = VideoView(context as Context)
         videoView.mirror = params["mirror"] as Boolean
         return ParticipantView(videoView, videoTrack)
-    }
-
-    internal fun debug(msg: String) {
-        TwilioProgrammableVideoPlugin.debug("$TAG::$msg")
     }
 }

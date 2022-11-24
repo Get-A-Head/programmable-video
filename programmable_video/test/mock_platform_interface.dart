@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 class MockInterface extends ProgrammableVideoPlatform {
@@ -9,12 +11,8 @@ class MockInterface extends ProgrammableVideoPlatform {
   // ignore: prefer_typing_uninitialized_variables
   var nativeDebug;
   var setSpeakerPhoneOnWasCalled = false;
+  var speakerPhoneOn = false;
   var getSpeakerPhoneOnWasCalled = false;
-  var setAudioSettingsWasCalled = false;
-  var getAudioSettingsWasCalled = false;
-  var disableAudioSettingsWasCalled = false;
-  var speakerphoneOn = false;
-  var bluetoothOn = false;
   var deviceHasReceiverWasCalled = false;
   var getStatsWasCalled = false;
   var connectToRoomWasCalled = false;
@@ -28,8 +26,8 @@ class MockInterface extends ProgrammableVideoPlatform {
   var disconnectWasCalled = false;
 
   @override
-  Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
-    key ??= const ValueKey('Twilio_LocalParticipant');
+  Widget createLocalVideoTrackWidget({bool isScreenShare = false, bool mirror = true, Key? key}) {
+    key ??= ValueKey('Twilio_LocalParticipant');
     return Container(key: key);
   }
 
@@ -51,7 +49,7 @@ class MockInterface extends ProgrammableVideoPlatform {
   }
 
   @override
-  Future<void> setNativeDebug(bool native, bool audio) {
+  Future<void> setNativeDebug(bool native) {
     setNativeDebugWasCalled = true;
     nativeDebug = native;
     return Future.delayed(const Duration(milliseconds: 1));

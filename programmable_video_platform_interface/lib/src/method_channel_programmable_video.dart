@@ -6,6 +6,12 @@ import 'package:flutter/services.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/widgets.dart';
 import 'package:twilio_programmable_video_platform_interface/src/camera_source.dart';
+import 'package:enum_to_string/enum_to_string.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
+import 'package:twilio_programmable_video_platform_interface/src/models/capturers/camera_event.dart';
 
 import 'programmable_video_platform_interface.dart';
 
@@ -62,7 +68,10 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
   //#region Functions
   /// Calls native code to create a widget displaying the LocalVideoTrack's video.
   @override
+  /* RMC 20221124 - Their change here 
   Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
+  */
+  Widget createLocalVideoTrackWidget({bool isScreenShare = false, bool mirror = true, Key? key}) {
     key ??= ValueKey('Twilio_LocalParticipant');
 
     final creationParams = {
@@ -522,7 +531,8 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
     late RemoteDataTrackPublicationModel remoteDataTrackPublicationModel;
     if (data['remoteDataTrackPublication'] != null) {
       final remoteDataTrackPublicationMap = Map<String, dynamic>.from(data['remoteDataTrackPublication']);
-      remoteDataTrackPublicationModel = RemoteDataTrackPublicationModel.fromEventChannelMap(remoteDataTrackPublicationMap);
+      remoteDataTrackPublicationModel =
+          RemoteDataTrackPublicationModel.fromEventChannelMap(remoteDataTrackPublicationMap);
     }
 
     RemoteDataTrackModel? remoteDataTrackModel;
@@ -936,8 +946,12 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
   /// Stream of dynamic that contains all the native logging output.
   final EventChannel _loggingChannel;
 
+  /// Stream of dynamic that contains all the native logging output.
   @override
   Stream<dynamic> loggingStream() {
+    /* RMC 20221124 - our version 
+    return EventChannel('twilio_programmable_video/logging').receiveBroadcastStream();
+    */
     return _loggingChannel.receiveBroadcastStream();
   }
 }

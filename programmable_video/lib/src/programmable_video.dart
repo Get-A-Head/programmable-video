@@ -5,16 +5,6 @@ class TwilioProgrammableVideo {
   // ignore: cancel_subscriptions
   static StreamSubscription? _loggingStream;
 
-  static final StreamController _onAudioNotification = StreamController.broadcast(onListen: () {
-    _audioNotificationStream = ProgrammableVideoPlatform.instance.audioNotificationStream().listen(_parseAudioNotificationEvents);
-  }, onCancel: () {
-    _audioNotificationStream?.cancel();
-  });
-
-  static Stream onAudioNotification = _onAudioNotification.stream;
-
-  static StreamSubscription<BaseAudioNotificationEvent>? _audioNotificationStream;
-
   static var _dartDebug = false;
 
   /// Internal logging method for dart.
@@ -53,42 +43,24 @@ class TwilioProgrammableVideo {
         message: err.message,
         details: err.details,
       );
-    } else if (err.code == 'ACTIVE_CALL') {
-      return ActiveCallException(
-        code: err.code,
-        message: err.message,
-        details: err.details,
-      );
     }
     return err;
-  }
-
-  /// Parse native audio notification events.
-  /// Or at least, issue them to observers.
-  static void _parseAudioNotificationEvents(BaseAudioNotificationEvent event) {
-    _log("AudioNotificationEvent => Event '$event'");
-
-    if (event is SkippableAudioEvent) {
-      return;
-    }
-
-    _onAudioNotification.add(event);
   }
 
   /// Enable debug logging.
   ///
   /// For native logging set [native] to `true` and for dart set [dart] to `true`.
-  static Future<void> debug({bool dart = false, bool native = false, bool audio = false}) async {
+  static Future<void> debug({bool dart = false, bool native = false}) async {
     _dartDebug = dart;
-    await ProgrammableVideoPlatform.instance.setNativeDebug(native, audio);
-    if ((native || audio) && _loggingStream == null) {
+    await ProgrammableVideoPlatform.instance.setNativeDebug(native);
+    if (native && _loggingStream == null) {
       _loggingStream = ProgrammableVideoPlatform.instance.loggingStream().listen((dynamic event) {
         if (native || audio) {
           debugPrint('[  NATIVE  ] $event');
         }
       });
-    } else if (!(native || audio) && _loggingStream != null) {
-      await _loggingStream?.cancel();
+    } else if (!native && _loggingStream != null) {
+      await _loggingStream!.cancel();
       _loggingStream = null;
     }
   }
@@ -96,48 +68,43 @@ class TwilioProgrammableVideo {
   /// Set the speaker mode on or off.
   ///
   /// Note: Call this method after the [Room.onConnected] event on iOS. Calling it before will not result in a audio routing change.
-  @Deprecated('Use setAudioSettings for more reliable audio output management.')
   static Future<bool?> setSpeakerphoneOn(bool on) async {
     return await ProgrammableVideoPlatform.instance.setSpeakerphoneOn(on);
   }
 
-  /// Set audio settings to be applied by the native layer.
-  ///
-  /// Calling this method will cause the native layer (iOS and Android) to watch
-  /// for route changes, and changes in available bluetooth devices, and update routing
-  /// based upon the specified settings.
-  ///
-  /// Bluetooth takes precedence over speaker phone, speaker phone over receiver.
-  static Future setAudioSettings({
-    required bool speakerphoneEnabled,
-    required bool bluetoothPreferred,
-  }) async {
-    return await ProgrammableVideoPlatform.instance.setAudioSettings(
-      speakerphoneEnabled,
-      bluetoothPreferred,
-    );
-  }
-
-  /// Resets audio settings at the native layer. Defaults are:
-  /// speakerphoneEnabled = true
-  /// bluetoothPreferred = true
-  ///
-  /// Native layer will stop listening for route changes.
-  static Future disableAudioSettings() async {
-    return ProgrammableVideoPlatform.instance.disableAudioSettings();
-  }
-
   /// Check if speaker mode is enabled.
-  @Deprecated('Use getAudioSettings for more reliable audio output management.')
   static Future<bool?> getSpeakerphoneOn() async {
     return await ProgrammableVideoPlatform.instance.getSpeakerphoneOn();
   }
 
-  static Future<AudioSettings> getAudioSettings() async {
-    final result = await ProgrammableVideoPlatform.instance.getAudioSettings();
-    final settings = AudioSettings._fromMap(Map<String, dynamic>.from(result));
-    return settings;
+  /// Calls native code to start screen share
+  ///
+  /// * Returns a [Future] that completes with a [bool] indicating whether the screen share init was successful.
+  ///
+  /// ### Possible outcomes:
+  /// [true] : the screen share was _**successful**_
+  ///
+  /// [false] : the screen share was _**cancelled**_ or _**permission is not granted**_
+  ///
+  /// [Exception] : screen share _**failed**_ or is _**not supported by the browser**_
+  ///
+  /// This function uses the Twilio Programmable Video SDK to [publish a track](https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/LocalParticipant.html#publishTrack__anchor)
+  static Future<Widget?> startScreenShare() async {
+    return ProgrammableVideoPlatform.instance.startScreenShare();
   }
+
+  /// Calls native code to stop screen share
+  ///
+  /// This function uses the Twilio Programmable Video SDK to [unpublish a track](https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/LocalParticipant.html#unpublishTrack__anchor)
+  static void stopScreenShare() async {
+    return ProgrammableVideoPlatform.instance.stopScreenShare();
+  }
+
+  /// Stream of the Screen share ended event.
+  ///
+  /// This stream is used to listen screen share termination from the user (not from ui).
+  static Stream<dynamic>? onScreenShareEndedStream () => ProgrammableVideoPlatform.instance.onScreenShareEndedStream();
+
 
   /// This check is extraneous to the plugin itself, and its reliability and implementation varies by platform
   /// as follows:
@@ -193,7 +160,6 @@ class TwilioProgrammableVideo {
   /// Throws [MissingParameterException] if [ConnectOptions] are not provided.
   /// Throws [MissingCameraException] if no camera is found for the specified [CameraSource].
   /// Throws [InitializationException] if an error is caught when attempting to connect.
-  /// Throws [ActiveCallException] if it fails to get AudioFocus on Android, or activate its AVAudioSession on iOS.
   static Future<Room> connect(ConnectOptions connectOptions) async {
     if (await requestPermissionForCameraAndMicrophone()) {
       try {

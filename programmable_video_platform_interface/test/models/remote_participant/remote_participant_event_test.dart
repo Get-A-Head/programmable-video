@@ -193,9 +193,9 @@ void main() {
   }''');
     });
 
-    test('SkippableRemoteParticipantEvent.toString() should return correct String', () {
-      final event = SkippableRemoteParticipantEvent();
-      expect(event.toString(), 'SkippableRemoteParticipantEvent');
+    test('SkipAbleRemoteParticipantEvent.toString() should return correct String', () {
+      final event = SkipAbleRemoteParticipantEvent();
+      expect(event.toString(), 'SkipAbleRemoteParticipantEvent');
     });
   });
 }
