@@ -18,7 +18,7 @@ class CameraSource {
   ///
   /// **NOTE**: Should not be used outside of the plugin.
   /// Use [CameraSource.getSources] to retrieve a list of [CameraSource]s.
-  CameraSource(
+  const CameraSource(
     this.cameraId,
     bool? isFrontFacing,
     bool? isBackFacing,
@@ -31,13 +31,7 @@ class CameraSource {
   ///
   /// **NOTE**: Should not be used outside of the plugin.
   /// Use [CameraSource.getSources] to retrieve a list of [CameraSource]s.
-  CameraSource.fromMap(Map<String, dynamic> map)
-      : this(
-          map['cameraId'],
-          map['isFrontFacing'],
-          map['isBackFacing'],
-          map['hasTorch'],
-        );
+  CameraSource.fromMap(Map<String, dynamic> map) : this(map['cameraId'], map['isFrontFacing'], map['isBackFacing'], map['hasTorch']);
 
   @override
   String toString() {

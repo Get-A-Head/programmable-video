@@ -65,4 +65,8 @@ class ParticipantViewFactory(createArgsCodec: MessageCodec<Any>, private val plu
         videoView.mirror = params["mirror"] as Boolean
         return ParticipantView(videoView, videoTrack)
     }
+
+    internal fun debug(msg: String) {
+        TwilioProgrammableVideoPlugin.debug("$TAG::$msg")
+    }
 }

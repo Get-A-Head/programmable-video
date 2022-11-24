@@ -61,7 +61,7 @@ class ConnectOptions {
     this.videoTracks,
     this.enableNetworkQuality = false,
     this.networkQualityConfiguration,
-        this.speakerDeviceId,
+    this.speakerDeviceId,
     this.enableDominantSpeaker,
     this.enableAutomaticSubscription,
   }) : assert(accessToken.isNotEmpty);

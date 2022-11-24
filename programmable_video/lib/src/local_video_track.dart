@@ -17,9 +17,7 @@ class LocalVideoTrack extends VideoTrack {
 
   /// Construct from a [LocalVideoTrackModel].
   factory LocalVideoTrack._fromModel(LocalVideoTrackModel model) {
-    var videoCapturer = model.cameraCapturer.type == 'CameraCapturer'
-        ? CameraCapturer._fromModel(model.cameraCapturer)
-        : throw Exception('Received unknown VideoCapturer');
+    var videoCapturer = model.cameraCapturer.type == 'CameraCapturer' ? CameraCapturer._fromModel(model.cameraCapturer) : throw Exception('Received unknown VideoCapturer');
     var localVideoTrack = LocalVideoTrack(model.enabled, videoCapturer, name: model.name);
     localVideoTrack._updateFromModel(model);
     return localVideoTrack;

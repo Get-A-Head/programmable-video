@@ -1,10 +1,15 @@
 // swiftlint:disable type_body_length
 // swiftlint:disable file_length
+import CallKit
 import Flutter
 import Foundation
 import TwilioVideo
 
 public class PluginHandler: BaseListener {
+    let TAG = "PluginHandler"
+
+    let audioSettings = AudioSettings()
+
     public func getRemoteParticipant(_ sid: String) -> RemoteParticipant? {
         return SwiftTwilioProgrammableVideoPlugin.roomListener?.room?.remoteParticipants.first(where: {$0.sid == sid})
     }
@@ -13,9 +18,12 @@ public class PluginHandler: BaseListener {
         return SwiftTwilioProgrammableVideoPlugin.roomListener?.room?.localParticipant
     }
 
-    // swiftlint:disable:next cyclomatic_complexity
+    // swiftlint:disable:next cyclomatic_complexity function_body_length
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.handle => received \(call.method)")
+        // `getStats`, if called repeatedly to drive an animation, is quite noisy
+        if call.method != "getStats" {
+            debug("handle => received \(call.method)")
+        }
         switch call.method {
         case "debug":
             debug(call, result: result)
@@ -23,6 +31,12 @@ public class PluginHandler: BaseListener {
             connect(call, result: result)
         case "disconnect":
             disconnect(call, result: result)
+        case "setAudioSettings":
+            setAudioSettings(call, result: result)
+        case "getAudioSettings":
+            getAudioSettings(call, result: result)
+        case "disableAudioSettings":
+            disableAudioSettings(call, result: result)
         case "setSpeakerphoneOn":
             setSpeakerphoneOn(call, result: result)
         case "getSpeakerphoneOn":
@@ -70,13 +84,13 @@ public class PluginHandler: BaseListener {
     }
 
     private func switchCamera(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.switchCamera => called")
+        debug("switchCamera => called")
         guard let arguments = call.arguments as? [String: Any?] else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'cameraId' parameters", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("cameraId"), details: nil))
         }
 
         guard let newCameraId = arguments["cameraId"] as? String else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'cameraId' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("cameraId"), details: nil))
         }
 
         if let cameraSource = SwiftTwilioProgrammableVideoPlugin.cameraSource {
@@ -106,13 +120,13 @@ public class PluginHandler: BaseListener {
     }
 
     private func setTorch(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.setTorch => called")
+        debug("setTorch => called")
         guard let arguments = call.arguments as? [String: Any?] else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'enable' parameters", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("enable"), details: nil))
         }
 
         guard let enableTorch = arguments["enable"] as? Bool else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'enable' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("enable"), details: nil))
         }
 
         do {
@@ -199,14 +213,14 @@ public class PluginHandler: BaseListener {
         }
 
         guard let localVideoTrackName = arguments["name"] as? String else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'name' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("name"), details: nil))
         }
 
         guard let localVideoTrackEnable = arguments["enable"] as? Bool else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'enable' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("enable"), details: nil))
         }
 
-        SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.localVideoTrackEnable => called for \(localVideoTrackName), enable=\(localVideoTrackEnable)")
+        debug("localVideoTrackEnable => called for \(localVideoTrackName), enable=\(localVideoTrackEnable)")
 
         let localVideoTrack = getLocalParticipant()?.localVideoTracks.first(where: {$0.trackName == localVideoTrackName})
         if let localVideoTrack = localVideoTrack {
@@ -266,14 +280,14 @@ public class PluginHandler: BaseListener {
         }
 
         guard let localAudioTrackName = arguments["name"] as? String else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'name' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("name"), details: nil))
         }
 
         guard let localAudioTrackEnable = arguments["enable"] as? Bool else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'enable' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("enable"), details: nil))
         }
 
-        SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.localAudioTrackEnable => called for \(localAudioTrackName), enable=\(localAudioTrackEnable)")
+        debug("localAudioTrackEnable => called for \(localAudioTrackName), enable=\(localAudioTrackEnable)")
 
         let localAudioTrack = getLocalParticipant()?.localAudioTracks.first(where: {$0.trackName == localAudioTrackName})
         if let localAudioTrack = localAudioTrack {
@@ -289,17 +303,17 @@ public class PluginHandler: BaseListener {
         }
 
         guard let remoteAudioTrackSid = arguments["sid"] as? String else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'sid' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("sid"), details: nil))
         }
 
         guard let remoteAudioTrackEnable = arguments["enable"] as? Bool else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'enable' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("enable"), details: nil))
         }
 
-        SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.remoteAudioTrackEnable => called for \(remoteAudioTrackSid), enable=\(remoteAudioTrackEnable)")
+        debug("remoteAudioTrackEnable => called for \(remoteAudioTrackSid), enable=\(remoteAudioTrackEnable)")
 
         guard let remoteAudioTrack = getRemoteAudioTrack(remoteAudioTrackSid) else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'enable' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("enable"), details: nil))
         }
 
         remoteAudioTrack.remoteTrack?.isPlaybackEnabled = remoteAudioTrackEnable
@@ -312,13 +326,13 @@ public class PluginHandler: BaseListener {
         }
 
         guard let remoteAudioTrackSid = arguments["sid"] as? String else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'sid' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("sid"), details: nil))
         }
 
-        SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.isRemoteAudioTrackPlaybackEnabled => called for \(remoteAudioTrackSid)")
+        debug("isRemoteAudioTrackPlaybackEnabled => called for \(remoteAudioTrackSid)")
 
         guard let remoteAudioTrack = getRemoteAudioTrack(remoteAudioTrackSid) else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'enable' parameter", details: nil))
+            return result(FlutterError(code: "NOT_FOUND", message: "No remote audio track found: \(remoteAudioTrackSid)", details: nil))
         }
 
         return result(remoteAudioTrack.remoteTrack?.isPlaybackEnabled)
@@ -344,14 +358,14 @@ public class PluginHandler: BaseListener {
         }
 
         guard let localDataTrackName = arguments["name"] as? String else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'name' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("name"), details: nil))
         }
 
         guard let localDataTrackMessage = arguments["message"] as? String else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'message' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("message"), details: nil))
         }
 
-        SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.localDataTrackSendString => called for \(localDataTrackName)")
+        debug("localDataTrackSendString => called for \(localDataTrackName)")
 
         let localDataTrack = getLocalParticipant()?.localDataTracks.first(where: {$0.trackName == localDataTrackName})
         if let localDataTrack = localDataTrack {
@@ -367,14 +381,14 @@ public class PluginHandler: BaseListener {
         }
 
         guard let localDataTrackName = arguments["name"] as? String else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'name' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("name"), details: nil))
         }
 
         guard let localDataTrackMessage = arguments["message"] as? FlutterStandardTypedData else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'message' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("message"), details: nil))
         }
 
-        SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.localDataTrackSendString => called for \(localDataTrackName)")
+        debug("localDataTrackSendString => called for \(localDataTrackName)")
 
         let localDataTrack = getLocalParticipant()?.localDataTracks.first(where: {$0.trackName == localDataTrackName})
         if let localDataTrack = localDataTrack {
@@ -384,21 +398,106 @@ public class PluginHandler: BaseListener {
         return result(FlutterError(code: "NOT_FOUND", message: "No LocalDataTrack found with the name '\(localDataTrackName)'", details: nil))
     }
 
-    private func setSpeakerphoneOn(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.setSpeakerphoneOn => called")
+    private func getAudioMode() -> AVAudioSession.Mode {
+        let mode: AVAudioSession.Mode = audioSettings.speakerEnabled ? .videoChat : .voiceChat
+        return mode
+    }
+
+    private func getAudioOptions() -> AVAudioSession.CategoryOptions {
+        debug("getAudioOptions =>\n\tbluetoothPreferred: \(audioSettings.bluetoothPreferred)\n\taudioSettings.speakerEnabled: \(audioSettings.speakerEnabled)")
+        let options: AVAudioSession.CategoryOptions = audioSettings.bluetoothPreferred && audioSettings.speakerEnabled
+            ? [.defaultToSpeaker, .allowAirPlay, .allowBluetooth, .allowBluetoothA2DP]
+            : audioSettings.bluetoothPreferred ?
+        [.allowAirPlay, .allowBluetooth, .allowBluetoothA2DP] : []
+        return options
+    }
+
+    private func setAudioSettings(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        debug("setAudioSettings => called")
         guard let arguments = call.arguments as? [String: Any?] else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'on' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'speakerphoneEnabled' and 'bluetoothPreferred' parameters", details: nil))
+        }
+
+        guard let speakerphoneEnabled = arguments["speakerphoneEnabled"] as? Bool else {
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("speakerphoneEnabled"), details: nil))
+        }
+
+        guard let bluetoothPreferred = arguments["bluetoothPreferred"] as? Bool else {
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("bluetoothPreferred"), details: nil))
+        }
+
+        initializeAudioDevice()
+        SwiftTwilioProgrammableVideoPlugin.audioNotificationListener.listenForRouteChanges()
+
+        do {
+            audioSettings.speakerEnabled = speakerphoneEnabled
+            audioSettings.bluetoothPreferred = bluetoothPreferred
+
+            try applyAudioSettings()
+
+            return result(nil)
+        } catch let error as NSError {
+            return result(FlutterError(code: "\(error.code)", message: error.description, details: nil))
+        }
+    }
+
+    private func getAudioSettings(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let audioSettingsDict = [
+            "speakerphoneEnabled": audioSettings.speakerEnabled,
+            "bluetoothPreferred": audioSettings.bluetoothPreferred
+        ]
+        result(audioSettingsDict)
+    }
+
+    private func disableAudioSettings(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        SwiftTwilioProgrammableVideoPlugin.audioNotificationListener.stopListeningForRouteChanges()
+        audioSettings.reset()
+
+        if SwiftTwilioProgrammableVideoPlugin.audioDevice == nil || !(SwiftTwilioProgrammableVideoPlugin.audioDevice! is AVAudioEngineDevice) {
+            do {
+                let session: AVAudioSession = AVAudioSession.sharedInstance()
+                try session.setActive(false, options: AVAudioSession.SetActiveOptions.notifyOthersOnDeactivation)
+            } catch let error {
+                debug("disableAudioSettings => Exception when deactivating AVAudioSession: \(error)")
+            }
+        }
+        result(nil)
+    }
+
+    func applyAudioSettings() throws {
+        let audioSession = AVAudioSession.sharedInstance()
+        let mode: AVAudioSession.Mode = getAudioMode()
+        let options: AVAudioSession.CategoryOptions = getAudioOptions()
+        debug("applyAudioSettings =>\n\tmode: \(mode)\n\toptions: \(options)\n\tcurrentMode: \(audioSession.mode)\n\tcurrentOptions: \(audioSession.categoryOptions)")
+        try audioSession.setCategory(.playAndRecord, mode: mode, options: options)
+
+        if SwiftTwilioProgrammableVideoPlugin.audioDevice == nil || !(SwiftTwilioProgrammableVideoPlugin.audioDevice! is AVAudioEngineDevice) {
+                debug("applyAudioSettings => setActive")
+            let session: AVAudioSession = AVAudioSession.sharedInstance()
+            try session.setActive(true, options: AVAudioSession.SetActiveOptions.notifyOthersOnDeactivation)
+        }
+    }
+
+    private func setSpeakerphoneOn(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        debug("setSpeakerphoneOn => called")
+        guard let arguments = call.arguments as? [String: Any?] else {
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("on"), details: nil))
         }
 
         guard let on = arguments["on"] as? Bool else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'on' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("on"), details: nil))
         }
 
         initializeAudioDevice()
 
         do {
+            audioSettings.speakerEnabled = on
+
             let audioSession = AVAudioSession.sharedInstance()
-            try on ? audioSession.setMode(.videoChat) : audioSession.setMode(.voiceChat)
+            let mode: AVAudioSession.Mode = getAudioMode()
+            let options: AVAudioSession.CategoryOptions = getAudioOptions()
+            try audioSession.setCategory(.playAndRecord, mode: mode, options: options)
+
             return result(on)
         } catch let error as NSError {
             return result(FlutterError(code: "\(error.code)", message: error.description, details: nil))
@@ -406,40 +505,25 @@ public class PluginHandler: BaseListener {
     }
 
     private func getSpeakerphoneOn(result: @escaping FlutterResult) {
-        let speakerPhoneOn = AVAudioSession.sharedInstance().mode == .videoChat
-        SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.getSpeakerphoneOn => called \(speakerPhoneOn)")
-        return result(speakerPhoneOn)
+        let speakerphoneOn = AVAudioSession.sharedInstance().mode == .videoChat
+        debug("getSpeakerphoneOn => called \(speakerphoneOn)")
+        return result(speakerphoneOn)
     }
 
     private func deviceHasReceiver(result: @escaping FlutterResult) {
-        let currentMode = AVAudioSession.sharedInstance().mode
-        var hasReceiver = false
+        // Per https://stackoverflow.com/a/41374958 and https://developer.apple.com/documentation/avfaudio/avaudiosessionportbuiltinreceiver
+        // of all iOS devices, typically only iPhones have a build in receiver.
+        // Therefore, we check device type rather than checking for outputs
+        // since iOS will only show active outputs, and therefore requires manipulation of
+        // the AVAudioSession configuration to otherwise determine if the device ∂handlehas a receiver.
+        let hasReceiver = UIDevice.current.userInterfaceIdiom == .phone
 
-        if currentMode != .voiceChat {
-            do {
-                try AVAudioSession.sharedInstance().setMode(.voiceChat)
-            } catch let error as NSError {
-                return result(FlutterError(code: "\(error.code)", message: error.description, details: nil))
-            }
-        }
-
-        let receivers = AVAudioSession.sharedInstance().currentRoute.outputs
-        hasReceiver = receivers.first( where: { $0.portType == AVAudioSession.Port.builtInReceiver }) != nil
-
-        if AVAudioSession.sharedInstance().mode != currentMode {
-            do {
-                try AVAudioSession.sharedInstance().setMode(currentMode)
-            } catch let error as NSError {
-                return result(FlutterError(code: "\(error.code)", message: error.description, details: nil))
-            }
-        }
-
-        SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.deviceHasReceiver => called \(hasReceiver)")
+        debug("deviceHasReceiver => hasReceiver: \(hasReceiver)")
         return result(hasReceiver)
     }
 
     private func disconnect(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.disconnect => called")
+        debug("disconnect => called")
         SwiftTwilioProgrammableVideoPlugin.roomListener?.room?.disconnect()
 
         if let camera = SwiftTwilioProgrammableVideoPlugin.cameraSource {
@@ -449,6 +533,7 @@ public class PluginHandler: BaseListener {
 
         result(true)
     }
+
     private func getStats(result:@escaping FlutterResult) {
         SwiftTwilioProgrammableVideoPlugin.roomListener?.room?.getStats {
             result(StatsMapper.statsReportsToDict($0))
@@ -463,19 +548,44 @@ public class PluginHandler: BaseListener {
         TwilioVideoSDK.audioDevice = SwiftTwilioProgrammableVideoPlugin.audioDevice!
     }
 
+    private func checkForActiveCalls() throws {
+        let observer = CXCallObserver()
+        let calls = observer.calls
+        var hasActiveCalls = false
+        for call in calls where !call.hasEnded {
+            hasActiveCalls = true
+            break
+        }
+
+        if hasActiveCalls && AVAudioSession.sharedInstance().isOtherAudioPlaying {
+            do {
+                try AVAudioSession.sharedInstance().setActive(true, options: AVAudioSession.SetActiveOptions.notifyOthersOnDeactivation)
+            } catch let error {
+                throw error
+            }
+        }
+    }
+
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     private func connect(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.connect => called")
+        debug("connect => called")
         guard let arguments = call.arguments as? [String: Any?] else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'connectOpotions' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("connectOptions"), details: nil))
         }
 
         guard let optionsObj = arguments["connectOptions"] as? [String: Any?] else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'connectOptions' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("connectOptions"), details: nil))
         }
 
         guard let accessToken = optionsObj["accessToken"] as? String else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'accessToken' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("accessToken"), details: nil))
+        }
+
+        do {
+            try checkForActiveCalls()
+        } catch {
+            debug("connect => detected an active call that is preventing activation of the AVAudioSession")
+            return result(FlutterError(code: "ACTIVE_CALL", message: "Detected an active call that is using the audio system.", details: nil))
         }
 
         // Override the device before creating any Rooms or Tracks.
@@ -484,13 +594,13 @@ public class PluginHandler: BaseListener {
         let connectOptions = ConnectOptions(token: accessToken) { (builder) in
             // Set the room name if it has been passed.
             if let roomName = optionsObj["roomName"] as? String {
-                SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.connect => setting roomName to '\(roomName)'")
+                self.debug("connect => setting roomName to '\(roomName)'")
                 builder.roomName = roomName
             }
 
             // Set the region if it has been passed.
             if let region = optionsObj["region"] as? String {
-                SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.connect => setting region to '\(region)'")
+                self.debug("connect => setting region to '\(region)'")
                 builder.region = region
             }
 
@@ -511,7 +621,7 @@ public class PluginHandler: BaseListener {
                         audioCodecs.append(OpusCodec())
                     }
                 }
-                SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.connect => setting preferredAudioCodecs to '\(audioCodecs)'")
+                self.debug("connect => setting preferredAudioCodecs to '\(audioCodecs)'")
                 builder.preferredAudioCodecs = audioCodecs
             }
 
@@ -528,7 +638,7 @@ public class PluginHandler: BaseListener {
                         videoCodecs.append(Vp8Codec())
                     }
                 }
-                SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.connect => setting preferredVideoCodecs to '\(videoCodecs)'")
+                self.debug("connect => setting preferredVideoCodecs to '\(videoCodecs)'")
                 builder.preferredVideoCodecs = videoCodecs
             }
 
@@ -540,7 +650,7 @@ public class PluginHandler: BaseListener {
                     let name = audioTrack["name"] as? String
                     audioTracks.append(LocalAudioTrack(options: nil, enabled: enable ?? true, name: name ?? nil)!)
                 }
-                SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.connect => setting audioTracks to '\(audioTracks)'")
+                self.debug("connect => setting audioTracks to '\(audioTracks)'")
                 builder.audioTracks = audioTracks
             }
 
@@ -568,7 +678,7 @@ public class PluginHandler: BaseListener {
                         dataTracks.append(LocalDataTrack()!)
                     }
                 }
-                SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.connect => setting dataTracks to '\(dataTracks)'")
+                self.debug("connect => setting dataTracks to '\(dataTracks)'")
                 builder.dataTracks = dataTracks
             }
 
@@ -613,12 +723,12 @@ public class PluginHandler: BaseListener {
                         SwiftTwilioProgrammableVideoPlugin.cameraSource = videoSource
                     }
                 }
-                SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.connect => setting videoTracks to '\(videoTracks)'")
+                self.debug("connect => setting videoTracks to '\(videoTracks)'")
                 builder.videoTracks = videoTracks
             }
 
             if let isNetworkQualityEnabled = optionsObj["enableNetworkQuality"] as? Bool {
-                SwiftTwilioProgrammableVideoPlugin.debug("PluginHandler.connect => setting enableNetworkQuality to '\(isNetworkQualityEnabled)'")
+                self.debug("connect => setting enableNetworkQuality to '\(isNetworkQualityEnabled)'")
                 builder.isNetworkQualityEnabled = isNetworkQualityEnabled
 
                 if let networkQualityConfigurationMap = optionsObj["networkQualityConfiguration"] as? [AnyHashable: Any],
@@ -632,6 +742,16 @@ public class PluginHandler: BaseListener {
 
             builder.isDominantSpeakerEnabled = optionsObj["enableDominantSpeaker"] as? Bool ?? false
             builder.isAutomaticSubscriptionEnabled = optionsObj["enableAutomaticSubscription"] as? Bool ?? true
+        }
+
+        do {
+            try applyAudioSettings()
+        } catch let error as NSError {
+            debug("connect => Error applying audio settings.\n\tCode: \(error.code)\n\tMessage: \(error.description)")
+        }
+
+        if let onConnected = SwiftTwilioProgrammableVideoPlugin.audioDeviceOnConnected {
+            onConnected()
         }
 
         let roomId = 1
@@ -690,14 +810,27 @@ public class PluginHandler: BaseListener {
 
     private func debug(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let arguments = call.arguments as? [String: Any?] else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'native' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("native"), details: nil))
         }
 
         guard let enableNative = arguments["native"] as? Bool else {
-            return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'native' parameter", details: nil))
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("native"), details: nil))
+        }
+
+        guard let enableAudio = arguments["audio"] as? Bool else {
+            return result(FlutterError(code: "MISSING_PARAMS", message: missingParameterMessage("audio"), details: nil))
         }
 
         SwiftTwilioProgrammableVideoPlugin.nativeDebug = enableNative
+        SwiftTwilioProgrammableVideoPlugin.audioDebug = enableAudio
         result(enableNative)
+    }
+
+    private func missingParameterMessage(_ parameterName: String) -> String {
+        return "The parameter '\(parameterName)' was not given"
+    }
+
+    func debug(_ msg: String) {
+        SwiftTwilioProgrammableVideoPlugin.debug("\(TAG)::\(msg)")
     }
 }

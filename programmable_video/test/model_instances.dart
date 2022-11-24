@@ -54,13 +54,13 @@ class ModelInstances {
     localDataTrack: localDataTrackModel,
   );
 
-  static final localVideoTrackModel = LocalVideoTrackModel(
+  static const localVideoTrackModel = LocalVideoTrackModel(
     name: 'name',
     enabled: true,
     cameraCapturer: CameraCapturerModel(CameraSource('FRONT_CAMERA', false, false, false), 'CameraCapturer'),
   );
 
-  static final localVideoTrackPublicationModel = LocalVideoTrackPublicationModel(
+  static const localVideoTrackPublicationModel = LocalVideoTrackPublicationModel(
     sid: 'sid',
     localVideoTrack: localVideoTrackModel,
   );

@@ -13,6 +13,11 @@ class MockInterface extends ProgrammableVideoPlatform {
   var setSpeakerPhoneOnWasCalled = false;
   var speakerPhoneOn = false;
   var getSpeakerPhoneOnWasCalled = false;
+  var setAudioSettingsWasCalled = false;
+  var getAudioSettingsWasCalled = false;
+  var disableAudioSettingsWasCalled = false;
+  var speakerphoneOn = false;
+  var bluetoothOn = false;
   var deviceHasReceiverWasCalled = false;
   var getStatsWasCalled = false;
   var connectToRoomWasCalled = false;
@@ -27,7 +32,7 @@ class MockInterface extends ProgrammableVideoPlatform {
 
   @override
   Widget createLocalVideoTrackWidget({bool isScreenShare = false, bool mirror = true, Key? key}) {
-    key ??= ValueKey('Twilio_LocalParticipant');
+    key ??= const ValueKey('Twilio_LocalParticipant');
     return Container(key: key);
   }
 
@@ -49,7 +54,7 @@ class MockInterface extends ProgrammableVideoPlatform {
   }
 
   @override
-  Future<void> setNativeDebug(bool native) {
+  Future<void> setNativeDebug(bool native, bool audio) {
     setNativeDebugWasCalled = true;
     nativeDebug = native;
     return Future.delayed(const Duration(milliseconds: 1));

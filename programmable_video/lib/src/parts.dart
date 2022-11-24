@@ -16,6 +16,7 @@ export 'package:twilio_programmable_video_platform_interface/src/video_codecs/vi
 
 export 'package:twilio_programmable_video_platform_interface/src/camera_source.dart';
 
+part 'audio_settings.dart';
 part 'audio_track.dart';
 part 'audio_track_publication.dart';
 part 'camera_capturer.dart';
@@ -30,6 +31,7 @@ part 'events/participant_events.dart';
 part 'events/remote_data_track_events.dart';
 part 'events/remote_participant_events.dart';
 part 'events/room_events.dart';
+part 'exceptions/active_call_exception.dart';
 part 'exceptions/initialization_exception.dart';
 part 'exceptions/missing_camera_exception.dart';
 part 'exceptions/missing_parameter_exception.dart';
