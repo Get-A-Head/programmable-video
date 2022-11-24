@@ -133,6 +133,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   }
   */
 
+  static void _createRemoteViewFactory(String remoteParticipantSid, String remoteVideoTrackSid) {
+    ui.platformViewRegistry.registerViewFactory('remote-video-track-#$remoteVideoTrackSid-html', (int viewId) {
       final remoteParticipant = _room?.participants.toDartMap()[remoteParticipantSid];
       final remoteVideoTrackPublication = remoteParticipant?.videoTracks.toDartMap()[remoteVideoTrackSid];
       if (remoteVideoTrackPublication != null) {
@@ -296,7 +298,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     _localParticipantListener = null;
   }
 
-<<<<<<< HEAD
   @override
   Future<bool> enableAudioTrack(bool enable, String name) {
     final localAudioTracks = _room?.localParticipant.audioTracks.values();
@@ -530,6 +531,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     return Future(() => true);
   }
 
+  /* RMC 20221124 - OURS START 
   @override
   Future<bool> enableAudioTrack(bool enable, String name) {
     final localAudioTracks = _room?.localParticipant.audioTracks.values();
@@ -547,9 +549,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     }
   }
 
-  /* RMC 20221124 - OURS END */
+  RMC 20221124 - OURS END */
 
-  /* RMC 20221124 - THEIRS START */
+  /* RMC 20221124 - THEIRS 
   @override
   Future<bool> enableVideoTrack(bool enabled, String name) {
     final localVideoTracks = _room?.localParticipant.videoTracks.values();
@@ -568,7 +570,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       throw PlatformException(code: 'NOT_FOUND', message: 'No LocalVideoTrack found with the name \'$name\'');
     }
   }
-  /* RMC 20221124 - THEIRS END */
+  
+  THEIRS END */
 
   /* RMC 20221124 - OURS START 
   @override

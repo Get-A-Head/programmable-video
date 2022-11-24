@@ -126,12 +126,13 @@ class RemoteParticipantEventListener extends BaseListener {
     );
   }
 
-  void onTrackPublishedVideo(RemoteVideoTrackPublication publication) => _remoteParticipantController.add(
-        RemoteVideoTrackPublished(
-          _remoteParticipant.toModel(),
-          publication.toModel(),
-        ),
-      );
+  void onTrackPublishedVideo(RemoteVideoTrackPublication publication) {
+    _remoteParticipantController.add(
+      RemoteVideoTrackPublished(
+        _remoteParticipant.toModel(),
+        publication.toModel(),
+      ),
+    );
     debug('Remote participant >> Adding video track to remote participants video track list');
     _remoteParticipant.videoTracks.toDartMap()[publication.trackSid] = publication;
   }
@@ -176,10 +177,12 @@ class RemoteParticipantEventListener extends BaseListener {
         audioElement.id = track.name;
         document.body?.append(audioElement);
         */
+        /* RMC 20221124 OURS START */
         audioElement.setSinkId(ProgrammableVideoPlugin.speakerDeviceId).then((value) {
           audioElement.id = track.name;
           document.body?.append(audioElement);
         });
+        /* RMC 20221124 OURS END */
         debug('Attached audio element');
         _remoteParticipantController.add(
           RemoteAudioTrackSubscribed(
