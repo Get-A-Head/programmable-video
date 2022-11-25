@@ -18,22 +18,22 @@ dependencies:
   enum_to_string: ^2.0.1
   permission_handler: ^7.0.0
   twilio_programmable_video_platform_interface:
+#    path: ../programmable_video_platform_interface
     git:
       url: https://github.com/Get-A-head/programmable-video.git
-      ref: audio_video_settings
+      ref: 1.0.0
       path: programmable_video_platform_interface
   twilio_programmable_video_web:
+#    path: ../programmable_video_web
     git:
       url: https://github.com/Get-A-head/programmable-video.git
-      ref: audio_video_settings
+      ref: 1.0.0
       path: programmable_video_web
   collection: ^1.15.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  # TODO: Remove the pendantic here and remove the override once the following issue is resolved:
-  # https://github.com/flutter/flutter/issues/48246
   mockito: ^5.0.6
   build_runner: ^2.0.1
 

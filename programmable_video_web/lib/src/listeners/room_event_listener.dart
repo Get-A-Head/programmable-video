@@ -1,14 +1,16 @@
 import 'dart:async';
 
+import 'package:dartlin/dartlin.dart';
 import 'package:js/js.dart';
+import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/js_map.dart';
+import 'package:twilio_programmable_video_web/src/interop/classes/local_track_publication.dart';
+import 'package:twilio_programmable_video_web/src/interop/classes/local_video_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/remote_participant.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/room.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/twilio_error.dart';
 import 'package:twilio_programmable_video_web/src/listeners/base_listener.dart';
 import 'package:twilio_programmable_video_web/src/listeners/remote_participant_event_listener.dart';
-import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
-import 'package:dartlin/dartlin.dart';
 
 class RoomEventListener extends BaseListener {
   final Room _room;
@@ -42,7 +44,8 @@ class RoomEventListener extends BaseListener {
     _off('reconnecting', onReconnecting);
     _off('recordingStarted', onRecordingStarted);
     _off('recordingStopped', onRecordingStopped);
-    _remoteParticipantListeners.values.forEach((remoteParticipantListener) => remoteParticipantListener.removeListeners());
+    _remoteParticipantListeners.values
+        .forEach((remoteParticipantListener) => remoteParticipantListener.removeListeners());
     _remoteParticipantListeners.clear();
   }
 
@@ -67,6 +70,17 @@ class RoomEventListener extends BaseListener {
       );
 
   void onDisconnected(Room room, TwilioError? error) {
+    //Stopping all local tracks
+    debug('Stopping video tracks');
+    iteratorForEach<LocalVideoTrackPublication>(_room.localParticipant.videoTracks.values(), (localTrackPublication) {
+      localTrackPublication.track.stop();
+      return true;
+    });
+    debug('Stopping audio tracks');
+    iteratorForEach<LocalTrackPublication>(_room.localParticipant.audioTracks.values(), (localTrackPublication) {
+      localTrackPublication.track.stop();
+      return true;
+    });
     _roomStreamController.add(Disconnected(room.toModel(), error?.let((it) => it.toModel())));
     debug('Added Disconnected Room Event');
   }
