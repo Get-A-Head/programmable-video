@@ -72,15 +72,19 @@ class RoomEventListener extends BaseListener {
   void onDisconnected(Room room, TwilioError? error) {
     //Stopping all local tracks
     debug('Stopping video tracks');
-    iteratorForEach<LocalVideoTrackPublication>(_room.localParticipant.videoTracks.values(), (localTrackPublication) {
-      localTrackPublication.track.stop();
-      return true;
-    });
-    debug('Stopping audio tracks');
-    iteratorForEach<LocalTrackPublication>(_room.localParticipant.audioTracks.values(), (localTrackPublication) {
-      localTrackPublication.track.stop();
-      return true;
-    });
+    try {
+      iteratorForEach<LocalVideoTrackPublication>(_room.localParticipant.videoTracks.values(), (localTrackPublication) {
+        localTrackPublication.track.stop();
+        return true;
+      });
+      debug('Stopping audio tracks');
+      iteratorForEach<LocalTrackPublication>(_room.localParticipant.audioTracks.values(), (localTrackPublication) {
+        localTrackPublication.track.stop();
+        return true;
+      });
+    } catch (e) {
+      debug('Error stopping tracks: $e');
+    }
     _roomStreamController.add(Disconnected(room.toModel(), error?.let((it) => it.toModel())));
     debug('Added Disconnected Room Event');
   }

@@ -184,8 +184,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   @override
   Future<void> disconnect() async {
     debug('Disconnecting to room: ${_room?.name}');
-    _roomListener?.removeListeners();
-    _localParticipantListener?.removeListeners();
     final localParticipant = _room?.localParticipant;
     if (localParticipant != null) {
       final audioTracks = localParticipant.audioTracks.values();
@@ -224,6 +222,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         return false;
       });
     }
+    _roomListener?.removeListeners();
+    _localParticipantListener?.removeListeners();
     _room?.disconnect();
     _room = null;
     _roomListener = null;
