@@ -534,7 +534,12 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> sendBuffer(ByteBuffer message, String name) async {
-    return Future(() {});
+    final localDataTrackPublications = _room?.localParticipant.dataTracks.toDartMap().values ?? [];
+    for (final localDataTrackPublication in localDataTrackPublications) {
+      if (localDataTrackPublication.trackName == name) {
+        localDataTrackPublication.track.send?.call(message);
+      }
+    }
   }
 
   RemoteAudioTrack? _getRemoteAudioTrack(String sid) {
