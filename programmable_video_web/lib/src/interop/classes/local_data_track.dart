@@ -22,7 +22,7 @@ class LocalDataTrack extends Track {
   external bool get ordered;
   external bool get reliable;
 
-  external dynamic send(dynamic message);
+  external void send(dynamic message);
 
   external factory LocalDataTrack(
     LocalDataTrackOptions options,

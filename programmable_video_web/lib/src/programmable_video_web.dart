@@ -527,7 +527,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     final localDataTrackPublications = _room?.localParticipant.dataTracks.toDartMap().values ?? [];
     for (final localDataTrackPublication in localDataTrackPublications) {
       if (localDataTrackPublication.trackName == name) {
-        localDataTrackPublication.track.send?.call(message);
+        localDataTrackPublication.track.send.call(message);
       }
     }
   }
