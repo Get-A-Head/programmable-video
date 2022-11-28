@@ -22,6 +22,8 @@ class LocalDataTrack extends Track {
   external bool get ordered;
   external bool get reliable;
 
+  external Function(dynamic)? send;
+
   external factory LocalDataTrack(
     LocalDataTrackOptions options,
   );

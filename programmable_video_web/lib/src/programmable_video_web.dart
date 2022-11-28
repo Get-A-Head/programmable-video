@@ -523,12 +523,17 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   Future<void> setTorch(bool enabled) async {}
 
   @override
-  Future<void> sendMessage(String message, String name) {
-    return Future(() {});
+  Future<void> sendMessage(String message, String name) async {
+    final localDataTrackPublications = _room?.localParticipant.dataTracks.toDartMap().values ?? [];
+    for (final localDataTrackPublication in localDataTrackPublications) {
+      if (localDataTrackPublication.trackName == name) {
+        localDataTrackPublication.track.send?.call(message);
+      }
+    }
   }
 
   @override
-  Future<void> sendBuffer(ByteBuffer message, String name) {
+  Future<void> sendBuffer(ByteBuffer message, String name) async {
     return Future(() {});
   }
 
