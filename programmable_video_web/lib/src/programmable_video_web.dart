@@ -524,6 +524,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> sendMessage(String message, String name) {
+    _room?.localParticipant.dataTracks.values().next().value.track.send(message);
     return Future(() {});
   }
 
