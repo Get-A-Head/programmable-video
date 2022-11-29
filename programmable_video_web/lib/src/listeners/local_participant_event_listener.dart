@@ -56,6 +56,9 @@ class LocalParticipantEventListener extends BaseListener {
         ));
       },
       'data': () {
+        LocalDataTrack dataTrack = publication.track as LocalDataTrack;
+        dataTrack.send('HELLO WORLD!!!!!');
+        debug('Sent data to with HELLO WORLD!!!!!');
         _localParticipantController.add(LocalDataTrackPublished(
           _localParticipant.toModel(),
           (publication as LocalDataTrackPublication).toModel(),

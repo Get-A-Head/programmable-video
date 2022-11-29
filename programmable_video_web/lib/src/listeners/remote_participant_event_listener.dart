@@ -190,6 +190,9 @@ class RemoteParticipantEventListener extends BaseListener {
         );
       },
       'data': () {
+        track.on('message', (Track track, dynamic data) {
+          debug('Message received: $data');
+        });
         _remoteParticipantController.add(
           RemoteDataTrackSubscribed(
             remoteParticipantModel: _remoteParticipant.toModel(),

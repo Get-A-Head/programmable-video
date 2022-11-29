@@ -131,9 +131,10 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
   dataTracks?.forEach((track) async {
     final jsTrack = LocalDataTrack(
       LocalDataTrackOptions(
-          maxRetransmits: track.maxRetransmits >= 0 ? track.maxRetransmits : null,
-          maxPacketLifeTime: track.maxPacketLifeTime >= 0 ? track.maxPacketLifeTime : null,
-          ordered: track.ordered),
+        maxRetransmits: track.maxRetransmits >= 0 ? track.maxRetransmits : null,
+        maxPacketLifeTime: track.maxPacketLifeTime >= 0 ? track.maxPacketLifeTime : null,
+        ordered: track.ordered,
+      ),
     );
     tracks.add(jsTrack);
   });

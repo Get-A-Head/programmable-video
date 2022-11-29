@@ -2,8 +2,8 @@
 library remote_data_track;
 
 import 'package:js/js.dart';
-import 'package:twilio_programmable_video_web/src/interop/classes/track.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
+import 'package:twilio_programmable_video_web/src/interop/classes/track.dart';
 
 @JS('Twilio.Video.RemoteDataTrack')
 class RemoteDataTrack extends Track {
