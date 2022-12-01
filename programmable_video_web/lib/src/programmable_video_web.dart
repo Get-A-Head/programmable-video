@@ -86,11 +86,11 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
           final localVideoTrackPublication = room.localParticipant.videoTracks.toDartMap()[_shareTrackSid];
           if (localVideoTrackPublication != null) {
             // localVideoTrackElement = localVideoTrackPublication.track.attach()
-            _cameraVideoElement = localVideoTrackPublication.track.attach()..style.objectFit = 'cover';
+            final _cameraVideoElementAux = localVideoTrackPublication.track.attach()..style.objectFit = 'cover';
+            return _cameraVideoElementAux;
           } else {
             return html.DivElement();
           }
-          return _cameraVideoElement!;
         }
       } else {
         return html.DivElement();
@@ -127,7 +127,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     final room = _room;
 
     if (room != null) {
-      _createLocalViewFactory(isScreenShare: isScreenShare);
+      if (isScreenShare) {
+        _createLocalViewFactory(isScreenShare: true);
+      }
       debug('Created local video track widget for: ${room.localParticipant.sid}');
       return HtmlElementView(
           viewType: !isScreenShare ? 'local-video-track-html' : 'local-screen-share-track-html', key: key);
@@ -478,7 +480,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   }
 
   @override
-  Future<void> setNativeDebug(bool native) async {
+  Future<void> setNativeDebug(bool native, bool audio) async {
     final logger = Logger.getLogger('twilio-video');
     // Currently also enabling SDK debugging when native is true
     if (native && !_sdkDebugSetup) {
@@ -537,7 +539,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     final localDataTrackPublications = _room?.localParticipant.dataTracks.toDartMap().values ?? [];
     for (final localDataTrackPublication in localDataTrackPublications) {
       if (localDataTrackPublication.trackName == name) {
-        localDataTrackPublication.track.send?.call(message);
+        // localDataTrackPublication.track.send?.call(message);
       }
     }
   }
@@ -562,6 +564,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       }
       return remoteAudioTrack;
     }
+    return null;
   }
 
   @override
