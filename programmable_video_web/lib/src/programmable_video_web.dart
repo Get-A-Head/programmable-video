@@ -480,7 +480,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   }
 
   @override
-  Future<void> setNativeDebug(bool native, bool audio) async {
+  Future<void> setNativeDebug(bool native) async {
     final logger = Logger.getLogger('twilio-video');
     // Currently also enabling SDK debugging when native is true
     if (native && !_sdkDebugSetup) {
@@ -526,22 +526,12 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> sendMessage(String message, String name) async {
-    final localDataTrackPublications = _room?.localParticipant.dataTracks.toDartMap().values ?? [];
-    for (final localDataTrackPublication in localDataTrackPublications) {
-      if (localDataTrackPublication.trackName == name) {
-        localDataTrackPublication.track.send.call(message);
-      }
-    }
+    return Future(() => null);
   }
 
   @override
   Future<void> sendBuffer(ByteBuffer message, String name) async {
-    final localDataTrackPublications = _room?.localParticipant.dataTracks.toDartMap().values ?? [];
-    for (final localDataTrackPublication in localDataTrackPublications) {
-      if (localDataTrackPublication.trackName == name) {
-        // localDataTrackPublication.track.send?.call(message);
-      }
-    }
+    return Future(() => null);
   }
 
   RemoteAudioTrack? _getRemoteAudioTrack(String sid) {
