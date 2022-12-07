@@ -4,30 +4,29 @@ import 'dart:html';
 import 'dart:js_util' as js_util;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:js/js.dart';
+import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/js_map.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_audio_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_data_track_publication.dart';
+import 'package:twilio_programmable_video_web/src/interop/classes/local_video_track.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_video_track_publication.dart';
+import 'package:twilio_programmable_video_web/src/interop/classes/logger.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/remote_audio_track.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/remote_audio_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/remote_participant.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/room.dart';
 import 'package:twilio_programmable_video_web/src/interop/connect.dart';
-import 'package:twilio_programmable_video_web/src/interop/classes/logger.dart';
 import 'package:twilio_programmable_video_web/src/interop/version.dart';
-import 'package:twilio_programmable_video_web/src/listeners/room_event_listener.dart';
 import 'package:twilio_programmable_video_web/src/listeners/local_participant_event_listener.dart';
-
-import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
+import 'package:twilio_programmable_video_web/src/listeners/room_event_listener.dart';
 import 'package:version/version.dart';
 
 import 'interop/classes/local_audio_track.dart';
-import 'package:twilio_programmable_video_web/src/interop/classes/js_map.dart';
-import 'package:twilio_programmable_video_web/src/interop/classes/local_video_track.dart';
 
 class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static Room? _room;
@@ -176,7 +175,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     final room = _room;
 
     if (room != null) {
-      _createLocalViewFactory(isScreenShare: isScreenShare);
+      if (isScreenShare) {
+        _createLocalViewFactory(isScreenShare: true);
+      }
       debug('Created local video track widget for: ${room.localParticipant.sid}');
       return HtmlElementView(
           viewType: !isScreenShare ? 'local-video-track-html' : 'local-screen-share-track-html', key: key);
@@ -193,7 +194,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     Key? key,
   }) {
     key ??= ValueKey(remoteVideoTrackSid);
-
 
     if (!_registeredRemoteParticipantViewFactories.contains(remoteParticipantSid)) {
       _createRemoteViewFactory(remoteParticipantSid, remoteVideoTrackSid);
@@ -230,7 +230,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     _roomStreamController.onListen = _onConnected;
 
     final twilioVersion = Version.parse(version);
-    if (twilioVersion.major != supportedVersion.major || (twilioVersion.major == supportedVersion.major && twilioVersion.minor > supportedVersion.minor)) {
+    if (twilioVersion.major != supportedVersion.major ||
+        (twilioVersion.major == supportedVersion.major && twilioVersion.minor > supportedVersion.minor)) {
       throw UnsupportedError('Current supported JS version is: $supportedVersion');
     }
 
@@ -252,7 +253,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     if (localParticipant != null) {
       final audioTracks = localParticipant.audioTracks.values();
       iteratorForEach<LocalAudioTrackPublication>(audioTracks, (publication) {
-        debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
+        debug(
+            'ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
         /* RMC - 20221124 - OURS START */
         try {
           debug('ProgrammableVideoWeb::stopping => ${publication.track.kind} track ${publication.trackSid}');
@@ -269,7 +271,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
       final videoTracks = localParticipant.videoTracks.values();
       iteratorForEach<LocalVideoTrackPublication>(videoTracks, (publication) {
-        debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
+        debug(
+            'ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
 
         /* RMC - 20221124 - OURS START */
         try {
@@ -287,7 +290,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
       final dataTracks = localParticipant.dataTracks.values();
       iteratorForEach<LocalDataTrackPublication>(dataTracks, (publication) {
-        debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
+        debug(
+            'ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
         _room?.localParticipant.unpublishTrack(publication.track);
         return false;
       });
