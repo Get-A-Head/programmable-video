@@ -80,6 +80,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         debug('Creating local video track view for:  ${room.localParticipant.sid}');
         if (!isScreenShare) {
           _cameraVideoElement = room.localParticipant.videoTracks.values().next().value.track.attach()
+            ..setAttribute('height', '100%')
+            ..setAttribute('width', '100%')
+            ..setAttribute('playsinline', 'true')
             ..style.objectFit = 'cover';
           return _cameraVideoElement!;
         } else {
