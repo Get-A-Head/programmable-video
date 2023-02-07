@@ -253,6 +253,7 @@ class RemoteParticipantListener : BaseListener(), RemoteParticipant.Listener {
         @JvmStatic
         fun remoteParticipantToMap(remoteParticipant: RemoteParticipant, noTracks: Boolean = false): Map<String, Any?> {
             val remoteAudioTrackPublications = if (!noTracks) remoteParticipant.remoteAudioTracks.map { remoteAudioTrackPublicationToMap(it) } else null
+            val remoteDataTrackPublications = if (!noTracks) remoteParticipant.remoteDataTracks.map { remoteDataTrackPublicationToMap(it) } else null
             val remoteVideoTrackPublications = if (!noTracks) remoteParticipant.remoteVideoTracks.map { remoteVideoTrackPublicationToMap(it) } else null
 
             return mapOf(
@@ -260,6 +261,7 @@ class RemoteParticipantListener : BaseListener(), RemoteParticipant.Listener {
                     "sid" to remoteParticipant.sid,
                     "networkQualityLevel" to remoteParticipant.networkQualityLevel.toString(),
                     "remoteAudioTrackPublications" to remoteAudioTrackPublications,
+                    "remoteDataTrackPublications" to remoteDataTrackPublications,
                     "remoteVideoTrackPublications" to remoteVideoTrackPublications
             )
         }

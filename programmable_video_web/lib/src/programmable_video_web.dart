@@ -21,10 +21,8 @@ import 'package:twilio_programmable_video_web/src/interop/classes/remote_audio_t
 import 'package:twilio_programmable_video_web/src/interop/classes/remote_participant.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/room.dart';
 import 'package:twilio_programmable_video_web/src/interop/connect.dart';
-import 'package:twilio_programmable_video_web/src/interop/version.dart';
 import 'package:twilio_programmable_video_web/src/listeners/local_participant_event_listener.dart';
 import 'package:twilio_programmable_video_web/src/listeners/room_event_listener.dart';
-import 'package:version/version.dart';
 
 import 'interop/classes/local_audio_track.dart';
 
@@ -213,7 +211,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   void _onConnected() async {
     final room = _room;
     if (room != null) {
-      _roomListener = RoomEventListener(room, _roomStreamController, _remoteParticipantController);
+      _roomListener =
+          RoomEventListener(room, _roomStreamController, _remoteParticipantController, _remoteDataTrackController);
       _roomListener!.addListeners();
       _localParticipantListener = LocalParticipantEventListener(room.localParticipant, _localParticipantController);
       _localParticipantListener!.addListeners();
@@ -229,11 +228,11 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   Future<int> connectToRoom(ConnectOptionsModel connectOptions) async {
     _roomStreamController.onListen = _onConnected;
 
-    final twilioVersion = Version.parse(version);
-    if (twilioVersion.major != supportedVersion.major ||
-        (twilioVersion.major == supportedVersion.major && twilioVersion.minor > supportedVersion.minor)) {
-      throw UnsupportedError('Current supported JS version is: $supportedVersion');
-    }
+    // final twilioVersion = Version.parse(version);
+    // if (twilioVersion.major != supportedVersion.major ||
+    //     (twilioVersion.major == supportedVersion.major && twilioVersion.minor > supportedVersion.minor)) {
+    //   throw UnsupportedError('Current supported JS version is: $supportedVersion');
+    // }
 
     try {
       _room = await connectWithModel(connectOptions);
@@ -643,11 +642,45 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<void> sendMessage(String message, String name) {
+    final localDataTracks = _room?.localParticipant.dataTracks.values();
+    var found = false;
+    if (localDataTracks != null) {
+      iteratorForEach<LocalDataTrackPublication>(localDataTracks, (localDataTrackPublication) {
+        if (localDataTrackPublication.trackName == name) {
+          localDataTrackPublication.track.send(message);
+          found = true;
+        }
+        return found;
+      });
+    }
+
+    if (found) {
+      debug('Sent the string message: $message for local data track: $name');
+    } else {
+      throw PlatformException(code: 'NOT_FOUND', message: 'No LocalDataTrack found with the name \'$name\'');
+    }
     return Future(() {});
   }
 
   @override
   Future<void> sendBuffer(ByteBuffer message, String name) {
+    final localDataTracks = _room?.localParticipant.dataTracks.values();
+    var found = false;
+    if (localDataTracks != null) {
+      iteratorForEach<LocalDataTrackPublication>(localDataTracks, (localDataTrackPublication) {
+        if (localDataTrackPublication.trackName == name) {
+          localDataTrackPublication.track.send(message);
+          found = true;
+        }
+        return found;
+      });
+    }
+
+    if (found) {
+      debug('Sent the buffer message: $message for local data track: $name');
+    } else {
+      throw PlatformException(code: 'NOT_FOUND', message: 'No LocalDataTrack found with the name \'$name\'');
+    }
     return Future(() {});
   }
 

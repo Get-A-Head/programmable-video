@@ -114,7 +114,7 @@ void main() {
 
   group('.onVideoTrackPublished', () {
     test('should process `LocalVideoTrackPublished` correctly', () async {
-      mockInterface!.addLocalParticipantEvent(const LocalVideoTrackPublished(
+      mockInterface!.addLocalParticipantEvent(LocalVideoTrackPublished(
         localParticipantModel,
         ModelInstances.localVideoTrackPublicationModel,
       ));
@@ -130,7 +130,7 @@ void main() {
 
   group('.onVideoTrackPublicationFailed', () {
     test('should process `LocalVideoTrackPublicationFailed` correctly', () async {
-      mockInterface!.addLocalParticipantEvent(const LocalVideoTrackPublicationFailed(
+      mockInterface!.addLocalParticipantEvent(LocalVideoTrackPublicationFailed(
         localParticipantModel: localParticipantModel,
         localVideoTrack: ModelInstances.localVideoTrackModel,
         exception: ModelInstances.twilioExceptionModel,
