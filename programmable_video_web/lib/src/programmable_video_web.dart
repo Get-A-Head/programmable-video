@@ -534,49 +534,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     return Future(() => true);
   }
 
-  /* RMC 20221124 - OURS START 
-  @override
-  Future<bool> enableAudioTrack(bool enable, String name) {
-    final localAudioTracks = _room?.localParticipant.audioTracks.values();
-    if (localAudioTracks != null) {
-      final localAudioTrack = localAudioTracks.next().value;
-      if (enable) {
-        localAudioTrack.track.enable();
-      } else {
-        localAudioTrack.track.disable();
-      }
-      debug('${enable ? 'Enabled' : 'Disabled'} Local Audio Track');
-      return Future(() => enable);
-    } else {
-      throw PlatformException(code: 'NOT_FOUND', message: 'No LocalAudioTrack found with the name \'$name\'');
-    }
-  }
-
-  RMC 20221124 - OURS END */
-
-  /* RMC 20221124 - THEIRS 
-  @override
-  Future<bool> enableVideoTrack(bool enabled, String name) {
-    final localVideoTracks = _room?.localParticipant.videoTracks.values();
-    if (localVideoTracks != null) {
-      iteratorForEach<LocalVideoTrackPublication>(localVideoTracks, (localVideoTrack) {
-        final found = localVideoTrack.trackName == name;
-        if (found) {
-          enabled ? localVideoTrack.track.enable() : localVideoTrack.track.disable();
-        }
-        return found;
-      });
-
-      debug('${enabled ? 'Enabled' : 'Disabled'} Local Video Track');
-      return Future(() => enabled);
-    } else {
-      throw PlatformException(code: 'NOT_FOUND', message: 'No LocalVideoTrack found with the name \'$name\'');
-    }
-  }
-  
-  THEIRS END */
-
-  /* RMC 20221124 - OURS START 
   @override
   Future<bool> enableVideoTrack(bool enable, String name) {
     final localVideoTracks = _room?.localParticipant.videoTracks.values();
@@ -593,7 +550,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       throw PlatformException(code: 'NOT_FOUND', message: 'No LocalVideoTrack found with the name \'$name\'');
     }
   }
-  */
 
   @override
   Future<void> setNativeDebug(bool native, bool audio) async {
