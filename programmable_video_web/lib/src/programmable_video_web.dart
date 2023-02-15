@@ -193,18 +193,11 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   }) {
     key ??= ValueKey(remoteVideoTrackSid);
 
-    if (!_registeredRemoteParticipantViewFactories.contains(remoteParticipantSid)) {
-      _createRemoteViewFactory(remoteParticipantSid, remoteVideoTrackSid);
-      _registeredRemoteParticipantViewFactories.add(remoteParticipantSid);
-    }
-    debug('Created remote video track widget for: $remoteParticipantSid');
-    /* RMC 20221124 - OURS
     if (!_registeredRemoteParticipantViewFactories.contains(remoteVideoTrackSid)) {
       _createRemoteViewFactory(remoteParticipantSid, remoteVideoTrackSid);
       _registeredRemoteParticipantViewFactories.add(remoteVideoTrackSid);
       debug('Created remote video track widget for: $remoteVideoTrackSid');
     }
-    */
     return HtmlElementView(viewType: 'remote-video-track-#$remoteVideoTrackSid-html', key: key);
   }
 
