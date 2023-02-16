@@ -285,7 +285,18 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         _room?.localParticipant.unpublishTrack(publication.track);
         return false;
       });
+    } else {
+      try {
+        debug('ProgrammableVideoWeb::stopping microphone tracks manually');
+        microphoneTrack?.stop();
+        debug('ProgrammableVideoWeb::stopping camera tracks manually');
+        cameraTrack?.stop();
+        shareTrack?.stop();
+      } catch (err) {
+        debug('Error at stopping track $err');
+      }
     }
+
     _roomListener?.removeListeners();
     _localParticipantListener?.removeListeners();
     _room?.disconnect();
