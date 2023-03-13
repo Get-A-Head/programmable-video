@@ -1,3 +1,7 @@
+## 1.0.1
+
+- Updated `permission_handler` dependency from 9.2.0 to 10.2.0
+
 ## 1.0.0
 
 - Integrates updates for mobile platforms from version 0.13.0

@@ -1,4 +1,3 @@
-import 'package:dartlin/dartlin.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:twilio_programmable_video_platform_interface/src/audio_codecs/audio_codec.dart';
 import 'package:twilio_programmable_video_platform_interface/src/enums/enum_exports.dart';
@@ -26,9 +25,6 @@ class ConnectOptionsModel {
   /// Set preferred video codecs.
   final List<VideoCodec>? preferredVideoCodecs;
 
-  /// Audio speaker device id to use for outgoing audio.
-  final String? speakerDeviceId;
-
   /// Audio tracks that will be published upon connection.
   final List<LocalAudioTrackModel>? audioTracks;
 
@@ -52,7 +48,6 @@ class ConnectOptionsModel {
   ConnectOptionsModel(
     this.accessToken, {
     this.audioTracks,
-    this.speakerDeviceId, //RMC 20221124 added by us
     this.dataTracks,
     this.preferredAudioCodecs,
     this.preferredVideoCodecs,
@@ -68,11 +63,7 @@ class ConnectOptionsModel {
         assert((dataTracks != null && dataTracks.isNotEmpty) || dataTracks == null),
         assert((preferredAudioCodecs != null && preferredAudioCodecs.isNotEmpty) || preferredAudioCodecs == null),
         assert((preferredVideoCodecs != null && preferredVideoCodecs.isNotEmpty) || preferredVideoCodecs == null),
-        assert((videoTracks != null && videoTracks.isNotEmpty) || videoTracks == null),
-        assert((region != null && region is Region) || region == null),
-        assert(
-            (networkQualityConfiguration != null && networkQualityConfiguration is NetworkQualityConfigurationModel) ||
-                networkQualityConfiguration == null);
+        assert((videoTracks != null && videoTracks.isNotEmpty) || videoTracks == null);
 
   /// Create map from properties.
   Map<String, Object> toMap() {
@@ -86,7 +77,6 @@ class ConnectOptionsModel {
         'audioTracks': audioTracks != null ? Map<Object, Object>.fromIterable(audioTracks!.map<Map<String, Object?>>((TrackModel a) => a.toMap())) : null,
         'dataTracks': dataTracks != null ? Map<Object, Object>.fromIterable(dataTracks!.map<Map<String, Object>>((LocalDataTrackModel d) => d.toMap())) : null,
         'videoTracks': videoTracks != null ? Map<Object, Object>.fromIterable(videoTracks!.map<Map<String, Object?>>((LocalVideoTrackModel v) => v.toMap())) : null,
-        'speakerDeviceId': speakerDeviceId, //RMC20221124 ADDED by us
         'enableDominantSpeaker': enableDominantSpeaker,
         'enableAutomaticSubscription': enableAutomaticSubscription,
         'enableNetworkQuality': enableNetworkQuality,

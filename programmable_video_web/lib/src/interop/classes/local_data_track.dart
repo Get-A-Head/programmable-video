@@ -2,8 +2,8 @@
 library local_data_track;
 
 import 'package:js/js.dart';
-import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/track.dart';
+import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 @JS()
 @anonymous
@@ -21,7 +21,6 @@ class LocalDataTrack extends Track {
   external int? get maxRetransmits;
   external bool get ordered;
   external bool get reliable;
-  external void send(dynamic data);
 
   external factory LocalDataTrack(
     LocalDataTrackOptions options,

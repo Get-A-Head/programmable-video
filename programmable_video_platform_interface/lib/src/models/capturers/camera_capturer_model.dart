@@ -6,9 +6,9 @@ class CameraCapturerModel implements VideoCapturerModel {
   final CameraSource? source;
   final String type;
   @override
-  bool isScreencast = false;
+  final bool isScreencast = false;
 
-  CameraCapturerModel(
+  const CameraCapturerModel(
     this.source,
     this.type,
   );

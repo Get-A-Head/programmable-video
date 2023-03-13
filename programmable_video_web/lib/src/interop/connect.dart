@@ -1,7 +1,6 @@
 @JS()
 library interop;
 
-import 'dart:html';
 import 'package:collection/collection.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:js/js.dart';
@@ -14,7 +13,6 @@ import 'package:twilio_programmable_video_web/src/interop/classes/local_video_tr
 import 'package:twilio_programmable_video_web/src/interop/classes/room.dart';
 import 'package:twilio_programmable_video_web/twilio_programmable_video_web.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
-import 'classes/local_video_track.dart';
 
 @JS('Twilio.Video.connect')
 external Future<Room> connect(
@@ -93,45 +91,18 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
   final audioTracks = model.audioTracks;
   if (audioTracks != null) {
     await Future.forEach(audioTracks, (LocalAudioTrackModel track) async {
-    /* RMC 20221124 THEIRS 
       final options = CreateLocalTrackOptions(name: track.name);
       final jsTrack = await promiseToFuture<LocalAudioTrack>(createLocalAudioTrack(options));
       tracks.add(jsTrack);
-      */
-      final options = CreateLocalTrackOptions(name: 'microphone-device-#' + track.name);
-
-      ProgrammableVideoPlugin.debug('Trying to connect audio with specific device id >>> ${track.name}');
-      final audioStream = await window.navigator.mediaDevices!.getUserMedia({
-        'audio': {'deviceId': track.name},
-      });
-      if (audioStream.getAudioTracks().isNotEmpty) {
-        ProgrammableVideoPlugin.microphoneMediaStream = audioStream;
-        ProgrammableVideoPlugin.microphoneTrack = audioStream.getAudioTracks().first;
-        tracks.add(LocalAudioTrack(audioStream.getTracks().first, options));
-      }
     });
   }
 
   final videoTracks = model.videoTracks;
   if (videoTracks != null) {
     await Future.forEach(videoTracks, (LocalVideoTrackModel track) async {
-    /* RMC 20221124 THEIRS
       final options = CreateLocalTrackOptions(name: track.name);
       final jsTrack = await promiseToFuture(createLocalVideoTrack(options));
       tracks.add(jsTrack);
-      */
-      final options = CreateLocalTrackOptions(name: 'camera-device-#' + track.name);
-
-      ProgrammableVideoPlugin.debug('Trying to connect video with specific device id >>> ${track.name}');
-
-      final cameraStream = await window.navigator.mediaDevices!.getUserMedia({
-        'video': {'deviceId': track.name},
-      });
-      if (cameraStream.getTracks().isNotEmpty) {
-        ProgrammableVideoPlugin.cameraMediaStream = cameraStream;
-        ProgrammableVideoPlugin.cameraTrack = cameraStream.getTracks().first;
-        tracks.add(LocalVideoTrack(cameraStream.getTracks().first, options));
-      }
     });
   }
 
@@ -142,7 +113,6 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
     );
     tracks.add(jsTrack);
   });
-  ProgrammableVideoPlugin.speakerDeviceId = model.speakerDeviceId ?? 'default';
 
   final room = await promiseToFuture<Room>(
     connect(

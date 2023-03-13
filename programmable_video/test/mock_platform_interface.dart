@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 class MockInterface extends ProgrammableVideoPlatform {
@@ -11,7 +9,6 @@ class MockInterface extends ProgrammableVideoPlatform {
   // ignore: prefer_typing_uninitialized_variables
   var nativeDebug;
   var setSpeakerPhoneOnWasCalled = false;
-  var speakerPhoneOn = false;
   var getSpeakerPhoneOnWasCalled = false;
   var setAudioSettingsWasCalled = false;
   var getAudioSettingsWasCalled = false;
@@ -30,8 +27,15 @@ class MockInterface extends ProgrammableVideoPlatform {
   var sendBufferWasCalled = false;
   var disconnectWasCalled = false;
 
+  /* TWILIO-1.0.1
   @override
-  Widget createLocalVideoTrackWidget({bool isScreenShare = false, bool mirror = true, Key? key}) {
+  Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
+    key ??= const ValueKey('Twilio_LocalParticipant');
+    return Container(key: key);
+  }
+  */
+  @override
+  Widget createLocalVideoTrackWidget({bool mirror = true, Key? key, bool isScreenShare = false}) {
     key ??= const ValueKey('Twilio_LocalParticipant');
     return Container(key: key);
   }

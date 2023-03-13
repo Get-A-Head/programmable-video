@@ -53,11 +53,22 @@ class ModelInstances {
     sid: 'sid',
     localDataTrack: localDataTrackModel,
   );
-
+  /* TWILIO-1.0.1
   static final localVideoTrackModel = LocalVideoTrackModel(
     name: 'name',
     enabled: true,
     cameraCapturer: CameraCapturerModel(CameraSource('FRONT_CAMERA', false, false, false), 'CameraCapturer'),
+  );
+
+  static final localVideoTrackPublicationModel = LocalVideoTrackPublicationModel(
+    sid: 'sid',
+    localVideoTrack: localVideoTrackModel,
+  );
+  */
+  static final localVideoTrackModel = LocalVideoTrackModel(
+    name: 'name',
+    enabled: true,
+    cameraCapturer: CameraCapturerModel(const CameraSource('FRONT_CAMERA', false, false, false), 'CameraCapturer'),
   );
 
   static final localVideoTrackPublicationModel = LocalVideoTrackPublicationModel(
