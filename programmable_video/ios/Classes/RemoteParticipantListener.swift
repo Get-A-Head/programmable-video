@@ -250,9 +250,12 @@ class RemoteParticipantListener: BaseListener, RemoteParticipantDelegate {
         let remoteVideoTrackPublications: Any? = noTracks ? nil : remoteParticipant.remoteVideoTracks.map({ (it) -> [String: Any] in
             return remoteVideoTrackPublicationToDict(it)
         })
+        /// OUR IMPLEMENTATION -- START
         let remoteDataTrackPublications: Any? = noTracks ? nil : remoteParticipant.remoteDataTracks.map({ (it) -> [String: Any] in
-                    return remoteDataTrackPublicationToDict(it)
-                })
+                            return remoteDataTrackPublicationToDict(it)
+                        })
+
+        /// OUR IMPLEMENTATION - END
 
         return [
             "identity": remoteParticipant.identity,

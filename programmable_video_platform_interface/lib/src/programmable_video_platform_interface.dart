@@ -42,9 +42,11 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
 
   //#region Functions
   /// Calls native code to create a widget displaying the LocalVideoTrack's video.
-  /* RMC 20221124 ORIGINAL CODE 
+  /* TWILIO - 1.0.1
   Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
-  */
+    throw UnimplementedError('createLocalVideoTrackWidget() has not been implemented.');
+  }
+   */
   Widget createLocalVideoTrackWidget({bool isScreenShare = false, bool mirror = true, Key? key}) {
     throw UnimplementedError('createLocalVideoTrackWidget() has not been implemented.');
   }
@@ -177,6 +179,13 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
     throw UnimplementedError('switchCamera() has not been implemented.');
   }
 
+  /// Calls native code to change the torch state.
+  Future<void> setTorch(bool enabled) {
+    throw UnimplementedError('setTorch(bool enabled) has not been implemented.');
+  }
+
+  /// OUR IMPLEMENTATION -- START
+
   /// Calls native code to start screen share
   ///
   /// * Returns a [Future] that completes with a [bool] indicating whether the screen share init was successful.
@@ -215,15 +224,13 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
     throw UnimplementedError('setCameraDeviceId has not been implemented.');
   }
 
-  /// Calls native code to change the torch state.
-  Future<void> setTorch(bool enabled) {
-    throw UnimplementedError('setTorch(bool enabled) has not been implemented.');
-  }
+  /// OUR IMPLEMENTATION - END
 
   //#endregion
 
   //#region Streams
 
+  /// OUR IMPLEMENTATION -- START
   /// Stream of the Screen share ended event.
   ///
   /// This stream is used to listen screen share termination from the user (not from ui).

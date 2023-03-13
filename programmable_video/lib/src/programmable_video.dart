@@ -139,7 +139,7 @@ class TwilioProgrammableVideo {
     return settings;
   }
 
-
+  /// OUR IMPLEMENTATION -- START
   /// Calls native code to start screen share
   ///
   /// * Returns a [Future] that completes with a [bool] indicating whether the screen share init was successful.
@@ -166,8 +166,9 @@ class TwilioProgrammableVideo {
   /// Stream of the Screen share ended event.
   ///
   /// This stream is used to listen screen share termination from the user (not from ui).
-  static Stream<dynamic>? onScreenShareEndedStream () => ProgrammableVideoPlatform.instance.onScreenShareEndedStream();
+  static Stream<dynamic>? onScreenShareEndedStream() => ProgrammableVideoPlatform.instance.onScreenShareEndedStream();
 
+  /// OUR IMPLEMENTATION - END
 
   /// This check is extraneous to the plugin itself, and its reliability and implementation varies by platform
   /// as follows:

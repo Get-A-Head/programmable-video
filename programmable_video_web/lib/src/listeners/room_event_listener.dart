@@ -14,17 +14,19 @@ class RoomEventListener extends BaseListener {
   final Room _room;
   final StreamController<BaseRoomEvent> _roomStreamController;
   final StreamController<BaseRemoteParticipantEvent> _remoteParticipantController;
-  final StreamController<BaseRemoteDataTrackEvent> _remoteDataTrackController;
   final Map<String, RemoteParticipantEventListener> _remoteParticipantListeners = {};
-
-  RoomEventListener(
-    this._room,
-    this._roomStreamController,
-    this._remoteParticipantController,
-    this._remoteDataTrackController,
-  ) {
+  /* TWILIO - 1.0.1
+  RoomEventListener(this._room, this._roomStreamController, this._remoteParticipantController) {
     _addPriorRemoteParticipantListeners();
   }
+   */
+  /// OUR IMPLEMENTATION - START
+  final StreamController<BaseRemoteDataTrackEvent> _remoteDataTrackController;
+  RoomEventListener(this._room, this._roomStreamController, this._remoteParticipantController, this._remoteDataTrackController) {
+    _addPriorRemoteParticipantListeners();
+  }
+
+  /// OUR IMPLEMENTATION - END
 
   void addListeners() {
     debug('Adding RoomEventListeners for ${_room.sid}');
@@ -48,19 +50,23 @@ class RoomEventListener extends BaseListener {
     _off('reconnecting', onReconnecting);
     _off('recordingStarted', onRecordingStarted);
     _off('recordingStopped', onRecordingStopped);
-    _remoteParticipantListeners.values
-        .forEach((remoteParticipantListener) => remoteParticipantListener.removeListeners());
+    _remoteParticipantListeners.values.forEach((remoteParticipantListener) => remoteParticipantListener.removeListeners());
     _remoteParticipantListeners.clear();
   }
 
   void _addPriorRemoteParticipantListeners() {
     final remoteParticipants = _room.participants.values();
     iteratorForEach<RemoteParticipant>(remoteParticipants, (remoteParticipant) {
-      final remoteParticipantListener =
-          RemoteParticipantEventListener(remoteParticipant, _remoteParticipantController, _remoteDataTrackController);
+      /* TWILIO - 1.0.1
+      final remoteParticipantListener = RemoteParticipantEventListener(remoteParticipant, _remoteParticipantController, _remoteDataTrackController);
+       */
+      /// OUR IMPLEMENTATION - START
+      final remoteParticipantListener = RemoteParticipantEventListener(remoteParticipant, _remoteParticipantController, _remoteDataTrackController);
       remoteParticipantListener.addListeners();
       _remoteParticipantListeners[remoteParticipant.sid] = remoteParticipantListener;
       return false;
+
+      /// OUR IMPLEMENTATION - END
     });
   }
 
@@ -87,11 +93,16 @@ class RoomEventListener extends BaseListener {
   void onParticipantConnected(RemoteParticipant participant) {
     _roomStreamController.add(ParticipantConnected(_room.toModel(), participant.toModel()));
     debug('Added ParticipantConnected Room Event');
+    /* TWILIO - 1.0.1
+    final remoteParticipantListener = RemoteParticipantEventListener(participant, _remoteParticipantController);
 
-    final remoteParticipantListener =
-        RemoteParticipantEventListener(participant, _remoteParticipantController, _remoteDataTrackController);
+     */
+    /// OUR IMPLEMENTATION - START
+    final remoteParticipantListener = RemoteParticipantEventListener(participant, _remoteParticipantController, _remoteDataTrackController);
     remoteParticipantListener.addListeners();
     _remoteParticipantListeners[participant.sid] = remoteParticipantListener;
+
+    /// OUR IMPLEMENTATION - END
   }
 
   void onParticipantDisconnected(RemoteParticipant participant) {

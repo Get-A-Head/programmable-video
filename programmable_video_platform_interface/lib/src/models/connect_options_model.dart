@@ -4,7 +4,6 @@ import 'package:twilio_programmable_video_platform_interface/src/audio_codecs/au
 import 'package:twilio_programmable_video_platform_interface/src/enums/enum_exports.dart';
 import 'package:twilio_programmable_video_platform_interface/src/models/model_exports.dart';
 import 'package:twilio_programmable_video_platform_interface/src/video_codecs/video_codec.dart';
-import 'package:dartlin/dartlin.dart';
 
 class ConnectOptionsModel {
   /// This Access Token is the credential you must use to identify and authenticate your request.
@@ -26,6 +25,7 @@ class ConnectOptionsModel {
   /// Set preferred video codecs.
   final List<VideoCodec>? preferredVideoCodecs;
 
+  /// OUR IMPLEMENTATION -- DO NOT REMOVE
   /// Audio speaker device id to use for outgoing audio.
   final String? speakerDeviceId;
 
@@ -52,8 +52,10 @@ class ConnectOptionsModel {
   ConnectOptionsModel(
     this.accessToken, {
     this.audioTracks,
-    this.speakerDeviceId, //RMC 20221124 added by us
     this.dataTracks,
+
+    /// OUR IMPLEMENTATION -- DO NOT REMOVE
+    this.speakerDeviceId,
     this.preferredAudioCodecs,
     this.preferredVideoCodecs,
     this.region,
@@ -70,9 +72,7 @@ class ConnectOptionsModel {
         assert((preferredVideoCodecs != null && preferredVideoCodecs.isNotEmpty) || preferredVideoCodecs == null),
         assert((videoTracks != null && videoTracks.isNotEmpty) || videoTracks == null),
         assert((region != null && region is Region) || region == null),
-        assert(
-            (networkQualityConfiguration != null && networkQualityConfiguration is NetworkQualityConfigurationModel) ||
-                networkQualityConfiguration == null);
+        assert((networkQualityConfiguration != null && networkQualityConfiguration is NetworkQualityConfigurationModel) || networkQualityConfiguration == null);
 
   /// Create map from properties.
   Map<String, Object> toMap() {
@@ -86,7 +86,9 @@ class ConnectOptionsModel {
         'audioTracks': audioTracks != null ? Map<Object, Object>.fromIterable(audioTracks!.map<Map<String, Object?>>((TrackModel a) => a.toMap())) : null,
         'dataTracks': dataTracks != null ? Map<Object, Object>.fromIterable(dataTracks!.map<Map<String, Object>>((LocalDataTrackModel d) => d.toMap())) : null,
         'videoTracks': videoTracks != null ? Map<Object, Object>.fromIterable(videoTracks!.map<Map<String, Object?>>((LocalVideoTrackModel v) => v.toMap())) : null,
-        'speakerDeviceId': speakerDeviceId, //RMC20221124 ADDED by us
+        'speakerDeviceId': speakerDeviceId,
+
+        /// OUR IMPLEMENTATION -- DO NOT REMOVE
         'enableDominantSpeaker': enableDominantSpeaker,
         'enableAutomaticSubscription': enableAutomaticSubscription,
         'enableNetworkQuality': enableNetworkQuality,

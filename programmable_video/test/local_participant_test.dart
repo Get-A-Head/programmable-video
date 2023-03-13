@@ -111,7 +111,40 @@ void main() {
       );
     });
   });
+  /* TWILIO-1.0.1
+  group('.onVideoTrackPublished', () {
+    test('should process `LocalVideoTrackPublished` correctly', () async {
+      mockInterface!.addLocalParticipantEvent(const LocalVideoTrackPublished(
+        localParticipantModel,
+        ModelInstances.localVideoTrackPublicationModel,
+      ));
+      final event = await localParticipant!.onVideoTrackPublished.first;
+      expect(event, isA<LocalVideoTrackPublishedEvent>());
+      expect(event.localParticipant, localParticipant);
+      expect(
+        event.localVideoTrackPublication.localVideoTrack.name,
+        ModelInstances.localVideoTrackPublicationModel.localVideoTrack.name,
+      );
+    });
+  });
 
+  group('.onVideoTrackPublicationFailed', () {
+    test('should process `LocalVideoTrackPublicationFailed` correctly', () async {
+      mockInterface!.addLocalParticipantEvent(const LocalVideoTrackPublicationFailed(
+        localParticipantModel: localParticipantModel,
+        localVideoTrack: ModelInstances.localVideoTrackModel,
+        exception: ModelInstances.twilioExceptionModel,
+      ));
+      final event = await localParticipant!.onVideoTrackPublicationFailed.first;
+      expect(event, isA<LocalVideoTrackPublicationFailedEvent>());
+      expect(event.localParticipant, localParticipant);
+      expect(
+        event.localVideoTrack.name,
+        ModelInstances.localVideoTrackModel.name,
+      );
+    });
+  });
+  */
   group('.onVideoTrackPublished', () {
     test('should process `LocalVideoTrackPublished` correctly', () async {
       mockInterface!.addLocalParticipantEvent(LocalVideoTrackPublished(
