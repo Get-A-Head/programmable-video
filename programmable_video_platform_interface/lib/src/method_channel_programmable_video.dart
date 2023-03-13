@@ -2,8 +2,9 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter/services.dart';
 import 'package:enum_to_string/enum_to_string.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:twilio_programmable_video_platform_interface/src/camera_source.dart';
 
@@ -61,8 +62,22 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
 
   //#region Functions
   /// Calls native code to create a widget displaying the LocalVideoTrack's video.
+  /* TWILIO - 1.0.1
+    @override
+    Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
+      key ??= ValueKey('Twilio_LocalParticipant');
+
+      final creationParams = {
+        'isLocal': true,
+        'mirror': mirror,
+      };
+
+      return _videoTrackWidget(creationParams, key);
+    }
+  */
+  /// OUR IMPLEMENTATION -- START
   @override
-  Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
+  Widget createLocalVideoTrackWidget({bool isScreenShare = false, bool mirror = true, Key? key}) {
     key ??= ValueKey('Twilio_LocalParticipant');
 
     final creationParams = {
@@ -72,6 +87,8 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
 
     return _videoTrackWidget(creationParams, key);
   }
+
+  /// OUR IMPLEMENTATION - END
 
   /// Calls native code to create a widget displaying a RemoteVideoTrack's video.
   @override

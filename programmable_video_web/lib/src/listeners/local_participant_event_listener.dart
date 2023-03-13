@@ -1,7 +1,9 @@
 import 'dart:async';
 
-import 'package:js/js.dart';
 import 'package:dartlin/dartlin.dart';
+import 'package:js/js.dart';
+import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
+import 'package:twilio_programmable_video_web/src/interop/classes/js_map.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_audio_track.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_audio_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_data_track.dart';
@@ -13,7 +15,6 @@ import 'package:twilio_programmable_video_web/src/interop/classes/local_video_tr
 import 'package:twilio_programmable_video_web/src/interop/classes/twilio_error.dart';
 import 'package:twilio_programmable_video_web/src/interop/network_quality_level.dart';
 import 'package:twilio_programmable_video_web/src/listeners/base_listener.dart';
-import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 class LocalParticipantEventListener extends BaseListener {
   final LocalParticipant _localParticipant;
@@ -65,6 +66,14 @@ class LocalParticipantEventListener extends BaseListener {
           _localParticipant.toModel(),
           (publication as LocalVideoTrackPublication).toModel(),
         ));
+
+        /// OUR IMPLEMENTATION -- START
+        if (_localParticipant.videoTracks.toDartMap()[publication.trackSid] != null) {
+          debug('Remote participant >> Adding video track publication to remote participant video track list');
+          _localParticipant.videoTracks.toDartMap()[publication.trackSid] = publication;
+        }
+
+        /// OUR IMPLEMENTATION - END
       },
     });
   }

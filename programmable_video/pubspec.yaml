@@ -12,13 +12,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  permission_handler: ^10.2.0
+
+  collection: ^1.15.0
+  dartlin: 0.6.1 # OUR IMPLEMENTATION - DO NOT CHANGE
   enum_to_string: ^2.0.1
+  permission_handler: ^10.2.0
   twilio_programmable_video_platform_interface:
     path: ../programmable_video_platform_interface
   twilio_programmable_video_web:
     path: ../programmable_video_web
-  collection: ^1.15.0
 
 dev_dependencies:
   flutter_test:

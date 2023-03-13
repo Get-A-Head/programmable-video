@@ -1,18 +1,21 @@
 @JS()
 library interop;
 
+import 'dart:html';
+
 import 'package:collection/collection.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:js/js.dart';
 import 'package:js/js_util.dart';
+import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/js_map.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_audio_track.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_audio_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_data_track.dart';
+import 'package:twilio_programmable_video_web/src/interop/classes/local_video_track.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_video_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/room.dart';
 import 'package:twilio_programmable_video_web/twilio_programmable_video_web.dart';
-import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 
 @JS('Twilio.Video.connect')
 external Future<Room> connect(
@@ -91,21 +94,62 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
   final audioTracks = model.audioTracks;
   if (audioTracks != null) {
     await Future.forEach(audioTracks, (LocalAudioTrackModel track) async {
+      /* TWILIO - 1.0.1
       final options = CreateLocalTrackOptions(name: track.name);
       final jsTrack = await promiseToFuture<LocalAudioTrack>(createLocalAudioTrack(options));
       tracks.add(jsTrack);
+
+      */
+
+      /// OUR IMPLEMENTATION -- START
+      final options = CreateLocalTrackOptions(name: 'microphone-device-#' + track.name);
+
+      ProgrammableVideoPlugin.debug('Trying to connect audio with specific device id >>> ${track.name}');
+      final audioStream = await window.navigator.mediaDevices!.getUserMedia({
+        'audio': {'deviceId': track.name},
+      });
+      if (audioStream.getAudioTracks().isNotEmpty) {
+        ProgrammableVideoPlugin.microphoneMediaStream = audioStream;
+        ProgrammableVideoPlugin.microphoneTrack = audioStream.getAudioTracks().first;
+        tracks.add(LocalAudioTrack(audioStream.getTracks().first, options));
+      }
+
+      /// OUR IMPLEMENTATION - END
     });
   }
 
   final videoTracks = model.videoTracks;
   if (videoTracks != null) {
     await Future.forEach(videoTracks, (LocalVideoTrackModel track) async {
+      /* TWILIO - 1.0.1
       final options = CreateLocalTrackOptions(name: track.name);
       final jsTrack = await promiseToFuture(createLocalVideoTrack(options));
       tracks.add(jsTrack);
+
+       */
+
+      /// OUR IMPLEMENTATION -- START
+      final options = CreateLocalTrackOptions(name: 'camera-device-#' + track.name);
+
+      ProgrammableVideoPlugin.debug('Trying to connect video with specific device id >>> ${track.name}');
+
+      final cameraStream = await window.navigator.mediaDevices!.getUserMedia({
+        'video': {'deviceId': track.name},
+      });
+      if (cameraStream.getTracks().isNotEmpty) {
+        ProgrammableVideoPlugin.cameraMediaStream = cameraStream;
+        ProgrammableVideoPlugin.cameraTrack = cameraStream.getTracks().first;
+        tracks.add(LocalVideoTrack(cameraStream.getTracks().first, options));
+      }
+
+      /// OUR IMPLEMENTATION - END
     });
   }
 
+  /// OUR IMPLEMENTATION -- START
+  ProgrammableVideoPlugin.speakerDeviceId = model.speakerDeviceId ?? 'default';
+
+  /// OUR IMPLEMENTATION - END
   final dataTracks = model.dataTracks;
   dataTracks?.forEach((track) async {
     final jsTrack = LocalDataTrack(

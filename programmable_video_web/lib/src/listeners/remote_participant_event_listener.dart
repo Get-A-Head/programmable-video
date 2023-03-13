@@ -3,6 +3,8 @@ import 'dart:html';
 
 import 'package:dartlin/control_flow.dart';
 import 'package:js/js.dart';
+import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
+import 'package:twilio_programmable_video_web/src/interop/classes/js_map.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/remote_audio_track.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/remote_audio_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/remote_data_track.dart';
@@ -15,13 +17,23 @@ import 'package:twilio_programmable_video_web/src/interop/classes/track.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/twilio_error.dart';
 import 'package:twilio_programmable_video_web/src/interop/network_quality_level.dart';
 import 'package:twilio_programmable_video_web/src/listeners/base_listener.dart';
-import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
+import 'package:twilio_programmable_video_web/src/listeners/remote_data_track_event_listener.dart';
+import 'package:twilio_programmable_video_web/src/programmable_video_web.dart';
 
 class RemoteParticipantEventListener extends BaseListener {
   final RemoteParticipant _remoteParticipant;
   final StreamController<BaseRemoteParticipantEvent> _remoteParticipantController;
-
+/* TWILIO - 1.0.1
   RemoteParticipantEventListener(this._remoteParticipant, this._remoteParticipantController);
+
+ */
+  /// OUR IMPLEMENTATION -- START
+  final StreamController<BaseRemoteDataTrackEvent> _remoteDataTrackController;
+  final Map<String, RemoteDataTrackEventListener> _remoteDataTrackListeners = {};
+
+  RemoteParticipantEventListener(this._remoteParticipant, this._remoteParticipantController, this._remoteDataTrackController);
+
+  /// OUR IMPLEMENTATION - END
 
   void addListeners() {
     debug('Adding RemoteParticipantEventListeners for ${_remoteParticipant.sid}');
@@ -33,6 +45,12 @@ class RemoteParticipantEventListener extends BaseListener {
     _on('trackUnsubscribed', onTrackUnsubscribed);
     _on('trackSubscriptionFailed', onTrackSubscriptionFailed);
     _on('networkQualityLevelChanged', onNetworkQualityLevelChanged);
+
+    /// OUR IMPLEMENTATION -- START
+    _remoteDataTrackListeners.values.forEach((remoteDataTrackListener) => remoteDataTrackListener.removeListeners());
+    _remoteDataTrackListeners.clear();
+
+    /// OUR IMPLEMENTATION - END
   }
 
   void removeListeners() {
@@ -124,12 +142,29 @@ class RemoteParticipantEventListener extends BaseListener {
     );
   }
 
+  /* TWILIO - 1.0.1
   void onTrackPublishedVideo(RemoteVideoTrackPublication publication) => _remoteParticipantController.add(
         RemoteVideoTrackPublished(
           _remoteParticipant.toModel(),
           publication.toModel(),
         ),
       );
+
+   */
+
+  /// OUR IMPLEMENTATION -- START
+  void onTrackPublishedVideo(RemoteVideoTrackPublication publication) {
+    _remoteParticipantController.add(
+      RemoteVideoTrackPublished(
+        _remoteParticipant.toModel(),
+        publication.toModel(),
+      ),
+    );
+    debug('Remote participant >> Adding video track to remote participants video track list');
+    _remoteParticipant.videoTracks.toDartMap()[publication.trackSid] = publication;
+  }
+
+  /// OUR IMPLEMENTATION - END
 
   void onTrackUnpublished(RemoteTrackPublication publication) {
     debug('Added Remote${capitalize(publication.kind)}TrackUnpublished Event');
@@ -167,8 +202,18 @@ class RemoteParticipantEventListener extends BaseListener {
       'audio': () {
         final audioTrack = track as RemoteAudioTrack;
         final audioElement = audioTrack.attach();
+        /* TWILIO - 1.0.1
         audioElement.id = track.name;
         document.body?.append(audioElement);
+         */
+
+        /// OUR IMPLEMENTATION -- START
+        audioElement.setSinkId(ProgrammableVideoPlugin.speakerDeviceId).then((value) {
+          audioElement.id = track.name;
+          document.body?.append(audioElement);
+        });
+
+        /// OUR IMPLEMENTATION - END
         debug('Attached audio element');
         _remoteParticipantController.add(
           RemoteAudioTrackSubscribed(
@@ -186,6 +231,13 @@ class RemoteParticipantEventListener extends BaseListener {
             remoteDataTrackModel: (track as RemoteDataTrack).toModel(),
           ),
         );
+
+        /// OUR IMPLEMENTATION -- START
+        final remoteDataTrackListener = RemoteDataTrackEventListener(track, _remoteDataTrackController);
+        remoteDataTrackListener.addListeners();
+        _remoteDataTrackListeners[track.sid] = remoteDataTrackListener;
+
+        /// OUR IMPLEMENTATION - END
       },
       'video': () {
         _remoteParticipantController.add(
@@ -214,6 +266,12 @@ class RemoteParticipantEventListener extends BaseListener {
             remoteAudioTrackModel: audioTrack.toModel(),
           ),
         );
+
+        /// OUR IMPLEMENTATION -- START
+        debug('Remote participant >> Removing microphone track to remote participants audio track list');
+        _remoteParticipant.audioTracks.toDartMap().remove(publication.trackSid);
+
+        /// OUR IMPLEMENTATION - END
       },
       'data': () {
         _remoteParticipantController.add(
@@ -223,6 +281,12 @@ class RemoteParticipantEventListener extends BaseListener {
             remoteDataTrackModel: (track as RemoteDataTrack).toModel(),
           ),
         );
+
+        /// OUR IMPLEMENTATION -- START
+        final remoteDataTrackListener = _remoteDataTrackListeners.remove(track.sid);
+        remoteDataTrackListener?.removeListeners();
+
+        /// OUR IMPLEMENTATION - END
       },
       'video': () {
         _remoteParticipantController.add(
@@ -232,6 +296,12 @@ class RemoteParticipantEventListener extends BaseListener {
             remoteVideoTrackModel: (track as RemoteVideoTrack).toModel(),
           ),
         );
+
+        /// OUR IMPLEMENTATION -- START
+        debug('Remote participant >> Removing video track to remote participants video track list');
+        _remoteParticipant.videoTracks.toDartMap().remove(publication.trackSid);
+
+        /// OUR IMPLEMENTATION - END
       },
     });
   }

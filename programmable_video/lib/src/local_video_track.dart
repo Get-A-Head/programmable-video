@@ -87,7 +87,7 @@ class LocalVideoTrack extends VideoTrack {
       throw TwilioProgrammableVideo._convertException(err);
     }
   }
-
+  /* TWILIO-1.0.1
   /// Returns a native widget.
   ///
   /// By default the widget will be mirrored, to change that set [mirror] to false.
@@ -100,6 +100,22 @@ class LocalVideoTrack extends VideoTrack {
       key: key,
     );
   }
+  */
+
+  /// OUR IMPLEMENTATION -- START
+  /// By default the widget will be mirrored, to change that set [mirror] to false.
+  /// If you provide a [key] make sure it is unique among all [VideoTrack]s otherwise Flutter might send the wrong creation params to the native side.
+  Widget widget({bool isScreenShare = false, bool mirror = true, Key? key}) {
+    key ??= ValueKey('Twilio_LocalParticipant');
+
+    return ProgrammableVideoPlatform.instance.createLocalVideoTrackWidget(
+      isScreenShare: isScreenShare,
+      mirror: mirror,
+      key: key,
+    );
+  }
+
+  /// OUR IMPLEMENTATION - END
 
   /// Create [LocalVideoTrackModel] from properties.
   TrackModel _toModel() {

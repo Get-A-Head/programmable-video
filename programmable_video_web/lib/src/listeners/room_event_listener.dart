@@ -1,24 +1,32 @@
 import 'dart:async';
 
+import 'package:dartlin/dartlin.dart';
 import 'package:js/js.dart';
+import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/js_map.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/remote_participant.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/room.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/twilio_error.dart';
 import 'package:twilio_programmable_video_web/src/listeners/base_listener.dart';
 import 'package:twilio_programmable_video_web/src/listeners/remote_participant_event_listener.dart';
-import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
-import 'package:dartlin/dartlin.dart';
 
 class RoomEventListener extends BaseListener {
   final Room _room;
   final StreamController<BaseRoomEvent> _roomStreamController;
   final StreamController<BaseRemoteParticipantEvent> _remoteParticipantController;
   final Map<String, RemoteParticipantEventListener> _remoteParticipantListeners = {};
-
+  /* TWILIO - 1.0.1
   RoomEventListener(this._room, this._roomStreamController, this._remoteParticipantController) {
     _addPriorRemoteParticipantListeners();
   }
+   */
+  /// OUR IMPLEMENTATION - START
+  final StreamController<BaseRemoteDataTrackEvent> _remoteDataTrackController;
+  RoomEventListener(this._room, this._roomStreamController, this._remoteParticipantController, this._remoteDataTrackController) {
+    _addPriorRemoteParticipantListeners();
+  }
+
+  /// OUR IMPLEMENTATION - END
 
   void addListeners() {
     debug('Adding RoomEventListeners for ${_room.sid}');
@@ -49,10 +57,16 @@ class RoomEventListener extends BaseListener {
   void _addPriorRemoteParticipantListeners() {
     final remoteParticipants = _room.participants.values();
     iteratorForEach<RemoteParticipant>(remoteParticipants, (remoteParticipant) {
-      final remoteParticipantListener = RemoteParticipantEventListener(remoteParticipant, _remoteParticipantController);
+      /* TWILIO - 1.0.1
+      final remoteParticipantListener = RemoteParticipantEventListener(remoteParticipant, _remoteParticipantController, _remoteDataTrackController);
+       */
+      /// OUR IMPLEMENTATION - START
+      final remoteParticipantListener = RemoteParticipantEventListener(remoteParticipant, _remoteParticipantController, _remoteDataTrackController);
       remoteParticipantListener.addListeners();
       _remoteParticipantListeners[remoteParticipant.sid] = remoteParticipantListener;
       return false;
+
+      /// OUR IMPLEMENTATION - END
     });
   }
 
@@ -79,10 +93,16 @@ class RoomEventListener extends BaseListener {
   void onParticipantConnected(RemoteParticipant participant) {
     _roomStreamController.add(ParticipantConnected(_room.toModel(), participant.toModel()));
     debug('Added ParticipantConnected Room Event');
-
+    /* TWILIO - 1.0.1
     final remoteParticipantListener = RemoteParticipantEventListener(participant, _remoteParticipantController);
+
+     */
+    /// OUR IMPLEMENTATION - START
+    final remoteParticipantListener = RemoteParticipantEventListener(participant, _remoteParticipantController, _remoteDataTrackController);
     remoteParticipantListener.addListeners();
     _remoteParticipantListeners[participant.sid] = remoteParticipantListener;
+
+    /// OUR IMPLEMENTATION - END
   }
 
   void onParticipantDisconnected(RemoteParticipant participant) {

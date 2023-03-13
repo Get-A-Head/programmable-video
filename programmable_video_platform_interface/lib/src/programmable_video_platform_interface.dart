@@ -42,7 +42,12 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
 
   //#region Functions
   /// Calls native code to create a widget displaying the LocalVideoTrack's video.
+  /* TWILIO - 1.0.1
   Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
+    throw UnimplementedError('createLocalVideoTrackWidget() has not been implemented.');
+  }
+   */
+  Widget createLocalVideoTrackWidget({bool isScreenShare = false, bool mirror = true, Key? key}) {
     throw UnimplementedError('createLocalVideoTrackWidget() has not been implemented.');
   }
 
@@ -179,9 +184,59 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
     throw UnimplementedError('setTorch(bool enabled) has not been implemented.');
   }
 
+  /// OUR IMPLEMENTATION -- START
+
+  /// Calls native code to start screen share
+  ///
+  /// * Returns a [Future] that completes with a [bool] indicating whether the screen share init was successful.
+  ///
+  /// ### Possible outcomes:
+  /// [true] : the screen share was _**successful**_
+  ///
+  /// [false] : the screen share was _**cancelled**_ or _**permission is not granted**_
+  ///
+  /// [Exception] : screen share _**failed**_ or is _**not supported by the browser**_
+  ///
+  /// This function uses the Twilio Programmable Video SDK to [publish a track](https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/LocalParticipant.html#publishTrack__anchor)
+  Future<Widget?> startScreenShare() {
+    throw UnimplementedError('startScreenShare() has not been implemented.');
+  }
+
+  /// Calls native code to stop screen share
+  ///
+  /// This function uses the Twilio Programmable Video SDK to [unpublish a track](https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/LocalParticipant.html#unpublishTrack__anchor)
+  void stopScreenShare() async {
+    throw UnimplementedError('stopScreenShare() has not been implemented.');
+  }
+
+  /// Calls native code to set the preferred camera device id.
+  Future<bool> setCameraDeviceId(String deviceId) async {
+    throw UnimplementedError('setCameraDeviceId has not been implemented.');
+  }
+
+  /// Calls native code to set the preferred microphone device id.
+  Future<bool> setMicrophoneDeviceId(String deviceId) async {
+    throw UnimplementedError('setCameraDeviceId has not been implemented.');
+  }
+
+  /// Calls native code to set the preferred speaker device id.
+  Future<bool> setSpeakerDeviceId(String deviceId) async {
+    throw UnimplementedError('setCameraDeviceId has not been implemented.');
+  }
+
+  /// OUR IMPLEMENTATION - END
+
   //#endregion
 
   //#region Streams
+
+  /// OUR IMPLEMENTATION -- START
+  /// Stream of the Screen share ended event.
+  ///
+  /// This stream is used to listen screen share termination from the user (not from ui).
+  Stream<dynamic>? onScreenShareEndedStream() {
+    throw UnimplementedError('cameraStream() has not been implemented');
+  }
 
   /// Stream of the CameraEvent model.
   ///
