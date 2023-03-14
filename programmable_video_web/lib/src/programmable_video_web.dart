@@ -94,8 +94,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       if (room != null) {
         debug('Creating local video track view for:  ${room.localParticipant.sid}');
         if (!isScreenShare) {
-          _cameraVideoElement = room.localParticipant.videoTracks.values().next().value.track.attach()
-            ..style.objectFit = 'cover';
+          _cameraVideoElement = room.localParticipant.videoTracks.values().next().value.track.attach()..style.objectFit = 'cover';
           return _cameraVideoElement!;
         } else {
           final localVideoTrackPublication = room.localParticipant.videoTracks.toDartMap()[_shareTrackSid];
@@ -113,7 +112,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     });
   }
 
-/* RMC 20221124 - THEIRS 
+/* RMC 20221124 - THEIRS
   static void _createRemoteViewFactory(String remoteParticipantSid, String remoteVideoTrackSid) {
     ui.platformViewRegistry.registerViewFactory('remote-video-track-#$remoteVideoTrackSid-html', (int viewId) {
       final remoteVideoTrack = _room?.participants.toDartMap()[remoteParticipantSid]?.videoTracks.toDartMap()[remoteVideoTrackSid]?.track;
@@ -141,7 +140,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         // flatten this out
 
         if (remoteVideoTrack != null) {
-          final remoteVideoTrackElement = remoteVideoTrack.attach()..style.objectFit = 'cover';
+          final remoteVideoTrackElement = remoteVideoTrack.attach()..style.objectFit = 'contain';
           debug('Created remote video track view for: $remoteVideoTrackSid');
           return remoteVideoTrackElement;
         } else {
@@ -153,7 +152,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     });
   }
 
-/* RMC 20221124 - THEIRS 
+/* RMC 20221124 - THEIRS
   //#region Functions
   @override
   Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
@@ -177,8 +176,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         _createLocalViewFactory(isScreenShare: true);
       }
       debug('Created local video track widget for: ${room.localParticipant.sid}');
-      return HtmlElementView(
-          viewType: !isScreenShare ? 'local-video-track-html' : 'local-screen-share-track-html', key: key);
+      return HtmlElementView(viewType: !isScreenShare ? 'local-video-track-html' : 'local-screen-share-track-html', key: key);
     } else {
       throw Exception('NotConnected. LocalVideoTrack is not fully initialized until connection.');
     }
@@ -204,8 +202,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   void _onConnected() async {
     final room = _room;
     if (room != null) {
-      _roomListener =
-          RoomEventListener(room, _roomStreamController, _remoteParticipantController, _remoteDataTrackController);
+      _roomListener = RoomEventListener(room, _roomStreamController, _remoteParticipantController, _remoteDataTrackController);
       _roomListener!.addListeners();
       _localParticipantListener = LocalParticipantEventListener(room.localParticipant, _localParticipantController);
       _localParticipantListener!.addListeners();
@@ -220,12 +217,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   @override
   Future<int> connectToRoom(ConnectOptionsModel connectOptions) async {
     _roomStreamController.onListen = _onConnected;
-
-    // final twilioVersion = Version.parse(version);
-    // if (twilioVersion.major != supportedVersion.major ||
-    //     (twilioVersion.major == supportedVersion.major && twilioVersion.minor > supportedVersion.minor)) {
-    //   throw UnsupportedError('Current supported JS version is: $supportedVersion');
-    // }
 
     try {
       _room = await connectWithModel(connectOptions);
@@ -243,8 +234,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     if (localParticipant != null) {
       final audioTracks = localParticipant.audioTracks.values();
       iteratorForEach<LocalAudioTrackPublication>(audioTracks, (publication) {
-        debug(
-            'ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
+        debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
         /* RMC - 20221124 - OURS START */
         try {
           debug('ProgrammableVideoWeb::stopping => ${publication.track.kind} track ${publication.trackSid}');
@@ -252,8 +242,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         } catch (err) {
           debug('Error at disabling track $err');
         }
-        debug(
-            'ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
+        debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
         /* RMC - 20221124 - OURS END */
         _room?.localParticipant.unpublishTrack(publication.track);
         return false;
@@ -261,8 +250,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
       final videoTracks = localParticipant.videoTracks.values();
       iteratorForEach<LocalVideoTrackPublication>(videoTracks, (publication) {
-        debug(
-            'ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
+        debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
 
         /* RMC - 20221124 - OURS START */
         try {
@@ -271,8 +259,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         } catch (err) {
           debug('Error at disabling track $err');
         }
-        debug(
-            'ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
+        debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
         /* RMC - 20221124 - OURS END */
         _room?.localParticipant.unpublishTrack(publication.track);
         return false;
@@ -280,8 +267,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
       final dataTracks = localParticipant.dataTracks.values();
       iteratorForEach<LocalDataTrackPublication>(dataTracks, (publication) {
-        debug(
-            'ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
+        debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
         _room?.localParticipant.unpublishTrack(publication.track);
         return false;
       });
@@ -340,11 +326,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
       if (js_util.hasProperty(mediaDevices, 'getDisplayMedia')) {
         final arg = js_util.jsify(mediaConstraints);
-        return await js_util
-            .promiseToFuture<html.MediaStream>(js_util.callMethod(mediaDevices, 'getDisplayMedia', [arg]));
+        return await js_util.promiseToFuture<html.MediaStream>(js_util.callMethod(mediaDevices, 'getDisplayMedia', [arg]));
       } else {
-        return await html.window.navigator
-            .getUserMedia(video: {'mediaSource': 'screen'}, audio: mediaConstraints['audio'] ?? false);
+        return await html.window.navigator.getUserMedia(video: {'mediaSource': 'screen'}, audio: mediaConstraints['audio'] ?? false);
       }
     } catch (err) {
       throw Exception('Failed to getDisplayMedia (Permission Denied or User canceled): $err');
@@ -499,8 +483,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         }
         microphoneMediaStream = stream;
         microphoneTrack = microphoneMediaStream!.getTracks().first;
-        _microphoneLocalTrack =
-            LocalAudioTrack(microphoneTrack, CreateLocalTrackOptions(name: 'microphone-device-' + deviceId));
+        _microphoneLocalTrack = LocalAudioTrack(microphoneTrack, CreateLocalTrackOptions(name: 'microphone-device-' + deviceId));
         _room?.localParticipant.publishTrack(_microphoneLocalTrack!);
       });
       return Future(() => true);

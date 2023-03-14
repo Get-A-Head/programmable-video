@@ -41,7 +41,8 @@ extension Interop on LocalVideoTrack {
       cameraCapturer: CameraCapturerModel(
         CameraSource(isScreenShare ? 'SCREEN_SHARE' : 'FRONT_CAMERA', false, false, false),
         'CameraCapturer',
-      )..isScreencast = isScreenShare,
+        isScreencast: isScreenShare,
+      ),
       enabled: isEnabled,
       name: name,
     );
