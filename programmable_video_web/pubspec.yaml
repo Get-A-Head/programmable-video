@@ -15,7 +15,10 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
   twilio_programmable_video_platform_interface:
-    path: ../programmable_video_platform_interface
+    git:
+      url: https://github.com/Get-A-Head/programmable-video.git
+      ref: 1.1.1
+      path: programmable_video_platform_interface
   js: ^0.6.3
   enum_to_string: ^2.0.1
   dartlin: ^0.6.1
