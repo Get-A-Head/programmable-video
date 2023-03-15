@@ -129,7 +129,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   }
   */
 
-  static void _createRemoteViewFactory(String remoteParticipantSid, String remoteVideoTrackSid) {
+  static void _createRemoteViewFactory(String remoteParticipantSid, String remoteVideoTrackSid, {bool isScreenShare = false}) {
     ui.platformViewRegistry.registerViewFactory('remote-video-track-#$remoteVideoTrackSid-html', (int viewId) {
       final remoteParticipant = _room?.participants.toDartMap()[remoteParticipantSid];
       final remoteVideoTrackPublication = remoteParticipant?.videoTracks.toDartMap()[remoteVideoTrackSid];
@@ -140,7 +140,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         // flatten this out
 
         if (remoteVideoTrack != null) {
-          final remoteVideoTrackElement = remoteVideoTrack.attach()..style.objectFit = 'contain';
+          final remoteVideoTrackElement = remoteVideoTrack.attach()..style.objectFit = isScreenShare ? 'contain' : 'cover';
           debug('Created remote video track view for: $remoteVideoTrackSid');
           return remoteVideoTrackElement;
         } else {
@@ -188,11 +188,12 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     required String remoteVideoTrackSid,
     bool mirror = true,
     Key? key,
+    bool isScreenShare = false,
   }) {
     key ??= ValueKey(remoteVideoTrackSid);
 
     if (!_registeredRemoteParticipantViewFactories.contains(remoteVideoTrackSid)) {
-      _createRemoteViewFactory(remoteParticipantSid, remoteVideoTrackSid);
+      _createRemoteViewFactory(remoteParticipantSid, remoteVideoTrackSid, isScreenShare: isScreenShare);
       _registeredRemoteParticipantViewFactories.add(remoteVideoTrackSid);
       debug('Created remote video track widget for: $remoteVideoTrackSid');
     }

@@ -57,6 +57,7 @@ abstract class ProgrammableVideoPlatform extends PlatformInterface {
     required String remoteVideoTrackSid,
     bool mirror = true,
     Key? key,
+    bool isScreenShare = false,
   }) {
     throw UnimplementedError('createRemoteVideoTrackWidget() has not been implemented.');
   }
