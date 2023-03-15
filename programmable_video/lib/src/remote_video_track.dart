@@ -42,6 +42,7 @@ class RemoteVideoTrack extends VideoTrack {
       remoteVideoTrackSid: _sid,
       mirror: mirror,
       key: key,
+      isScreenShare: isScreenShare,
     );
   }
 }

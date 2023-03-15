@@ -46,6 +46,7 @@ class MockInterface extends ProgrammableVideoPlatform {
     required String remoteVideoTrackSid,
     bool mirror = true,
     Key? key,
+    bool isScreenShare = false,
   }) {
     key ??= ValueKey(remoteParticipantSid);
     return Container(key: key);
