@@ -18,17 +18,17 @@ dependencies:
   enum_to_string: ^2.0.1
   permission_handler: ^10.2.0
   twilio_programmable_video_platform_interface:
-#    path: ../programmable_video_platform_interface
-    git:
-      url: https://github.com/Get-A-Head/programmable-video.git
-      ref: 1.2.0
-      path: programmable_video_platform_interface
+    path: ../programmable_video_platform_interface
+#    git:
+#      url: https://github.com/Get-A-Head/programmable-video.git
+#      ref: 1.2.0
+#      path: programmable_video_platform_interface
   twilio_programmable_video_web:
-#    path: ../programmable_video_web
-    git:
-      url: https://github.com/Get-A-Head/programmable-video.git
-      ref: 1.2.0
-      path: programmable_video_web
+    path: ../programmable_video_web
+#    git:
+#      url: https://github.com/Get-A-Head/programmable-video.git
+#      ref: 1.2.0
+#      path: programmable_video_web
 
 dev_dependencies:
   flutter_test:
