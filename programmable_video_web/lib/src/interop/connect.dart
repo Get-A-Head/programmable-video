@@ -111,7 +111,12 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
       if (audioStream.getAudioTracks().isNotEmpty) {
         ProgrammableVideoPlugin.microphoneMediaStream = audioStream;
         ProgrammableVideoPlugin.microphoneTrack = audioStream.getAudioTracks().first;
-        tracks.add(LocalAudioTrack(audioStream.getTracks().first, options));
+
+        final audioTrack = LocalAudioTrack(audioStream.getTracks().first, options);
+        if (!track.enabled) {
+          audioTrack.stop();
+        }
+        tracks.add(audioTrack);
       }
 
       /// OUR IMPLEMENTATION - END
@@ -139,7 +144,12 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
       if (cameraStream.getTracks().isNotEmpty) {
         ProgrammableVideoPlugin.cameraMediaStream = cameraStream;
         ProgrammableVideoPlugin.cameraTrack = cameraStream.getTracks().first;
-        tracks.add(LocalVideoTrack(cameraStream.getTracks().first, options));
+
+        final videoTrack = LocalVideoTrack(cameraStream.getTracks().first, options);
+        if (!track.enabled) {
+          videoTrack.stop();
+        }
+        tracks.add(videoTrack);
       }
 
       /// OUR IMPLEMENTATION - END
