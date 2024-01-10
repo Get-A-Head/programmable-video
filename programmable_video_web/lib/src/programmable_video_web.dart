@@ -89,6 +89,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   static void _createLocalViewFactory({bool isScreenShare = false}) {
     final htmlTag = !isScreenShare ? 'local-video-track-html' : 'local-screen-share-track-html';
+    _cameraVideoElement ??= html.VideoElement();
     ui.platformViewRegistry.registerViewFactory(htmlTag, (int viewId) {
       final room = _room;
       if (room != null) {
