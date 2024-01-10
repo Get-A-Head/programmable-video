@@ -573,7 +573,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   @override
   Future<List<CameraSource>> getSources() {
-    return Future(() => [CameraSource('FRONT_CAMERA', true, false, false)]);
+    return Future(() => []);
   }
 
   @override
