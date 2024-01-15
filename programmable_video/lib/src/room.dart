@@ -137,10 +137,14 @@ class Room {
   }
 
   Future<void> dispose() async {
-    await _roomStream.cancel();
-    await _remoteParticipantStream.cancel();
-    await _localParticipantStream.cancel();
-    await _remoteDataTrackStream.cancel();
+    try {
+      await _roomStream.cancel();
+      await _remoteParticipantStream.cancel();
+      await _localParticipantStream.cancel();
+      await _remoteDataTrackStream.cancel();
+    } catch (err) {
+      TwilioProgrammableVideo._log("Room Error => Event '$err'");
+    }
   }
 
   /// Find or create a [RemoteParticipant].
@@ -188,9 +192,13 @@ class Room {
         participant._dispose();
       }
       _remoteParticipants.clear();
-
-      final exception = event.exception != null ? TwilioException._fromModel(event.exception!) : null;
-      _onDisconnected.add(RoomDisconnectedEvent(this, exception));
+      try {
+        final exception = event.exception != null ? TwilioException._fromModel(event.exception!) : null;
+        _onDisconnected.add(RoomDisconnectedEvent(this, exception));
+      } catch (e) {
+        TwilioProgrammableVideo._log("Room => Event '$event' => Exception '$e'");
+        _onDisconnected.add(RoomDisconnectedEvent(this, null));
+      }
     } else if (event is ParticipantConnected) {
       final remoteParticipant = _findOrCreateRemoteParticipant(event.connectedParticipant);
 

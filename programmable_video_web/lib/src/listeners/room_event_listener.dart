@@ -80,8 +80,14 @@ class RoomEventListener extends BaseListener {
         allowInterop(eventHandler),
       );
 
-  void onDisconnected(Room room, TwilioError? error) {
-    _roomStreamController.add(Disconnected(room.toModel(), error?.let((it) => it.toModel())));
+  void onDisconnected(Room room, dynamic error) {
+    debug('On Disconnected Room Event');
+    debug(error.toString());
+    if (error is TwilioError?) {
+      _roomStreamController.add(Disconnected(room.toModel(), error?.let((it) => it.toModel())));
+    } else {
+      _roomStreamController.add(Disconnected(room.toModel(), null));
+    }
     debug('Added Disconnected Room Event');
   }
 
