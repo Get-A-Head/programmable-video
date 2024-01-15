@@ -78,31 +78,33 @@ class LocalParticipantEventListener extends BaseListener {
     });
   }
 
-  void onTrackPublicationFailed(TwilioError error, dynamic localTrack) {
+  void onTrackPublicationFailed(dynamic error, dynamic localTrack) {
     debug('Added Local${capitalize(localTrack.kind)}TrackPublicationFailed Event');
-    when(localTrack.kind, {
-      'audio': () {
-        _localParticipantController.add(LocalAudioTrackPublicationFailed(
-          exception: error.toModel(),
-          localAudioTrack: (localTrack as LocalAudioTrack).toModel(),
-          localParticipantModel: _localParticipant.toModel(),
-        ));
-      },
-      'data': () {
-        _localParticipantController.add(LocalDataTrackPublicationFailed(
-          exception: error.toModel(),
-          localDataTrack: (localTrack as LocalDataTrack).toModel(true),
-          localParticipantModel: _localParticipant.toModel(),
-        ));
-      },
-      'video': () {
-        _localParticipantController.add(LocalVideoTrackPublicationFailed(
-          exception: error.toModel(),
-          localVideoTrack: (localTrack as LocalVideoTrack).toModel(),
-          localParticipantModel: _localParticipant.toModel(),
-        ));
-      },
-    });
+    if (error is TwilioError) {
+      when(localTrack.kind, {
+        'audio': () {
+          _localParticipantController.add(LocalAudioTrackPublicationFailed(
+            exception: error.toModel(),
+            localAudioTrack: (localTrack as LocalAudioTrack).toModel(),
+            localParticipantModel: _localParticipant.toModel(),
+          ));
+        },
+        'data': () {
+          _localParticipantController.add(LocalDataTrackPublicationFailed(
+            exception: error.toModel(),
+            localDataTrack: (localTrack as LocalDataTrack).toModel(true),
+            localParticipantModel: _localParticipant.toModel(),
+          ));
+        },
+        'video': () {
+          _localParticipantController.add(LocalVideoTrackPublicationFailed(
+            exception: error.toModel(),
+            localVideoTrack: (localTrack as LocalVideoTrack).toModel(),
+            localParticipantModel: _localParticipant.toModel(),
+          ));
+        },
+      });
+    }
   }
 
   void onNetworkQualityLevelChanged(int networkQualityLevel, dynamic networkQualityStats) {

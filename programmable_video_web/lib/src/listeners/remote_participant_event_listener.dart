@@ -306,38 +306,40 @@ class RemoteParticipantEventListener extends BaseListener {
     });
   }
 
-  void onTrackSubscriptionFailed(TwilioError error, RemoteTrackPublication publication) {
+  void onTrackSubscriptionFailed(dynamic error, RemoteTrackPublication publication) {
     debug('Added Remote${capitalize(publication.kind)}TrackSubscriptionFailed Event');
 
-    when(publication.kind, {
-      'audio': () {
-        _remoteParticipantController.add(
-          RemoteAudioTrackSubscriptionFailed(
-            remoteParticipantModel: _remoteParticipant.toModel(),
-            remoteAudioTrackPublicationModel: (publication as RemoteAudioTrackPublication).toModel(),
-            exception: error.toModel(),
-          ),
-        );
-      },
-      'data': () {
-        _remoteParticipantController.add(
-          RemoteDataTrackSubscriptionFailed(
-            remoteParticipantModel: _remoteParticipant.toModel(),
-            remoteDataTrackPublicationModel: (publication as RemoteDataTrackPublication).toModel(),
-            exception: error.toModel(),
-          ),
-        );
-      },
-      'video': () {
-        _remoteParticipantController.add(
-          RemoteVideoTrackSubscriptionFailed(
-            remoteParticipantModel: _remoteParticipant.toModel(),
-            remoteVideoTrackPublicationModel: (publication as RemoteVideoTrackPublication).toModel(),
-            exception: error.toModel(),
-          ),
-        );
-      },
-    });
+    if (error is TwilioError) {
+      when(publication.kind, {
+        'audio': () {
+          _remoteParticipantController.add(
+            RemoteAudioTrackSubscriptionFailed(
+              remoteParticipantModel: _remoteParticipant.toModel(),
+              remoteAudioTrackPublicationModel: (publication as RemoteAudioTrackPublication).toModel(),
+              exception: error.toModel(),
+            ),
+          );
+        },
+        'data': () {
+          _remoteParticipantController.add(
+            RemoteDataTrackSubscriptionFailed(
+              remoteParticipantModel: _remoteParticipant.toModel(),
+              remoteDataTrackPublicationModel: (publication as RemoteDataTrackPublication).toModel(),
+              exception: error.toModel(),
+            ),
+          );
+        },
+        'video': () {
+          _remoteParticipantController.add(
+            RemoteVideoTrackSubscriptionFailed(
+              remoteParticipantModel: _remoteParticipant.toModel(),
+              remoteVideoTrackPublicationModel: (publication as RemoteVideoTrackPublication).toModel(),
+              exception: error.toModel(),
+            ),
+          );
+        },
+      });
+    }
   }
 
   void onNetworkQualityLevelChanged(int networkQualityLevel, dynamic networkQualityStats) {

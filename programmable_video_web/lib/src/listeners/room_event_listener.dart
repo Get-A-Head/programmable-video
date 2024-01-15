@@ -125,8 +125,12 @@ class RoomEventListener extends BaseListener {
     debug('Added Reconnected Room Event');
   }
 
-  void onReconnecting(TwilioError error) {
-    _roomStreamController.add(Reconnecting(_room.toModel(), error.toModel()));
+  void onReconnecting(dynamic error) {
+    if (error is TwilioError) {
+      _roomStreamController.add(Reconnecting(_room.toModel(), error.toModel()));
+    } else {
+      _roomStreamController.add(Reconnecting(_room.toModel(), null));
+    }
     debug('Added Reconnecting Room Event');
   }
 
