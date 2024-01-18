@@ -510,10 +510,14 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
             audioTrack.detach();
             debug('Attaching remote audio track >> ${audioTrack.name} to device >> $deviceId');
             final audioElement = audioTrack.attach();
-            audioElement.setSinkId(speakerDeviceId).then((value) {
-              audioElement.id = audioTrack.name;
-              document.body?.append(audioElement);
-            });
+            try {
+              audioElement.setSinkId(speakerDeviceId).then((value) {
+                audioElement.id = audioTrack.name;
+                document.body?.append(audioElement);
+              });
+            } catch (err) {
+              debug('Platform not supported for setSpeakerDeviceId() >> $err');
+            }
           }
           return true;
         });

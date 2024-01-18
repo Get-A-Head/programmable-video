@@ -208,10 +208,15 @@ class RemoteParticipantEventListener extends BaseListener {
          */
 
         /// OUR IMPLEMENTATION -- START
-        audioElement.setSinkId(ProgrammableVideoPlugin.speakerDeviceId).then((value) {
+        try {
+          audioElement.setSinkId(ProgrammableVideoPlugin.speakerDeviceId).then((value) {
+            audioElement.id = track.name;
+            document.body?.append(audioElement);
+          });
+        } catch (e) {
           audioElement.id = track.name;
           document.body?.append(audioElement);
-        });
+        }
 
         /// OUR IMPLEMENTATION - END
         debug('Attached audio element');
