@@ -21,13 +21,13 @@ dependencies:
 #    path: ../programmable_video_platform_interface
     git:
       url: https://github.com/Get-A-Head/programmable-video.git
-      ref: 1.2.2
+      ref: 1.2.2+3
       path: programmable_video_platform_interface
   twilio_programmable_video_web:
 #    path: ../programmable_video_web
     git:
       url: https://github.com/Get-A-Head/programmable-video.git
-      ref: 1.2.2
+      ref: 1.2.2+3
       path: programmable_video_web
 
 dev_dependencies:
