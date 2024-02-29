@@ -8,12 +8,9 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:js/js.dart';
 import 'package:js/js_util.dart';
 import 'package:twilio_programmable_video_platform_interface/twilio_programmable_video_platform_interface.dart';
-import 'package:twilio_programmable_video_web/src/interop/classes/js_map.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_audio_track.dart';
-import 'package:twilio_programmable_video_web/src/interop/classes/local_audio_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_data_track.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_video_track.dart';
-import 'package:twilio_programmable_video_web/src/interop/classes/local_video_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/room.dart';
 import 'package:twilio_programmable_video_web/twilio_programmable_video_web.dart';
 
@@ -111,7 +108,13 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
       if (audioStream.getAudioTracks().isNotEmpty) {
         ProgrammableVideoPlugin.microphoneMediaStream = audioStream;
         ProgrammableVideoPlugin.microphoneTrack = audioStream.getAudioTracks().first;
-        tracks.add(LocalAudioTrack(audioStream.getTracks().first, options));
+
+        final audioTrack = LocalAudioTrack(ProgrammableVideoPlugin.microphoneTrack, options);
+        // if (!track.enabled) {
+        // ProgrammableVideoPlugin.microphoneTrack!.stop();
+        // audioTrack.stop();
+        // }
+        tracks.add(audioTrack);
       }
 
       /// OUR IMPLEMENTATION - END
@@ -139,7 +142,13 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
       if (cameraStream.getTracks().isNotEmpty) {
         ProgrammableVideoPlugin.cameraMediaStream = cameraStream;
         ProgrammableVideoPlugin.cameraTrack = cameraStream.getTracks().first;
-        tracks.add(LocalVideoTrack(cameraStream.getTracks().first, options));
+
+        final videoTrack = LocalVideoTrack(ProgrammableVideoPlugin.cameraTrack, options);
+        // if (!track.enabled) {
+        //   ProgrammableVideoPlugin.cameraTrack!.stop();
+        //   videoTrack.disable();
+        // }
+        tracks.add(videoTrack);
       }
 
       /// OUR IMPLEMENTATION - END
@@ -181,7 +190,7 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
     ),
   );
 
-  iteratorForEach<LocalAudioTrackPublication>(room.localParticipant.audioTracks.values(), (publication) {
+  room.localParticipant.audioTracks.forEach((publication, key, map) {
     if (audioTracks != null) {
       final modelTrack = audioTracks.firstWhereOrNull((track) => track.name == publication.trackName);
       if (modelTrack != null) {
@@ -189,11 +198,19 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
         modelTrack.enabled ? publication.track.enable() : publication.track.disable();
       }
     }
-    return false;
   });
+  // iteratorForEach<LocalAudioTrackPublication>(room.localParticipant.audioTracks.values(), (publication) {
+  //   if (audioTracks != null) {
+  //     final modelTrack = audioTracks.firstWhereOrNull((track) => track.name == publication.trackName);
+  //     if (modelTrack != null) {
+  //       ProgrammableVideoPlugin.debug('ProgrammableVideoWeb::connectWithModel => enableAudioTrack(${modelTrack.name}): ${modelTrack.enabled}');
+  //       modelTrack.enabled ? publication.track.enable() : publication.track.disable();
+  //     }
+  //   }
+  //   return false;
+  // });
 
-  //TODO: handle multiple cameras using the CameraCapturer enum from the platform interface
-  iteratorForEach<LocalVideoTrackPublication>(room.localParticipant.videoTracks.values(), (publication) {
+  room.localParticipant.videoTracks.forEach((publication, key, map) {
     if (videoTracks != null) {
       final modelTrack = videoTracks.firstWhereOrNull((track) => track.name == publication.trackName);
       if (modelTrack != null) {
@@ -201,8 +218,18 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
         modelTrack.enabled ? publication.track.enable() : publication.track.disable();
       }
     }
-    return false;
   });
+
+  // iteratorForEach<LocalVideoTrackPublication>(room.localParticipant.videoTracks.values(), (publication) {
+  //   if (videoTracks != null) {
+  //     final modelTrack = videoTracks.firstWhereOrNull((track) => track.name == publication.trackName);
+  //     if (modelTrack != null) {
+  //       ProgrammableVideoPlugin.debug('ProgrammableVideoWeb::connectWithModel => enableVideoTrack(${modelTrack.name}): ${modelTrack.enabled}');
+  //       modelTrack.enabled ? publication.track.enable() : publication.track.disable();
+  //     }
+  //   }
+  //   return false;
+  // });
 
   return room;
 }

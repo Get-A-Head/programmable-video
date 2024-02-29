@@ -18,6 +18,9 @@ class JSMap<K, V> {
   @JS('prototype.values')
   external IteratorJS<V> values();
 
+  @JS('prototype.forEach')
+  external void forEach(void Function(V value, K key, JSMap<K, V> map) callback);
+
   external int get size;
 
   external factory JSMap();
@@ -27,17 +30,9 @@ extension Interop<K, V> on JSMap<K, V> {
   Map<K, V> toDartMap() {
     final returnMap = <K, V>{};
 
-    final jsKeys = keys();
-    final jsValues = values();
-
-    var nextKey = jsKeys.next();
-    var nextValue = jsValues.next();
-
-    while (!nextKey.done) {
-      returnMap[nextKey.value] = nextValue.value;
-      nextKey = jsKeys.next();
-      nextValue = jsValues.next();
-    }
+    forEach((value, key, map) {
+      returnMap[key] = value;
+    });
 
     return returnMap;
   }
