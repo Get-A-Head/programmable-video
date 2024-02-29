@@ -5,18 +5,18 @@ import 'package:js/js.dart';
 
 @JS('Map')
 class JSMap<K, V> {
-  /// Returns an [IteratorJS] of all the key value pairs in the [Map]
+  /// Returns an [Iterator] of all the key value pairs in the [Map]
   ///
-  /// The [IteratorJS] returns the key value pairs as a [List<dynamic>].
+  /// The [Iterator] returns the key value pairs as a [List<dynamic>].
   /// The [List] always contains two elements. The first is the key and the second is the value.
   @JS('prototype.entries')
-  external IteratorJS<List<dynamic>> entries();
+  external Iterator<List<dynamic>> entries();
 
   @JS('prototype.keys')
-  external IteratorJS<K> keys();
+  external Iterator<K> keys();
 
   @JS('prototype.values')
-  external IteratorJS<V> values();
+  external Iterator<V> values();
 
   external int get size;
 
@@ -44,10 +44,10 @@ extension Interop<K, V> on JSMap<K, V> {
 }
 
 @JS()
-class IteratorJS<T> {
+class Iterator<T> {
   external IteratorValue<T> next();
 
-  external factory IteratorJS();
+  external factory Iterator();
 }
 
 @JS()
@@ -59,7 +59,7 @@ class IteratorValue<T> {
 }
 
 List<T> iteratorToList<T, V>(
-  IteratorJS<V> iterator,
+  Iterator<V> iterator,
   T Function(V value) mapper,
 ) {
   final list = <T>[];
@@ -75,7 +75,7 @@ List<T> iteratorToList<T, V>(
 }
 
 void iteratorForEach<V>(
-  IteratorJS<V> iterator,
+  Iterator<V> iterator,
   bool Function(V value) mapper,
 ) {
   var result = iterator.next();
