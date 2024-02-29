@@ -8,7 +8,7 @@ issue_tracker: https://gitlab.com/twilio-flutter/programmable-video/issues
 # less-clean API. See https://flutter.dev/go/platform-interface-breaking-changes
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=2.19.0 <3.0.0"
 
 dependencies:
   flutter:

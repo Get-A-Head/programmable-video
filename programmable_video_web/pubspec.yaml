@@ -6,7 +6,7 @@ repository: https://gitlab.com/twilio-flutter/programmable-video/-/tree/master/p
 issue_tracker: https://gitlab.com/twilio-flutter/programmable-video/issues
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=2.19.0 <3.0.0"
   flutter: ">=1.20.0"
 
 dependencies:
@@ -18,7 +18,7 @@ dependencies:
 #    path: ../programmable_video_platform_interface
     git:
       url: https://github.com/Get-A-Head/programmable-video.git
-      ref: 1.2.2
+      ref: 1.2.2+1
       path: programmable_video_platform_interface
   js: ^0.6.3
   enum_to_string: ^2.0.1
