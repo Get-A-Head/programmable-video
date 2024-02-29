@@ -132,8 +132,19 @@ class Room {
 
   /// Disconnects from the room.
   Future<void> disconnect() async {
-    await ProgrammableVideoPlatform.instance.disconnect();
+    try {
+      await ProgrammableVideoPlatform.instance.disconnect();
+    } catch (e) {
+      TwilioProgrammableVideo._log(e);
+      await localParticipantDispose();
+      rethrow;
+    }
+    await localParticipantDispose();
+  }
+
+  Future<void> localParticipantDispose() async {
     _localParticipant?._dispose();
+    await dispose();
   }
 
   Future<void> dispose() async {
