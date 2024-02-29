@@ -233,47 +233,54 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   Future<void> disconnect() async {
     debug('Disconnecting to room: ${_room?.name}');
     final localParticipant = _room?.localParticipant;
+    var disposed = false;
     if (localParticipant != null) {
-      final audioTracks = localParticipant.audioTracks.values();
-      iteratorForEach<LocalAudioTrackPublication>(audioTracks, (publication) {
-        debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
-        /* RMC - 20221124 - OURS START */
-        try {
-          debug('ProgrammableVideoWeb::stopping => ${publication.track.kind} track ${publication.trackSid}');
-          publication.track.stop();
-        } catch (err) {
-          debug('Error at disabling track $err');
-        }
-        debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
-        /* RMC - 20221124 - OURS END */
-        _room?.localParticipant.unpublishTrack(publication.track);
-        return false;
-      });
+      try {
+        final audioTracks = localParticipant.audioTracks.values();
+        iteratorForEach<LocalAudioTrackPublication>(audioTracks, (publication) {
+          debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
+          /* RMC - 20221124 - OURS START */
+          try {
+            debug('ProgrammableVideoWeb::stopping => ${publication.track.kind} track ${publication.trackSid}');
+            publication.track.stop();
+          } catch (err) {
+            debug('Error at disabling track $err');
+          }
+          debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
+          /* RMC - 20221124 - OURS END */
+          _room?.localParticipant.unpublishTrack(publication.track);
+          return false;
+        });
 
-      final videoTracks = localParticipant.videoTracks.values();
-      iteratorForEach<LocalVideoTrackPublication>(videoTracks, (publication) {
-        debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
+        final videoTracks = localParticipant.videoTracks.values();
+        iteratorForEach<LocalVideoTrackPublication>(videoTracks, (publication) {
+          debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
 
-        /* RMC - 20221124 - OURS START */
-        try {
-          debug('ProgrammableVideoWeb::stopping => ${publication.track.kind} track ${publication.trackSid}');
-          publication.track.stop();
-        } catch (err) {
-          debug('Error at disabling track $err');
-        }
-        debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
-        /* RMC - 20221124 - OURS END */
-        _room?.localParticipant.unpublishTrack(publication.track);
-        return false;
-      });
+          /* RMC - 20221124 - OURS START */
+          try {
+            debug('ProgrammableVideoWeb::stopping => ${publication.track.kind} track ${publication.trackSid}');
+            publication.track.stop();
+          } catch (err) {
+            debug('Error at disabling track $err');
+          }
+          debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
+          /* RMC - 20221124 - OURS END */
+          _room?.localParticipant.unpublishTrack(publication.track);
+          return false;
+        });
 
-      final dataTracks = localParticipant.dataTracks.values();
-      iteratorForEach<LocalDataTrackPublication>(dataTracks, (publication) {
-        debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
-        _room?.localParticipant.unpublishTrack(publication.track);
-        return false;
-      });
-    } else {
+        final dataTracks = localParticipant.dataTracks.values();
+        iteratorForEach<LocalDataTrackPublication>(dataTracks, (publication) {
+          debug('ProgrammableVideoWeb::disconnect => unpublishing ${publication.track.kind} track ${publication.trackSid}');
+          _room?.localParticipant.unpublishTrack(publication.track);
+          return false;
+        });
+        disposed = true;
+      } catch (err) {
+        debug('Error at disconnecting tracks $err');
+      }
+    }
+    if (!disposed) {
       try {
         debug('ProgrammableVideoWeb::stopping microphone tracks manually');
         microphoneTrack?.stop();
