@@ -20,7 +20,7 @@ dependencies:
       url: https://github.com/Get-A-Head/programmable-video.git
       ref: 1.2.3
       path: programmable_video_platform_interface
-  js: ^0.7.1
+  js: ^0.6.2
   enum_to_string: ^2.0.1
   dartlin: ^0.6.1
   version: ^2.0.0
