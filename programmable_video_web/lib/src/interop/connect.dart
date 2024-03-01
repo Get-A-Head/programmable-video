@@ -16,6 +16,7 @@ import 'package:twilio_programmable_video_web/src/interop/classes/local_video_tr
 import 'package:twilio_programmable_video_web/src/interop/classes/local_video_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/room.dart';
 import 'package:twilio_programmable_video_web/twilio_programmable_video_web.dart';
+import 'package:universal_html/js.dart';
 
 @JS('Twilio.Video.connect')
 external Future<Room> connect(
@@ -192,6 +193,13 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
       ),
     ),
   );
+  final a = room.localParticipant.audioTracks;
+
+  jsify(a) {
+    final data = a;
+    print(data);
+    return a;
+  }
 
   iteratorForEach<LocalAudioTrackPublication>(room.localParticipant.audioTracks.values(), (publication) {
     if (audioTracks != null) {

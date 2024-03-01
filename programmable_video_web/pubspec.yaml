@@ -25,6 +25,7 @@ dependencies:
   dartlin: ^0.6.1
   version: ^2.0.0
   collection: ^1.15.0
+  universal_html: ^2.2.4
 
 dev_dependencies:
   pedantic: ^1.8.0+1
