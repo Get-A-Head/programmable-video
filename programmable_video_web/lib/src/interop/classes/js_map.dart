@@ -10,13 +10,13 @@ class JSMap<K, V> {
   /// The [Iterator] returns the key value pairs as a [List<dynamic>].
   /// The [List] always contains two elements. The first is the key and the second is the value.
   @JS('prototype.entries')
-  external Iterator<List<dynamic>> entries();
+  external dynamic entries();
 
   @JS('prototype.keys')
-  external Iterator<K> keys();
+  external dynamic keys();
 
   @JS('prototype.values')
-  external Iterator<V> values();
+  external dynamic values();
 
   external int get size;
 
