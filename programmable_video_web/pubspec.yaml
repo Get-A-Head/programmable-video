@@ -18,7 +18,7 @@ dependencies:
 #    path: ../programmable_video_platform_interface
     git:
       url: https://github.com/Get-A-Head/programmable-video.git
-      ref: 1.2.2
+      ref: 1.3.0
       path: programmable_video_platform_interface
   js: ^0.6.3
   enum_to_string: ^2.0.1
