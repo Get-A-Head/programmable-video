@@ -44,10 +44,10 @@ extension Interop<K, V> on JSMap<K, V> {
 }
 
 @JS()
-class Iterator<T> {
+class IteratorJS<T> {
   external IteratorValue<T> next();
 
-  external factory Iterator();
+  external factory IteratorJS();
 }
 
 @JS()
@@ -59,7 +59,7 @@ class IteratorValue<T> {
 }
 
 List<T> iteratorToList<T, V>(
-  Iterator<V> iterator,
+  IteratorJS<V> iterator,
   T Function(V value) mapper,
 ) {
   final list = <T>[];
@@ -75,7 +75,7 @@ List<T> iteratorToList<T, V>(
 }
 
 void iteratorForEach<V>(
-  Iterator<V> iterator,
+  IteratorJS<V> iterator,
   bool Function(V value) mapper,
 ) {
   var result = iterator.next();
