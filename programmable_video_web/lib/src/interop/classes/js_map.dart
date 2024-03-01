@@ -59,7 +59,7 @@ class IteratorValue<T> {
 }
 
 List<T> iteratorToList<T, V>(
-  IteratorJS<V> iterator,
+  dynamic iterator,
   T Function(V value) mapper,
 ) {
   final list = <T>[];
@@ -75,7 +75,7 @@ List<T> iteratorToList<T, V>(
 }
 
 void iteratorForEach<V>(
-  IteratorJS<V> iterator,
+  dynamic iterator,
   bool Function(V value) mapper,
 ) {
   var result = iterator.next();
