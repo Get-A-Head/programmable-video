@@ -173,7 +173,7 @@ class Room {
   }
 
   /// Parse native room events to the right event streams.
-  void _parseRoomEvents(BaseRoomEvent event) {
+  void _parseRoomEvents(BaseRoomEvent event) async {
     TwilioProgrammableVideo._log("Room => Event '$event'");
     if (event is SkippableRoomEvent) {
       return;
@@ -186,6 +186,7 @@ class Room {
     } else if (event is Connected) {
       _onConnected.add(this);
     } else if (event is Disconnected) {
+      await disconnect();
       dispose();
 
       for (var participant in _remoteParticipants) {

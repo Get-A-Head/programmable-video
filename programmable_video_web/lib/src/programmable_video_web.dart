@@ -31,7 +31,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static RoomEventListener? _roomListener;
   static LocalParticipantEventListener? _localParticipantListener;
 
-  // TODO add listeners for camera and remotedatatrack stream
   static final _roomStreamController = StreamController<BaseRoomEvent>.broadcast();
   static final _cameraStreamController = StreamController<BaseCameraEvent>.broadcast();
   static final _localParticipantController = StreamController<BaseLocalParticipantEvent>.broadcast();
@@ -273,16 +272,15 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         _room?.localParticipant.unpublishTrack(publication.track);
         return false;
       });
-    } else {
-      try {
-        debug('ProgrammableVideoWeb::stopping microphone tracks manually');
-        microphoneTrack?.stop();
-        debug('ProgrammableVideoWeb::stopping camera tracks manually');
-        cameraTrack?.stop();
-        shareTrack?.stop();
-      } catch (err) {
-        debug('Error at stopping track $err');
-      }
+    }
+    try {
+      debug('ProgrammableVideoWeb::stopping microphone tracks manually');
+      microphoneTrack?.stop();
+      debug('ProgrammableVideoWeb::stopping camera tracks manually');
+      cameraTrack?.stop();
+      shareTrack?.stop();
+    } catch (err) {
+      debug('Error at stopping track $err');
     }
 
     _roomListener?.removeListeners();
