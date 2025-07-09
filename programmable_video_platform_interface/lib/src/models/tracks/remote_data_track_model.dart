@@ -32,6 +32,6 @@ class RemoteDataTrackModel extends TrackModel {
 
   @override
   String toString() {
-    return '{ name: $name, enabled: $enabled, ordered: $ordered, reliable: $reliable, maxPacketLifeTime: $maxPacketLifeTime, maxRetransmits: $maxRetransmits, sid: $sid }';
+    return '{ name: $name, enabled: $enabled, sid: $sid }';
   }
 }

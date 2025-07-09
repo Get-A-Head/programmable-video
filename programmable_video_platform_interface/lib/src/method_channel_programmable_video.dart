@@ -1,15 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:enum_to_string/enum_to_string.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:meta/meta.dart';
-import 'package:twilio_programmable_video_platform_interface/src/models/capturers/camera_event.dart';
+import 'package:flutter/widgets.dart';
 import 'package:twilio_programmable_video_platform_interface/src/camera_source.dart';
 
-import 'enums/enum_exports.dart';
-import 'models/local_participant/local_participant_event.dart';
-import 'models/model_exports.dart';
 import 'programmable_video_platform_interface.dart';
 
 /// An implementation of [ProgrammableVideoPlatform] that uses method channels.
@@ -40,7 +38,77 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
     this._loggingChannel,
   );
 
+  Widget _videoTrackWidget(Map<String, Object> creationParams, Key key) {
+    if (Platform.isAndroid) {
+      return AndroidView(
+        key: key,
+        viewType: 'twilio_programmable_video/views',
+        creationParams: creationParams,
+        creationParamsCodec: const StandardMessageCodec(),
+      );
+    }
+
+    if (Platform.isIOS) {
+      return UiKitView(
+        key: key,
+        viewType: 'twilio_programmable_video/views',
+        creationParams: creationParams,
+        creationParamsCodec: const StandardMessageCodec(),
+      );
+    }
+
+    throw Exception('No widget implementation found for platform \'${Platform.operatingSystem}\'');
+  }
+
   //#region Functions
+  /// Calls native code to create a widget displaying the LocalVideoTrack's video.
+  /* TWILIO - 1.0.1
+    @override
+    Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
+      key ??= ValueKey('Twilio_LocalParticipant');
+
+      final creationParams = {
+        'isLocal': true,
+        'mirror': mirror,
+      };
+
+      return _videoTrackWidget(creationParams, key);
+    }
+  */
+  /// OUR IMPLEMENTATION -- START
+  @override
+  Widget createLocalVideoTrackWidget({bool isScreenShare = false, bool mirror = true, Key? key}) {
+    key ??= ValueKey('Twilio_LocalParticipant');
+
+    final creationParams = {
+      'isLocal': true,
+      'mirror': mirror,
+    };
+
+    return _videoTrackWidget(creationParams, key);
+  }
+
+  /// OUR IMPLEMENTATION - END
+
+  /// Calls native code to create a widget displaying a RemoteVideoTrack's video.
+  @override
+  Widget createRemoteVideoTrackWidget({
+    required String remoteParticipantSid,
+    required String remoteVideoTrackSid,
+    bool mirror = true,
+    Key? key,
+    bool isScreenShare = false,
+  }) {
+    key ??= ValueKey(remoteParticipantSid);
+
+    final creationParams = {
+      'remoteParticipantSid': remoteParticipantSid,
+      'remoteVideoTrackSid': remoteVideoTrackSid,
+      'mirror': mirror,
+    };
+
+    return _videoTrackWidget(creationParams, key);
+  }
 
   final MethodChannel _methodChannel;
 
@@ -143,6 +211,12 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
     return _methodChannel.invokeMethod('connect', connectOptions.toMap());
   }
 
+  /// Calls native code to create video track
+  @override
+  Future<void> createVideoTrack(LocalVideoTrackModel localVideoTrack) {
+    return _methodChannel.invokeMethod('LocalVideoTrack#create', localVideoTrack.toMap());
+  }
+
   /// Calls native code to set the state of the local video track.
   ///
   /// The results of this operation are signaled to other Participants in the same Room.
@@ -156,6 +230,30 @@ class MethodChannelProgrammableVideo extends ProgrammableVideoPlatform {
         'enable': enabled,
       },
     );
+  }
+
+  /// Calls native code to publish video track
+  @override
+  Future<void> publishVideoTrack(String name) {
+    return _methodChannel.invokeMethod('LocalVideoTrack#publish', <String, dynamic>{
+      'name': name,
+    });
+  }
+
+  /// Calls native code to unpublish video track
+  @override
+  Future<void> unpublishVideoTrack(String name) {
+    return _methodChannel.invokeMethod('LocalVideoTrack#unpublish', <String, dynamic>{
+      'name': name,
+    });
+  }
+
+  /// Calls native code to release video track
+  @override
+  Future<void> releaseVideoTrack(String name) {
+    return _methodChannel.invokeMethod('LocalVideoTrack#release', <String, dynamic>{
+      'name': name,
+    });
   }
 
   /// Calls native code to send a String message.

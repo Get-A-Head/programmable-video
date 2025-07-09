@@ -77,13 +77,13 @@ class TwilioRoomResponse {
       sid: data['sid'],
       status: EnumToString.fromString(TwilioRoomStatus.values, data['status'].toString().camelCase),
       statusCallback: data['statusCallback'],
-      statusCallbackMethod: EnumToString.fromString(TwilioStatusCallbackMethod.values, data['statusCallbackMethod']),
+      statusCallbackMethod: EnumToString.fromString(TwilioStatusCallbackMethod.values, data['statusCallbackMethod'].toString().camelCase),
       type: EnumToString.fromString(TwilioRoomType.values, data['type'].toString().camelCase),
       uniqueName: data['uniqueName'],
       url: data['url'],
       videoCodecs: (List<String>.from(data['videoCodecs']))
           .map(
-            (String videoCodec) => EnumToString.fromString(TwilioVideoCodec.values, videoCodec),
+            (String videoCodec) => EnumToString.fromString(TwilioVideoCodec.values, videoCodec.toString().camelCase),
           )
           .toList(),
     );

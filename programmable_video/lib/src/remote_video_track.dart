@@ -6,8 +6,6 @@ class RemoteVideoTrack extends VideoTrack {
 
   final RemoteParticipant _remoteParticipant;
 
-  Widget? _widget;
-
   /// Returns the server identifier. This value uniquely identifies the remote video track within the scope of a [Room].
   String get sid => _sid;
 
@@ -27,39 +25,24 @@ class RemoteVideoTrack extends VideoTrack {
   ///
   /// By default the widget will not be mirrored, to change that set [mirror] to true.
   /// If you provide a [key] make sure it is unique among all [VideoTrack]s otherwise Flutter might send the wrong creation params to the native side.
-  Widget widget({bool mirror = false, Key? key}) {
+  Widget widget({bool isScreenShare = false, bool mirror = false, Key? key}) {
     key ??= ValueKey(_sid);
+    final remoteParticipantSid = _remoteParticipant.sid;
 
-    var creationParams = {
-      'remoteParticipantSid': _remoteParticipant.sid,
-      'remoteVideoTrackSid': _sid,
-      'mirror': mirror,
-    };
-
-    if (Platform.isAndroid) {
-      return _widget ??= AndroidView(
-        key: key,
-        viewType: 'twilio_programmable_video/views',
-        creationParams: creationParams,
-        creationParamsCodec: const StandardMessageCodec(),
-        onPlatformViewCreated: (int viewId) {
-          TwilioProgrammableVideo._log('RemoteVideoTrack => View created: $viewId, creationParams: $creationParams');
-        },
+    if (remoteParticipantSid == null) {
+      throw MissingParameterException(
+        code: 'RemoteParticipantSidNotFound',
+        message: 'Cannot create widget for VideoTrack sid: $_sid. '
+            'Host RemoteParticipant has no SID.',
       );
     }
 
-    if (Platform.isIOS) {
-      return _widget ??= UiKitView(
-        key: key,
-        viewType: 'twilio_programmable_video/views',
-        creationParams: creationParams,
-        creationParamsCodec: const StandardMessageCodec(),
-        onPlatformViewCreated: (int viewId) {
-          TwilioProgrammableVideo._log('RemoteVideoTrack => View created: $viewId, creationParams: $creationParams');
-        },
-      );
-    }
-
-    throw Exception('No widget implementation found for platform \'${Platform.operatingSystem}\'');
+    return ProgrammableVideoPlatform.instance.createRemoteVideoTrackWidget(
+      remoteParticipantSid: remoteParticipantSid,
+      remoteVideoTrackSid: _sid,
+      mirror: mirror,
+      key: key,
+      isScreenShare: isScreenShare,
+    );
   }
 }

@@ -20,7 +20,7 @@ class TwilioProgrammableVideo {
   /// Internal logging method for dart.
   static void _log(dynamic msg) {
     if (_dartDebug) {
-      print('[   DART   ] $msg');
+      debugPrint('[   DART   ] $msg');
     }
   }
 
@@ -84,7 +84,7 @@ class TwilioProgrammableVideo {
     if ((native || audio) && _loggingStream == null) {
       _loggingStream = ProgrammableVideoPlatform.instance.loggingStream().listen((dynamic event) {
         if (native || audio) {
-          print('[  NATIVE  ] $event');
+          debugPrint('[  NATIVE  ] $event');
         }
       });
     } else if (!(native || audio) && _loggingStream != null) {
@@ -139,6 +139,37 @@ class TwilioProgrammableVideo {
     return settings;
   }
 
+  /// OUR IMPLEMENTATION -- START
+  /// Calls native code to start screen share
+  ///
+  /// * Returns a [Future] that completes with a [bool] indicating whether the screen share init was successful.
+  ///
+  /// ### Possible outcomes:
+  /// [true] : the screen share was _**successful**_
+  ///
+  /// [false] : the screen share was _**cancelled**_ or _**permission is not granted**_
+  ///
+  /// [Exception] : screen share _**failed**_ or is _**not supported by the browser**_
+  ///
+  /// This function uses the Twilio Programmable Video SDK to [publish a track](https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/LocalParticipant.html#publishTrack__anchor)
+  static Future<Widget?> startScreenShare() async {
+    return ProgrammableVideoPlatform.instance.startScreenShare();
+  }
+
+  /// Calls native code to stop screen share
+  ///
+  /// This function uses the Twilio Programmable Video SDK to [unpublish a track](https://media.twiliocdn.com/sdk/js/video/releases/2.13.1/docs/LocalParticipant.html#unpublishTrack__anchor)
+  static void stopScreenShare() async {
+    return ProgrammableVideoPlatform.instance.stopScreenShare();
+  }
+
+  /// Stream of the Screen share ended event.
+  ///
+  /// This stream is used to listen screen share termination from the user (not from ui).
+  static Stream<dynamic>? onScreenShareEndedStream() => ProgrammableVideoPlatform.instance.onScreenShareEndedStream();
+
+  /// OUR IMPLEMENTATION - END
+
   /// This check is extraneous to the plugin itself, and its reliability and implementation varies by platform
   /// as follows:
   ///
@@ -162,6 +193,10 @@ class TwilioProgrammableVideo {
   ///
   /// Uses the PermissionHandler plugin. Returns the granted result.
   static Future<bool> requestPermissionForCameraAndMicrophone() async {
+    if (kIsWeb) {
+      return true;
+    }
+
     await [Permission.camera, Permission.microphone].request();
     final micPermission = await Permission.microphone.status;
     final camPermission = await Permission.camera.status;

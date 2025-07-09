@@ -9,8 +9,8 @@ void main() {
     test('should call interface code to enable the track', () async {
       final mockInterface = MockInterface();
       ProgrammableVideoPlatform.instance = mockInterface;
-      final cameraCapturer = CameraCapturer(CameraSource('BACK_CAMERA', false, false, false));
-      await cameraCapturer.switchCamera(CameraSource('FRONT_CAMERA', false, false, false));
+      final cameraCapturer = CameraCapturer(const CameraSource('BACK_CAMERA', false, false, false));
+      await cameraCapturer.switchCamera(const CameraSource('FRONT_CAMERA', false, false, false));
 
       expect(mockInterface.switchCameraWasCalled, true);
       expect(cameraCapturer.source?.cameraId, 'FRONT_CAMERA');
@@ -21,7 +21,7 @@ void main() {
     test('should call interface code to set torch enable state', () async {
       final mockInterface = MockInterface();
       ProgrammableVideoPlatform.instance = mockInterface;
-      final cameraCapturer = CameraCapturer(CameraSource('BACK_CAMERA', false, false, false));
+      final cameraCapturer = CameraCapturer(const CameraSource('BACK_CAMERA', false, false, false));
       expect(mockInterface.torchEnabled, false);
       await cameraCapturer.setTorch(true);
 
@@ -31,9 +31,9 @@ void main() {
 
   group('CameraCapturer()', () {
     test('CameraCapturer should be a singleton', () async {
-      final firstInstance = CameraCapturer(CameraSource('BACK_CAMERA', false, false, false));
+      final firstInstance = CameraCapturer(const CameraSource('BACK_CAMERA', false, false, false));
       expect(firstInstance.source?.cameraId, 'BACK_CAMERA');
-      final secondInstance = CameraCapturer(CameraSource('FRONT_CAMERA', false, false, false));
+      final secondInstance = CameraCapturer(const CameraSource('FRONT_CAMERA', false, false, false));
       expect(firstInstance.source?.cameraId, 'FRONT_CAMERA');
 
       expect(firstInstance, secondInstance);

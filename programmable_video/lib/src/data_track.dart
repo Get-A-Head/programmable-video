@@ -2,6 +2,7 @@ part of twilio_programmable_video;
 
 abstract class DataTrack extends Track {
   @override
+  // ignore: overridden_fields
   final String _name;
 
   bool? _ordered;

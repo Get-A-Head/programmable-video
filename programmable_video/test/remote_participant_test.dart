@@ -6,8 +6,8 @@ import 'mock_platform_interface.dart';
 import 'model_instances.dart';
 
 void main() {
-  final roomModel = ModelInstances.roomModel;
-  final remoteParticipantModel = ModelInstances.remoteParticipantModel;
+  const roomModel = ModelInstances.roomModel;
+  const remoteParticipantModel = ModelInstances.remoteParticipantModel;
   MockInterface? mockInterface;
   Room room;
   RemoteParticipant? remoteParticipant;
@@ -17,7 +17,7 @@ void main() {
     ProgrammableVideoPlatform.instance = mockInterface!;
     room = Room(0);
 
-    mockInterface!.addRoomEvent(ParticipantConnected(roomModel, remoteParticipantModel));
+    mockInterface!.addRoomEvent(const ParticipantConnected(roomModel, remoteParticipantModel));
     final event = await room.onParticipantConnected.first;
     remoteParticipant = room.remoteParticipants.firstWhere(
       (RemoteParticipant p) => p.sid == event.remoteParticipant.sid,
@@ -27,7 +27,7 @@ void main() {
 
   group('.onAudioTrackDisabled', () {
     test('should process `RemoteAudioTrackDisabled` correctly', () async {
-      mockInterface!.addRemoteParticipantEvent(RemoteAudioTrackDisabled(
+      mockInterface!.addRemoteParticipantEvent(const RemoteAudioTrackDisabled(
         remoteParticipantModel,
         ModelInstances.remoteAudioTrackPublicationModel,
       ));
@@ -40,7 +40,7 @@ void main() {
 
   group('.onAudioTrackPublished', () {
     test('should process `RemoteAudioTrackPublished` correctly', () async {
-      mockInterface!.addRemoteParticipantEvent(RemoteAudioTrackPublished(
+      mockInterface!.addRemoteParticipantEvent(const RemoteAudioTrackPublished(
         remoteParticipantModel,
         ModelInstances.remoteAudioTrackPublicationModel,
       ));
@@ -53,7 +53,7 @@ void main() {
 
   group('.onAudioTrackSubscribed', () {
     test('should process `RemoteAudioTrackSubscribed` correctly', () async {
-      mockInterface!.addRemoteParticipantEvent(RemoteAudioTrackSubscribed(
+      mockInterface!.addRemoteParticipantEvent(const RemoteAudioTrackSubscribed(
         remoteParticipantModel: remoteParticipantModel,
         remoteAudioTrackPublicationModel: ModelInstances.remoteAudioTrackPublicationModel,
         remoteAudioTrackModel: ModelInstances.remoteAudioTrackModel,
@@ -67,7 +67,7 @@ void main() {
 
   group('.onAudioTrackSubscriptionFailed', () {
     test('should process `RemoteAudioTrackSubscribed` correctly', () async {
-      mockInterface!.addRemoteParticipantEvent(RemoteAudioTrackSubscriptionFailed(
+      mockInterface!.addRemoteParticipantEvent(const RemoteAudioTrackSubscriptionFailed(
         remoteParticipantModel: remoteParticipantModel,
         remoteAudioTrackPublicationModel: ModelInstances.remoteAudioTrackPublicationModel,
         exception: ModelInstances.twilioExceptionModel,
@@ -85,7 +85,7 @@ void main() {
 
   group('.onAudioTrackUnpublished', () {
     test('should process `RemoteAudioTrackUnpublished` correctly', () async {
-      mockInterface!.addRemoteParticipantEvent(RemoteAudioTrackUnpublished(
+      mockInterface!.addRemoteParticipantEvent(const RemoteAudioTrackUnpublished(
         remoteParticipantModel,
         ModelInstances.remoteAudioTrackPublicationModel,
       ));
@@ -101,7 +101,7 @@ void main() {
 
   group('.onAudioTrackUnsubscribed', () {
     test('should process `RemoteAudioTrackUnsubscribed` correctly', () async {
-      mockInterface!.addRemoteParticipantEvent(RemoteAudioTrackUnsubscribed(
+      mockInterface!.addRemoteParticipantEvent(const RemoteAudioTrackUnsubscribed(
         remoteParticipantModel: remoteParticipantModel,
         remoteAudioTrackPublicationModel: ModelInstances.remoteAudioTrackPublicationModel,
         remoteAudioTrackModel: ModelInstances.remoteAudioTrackModel,
@@ -115,7 +115,7 @@ void main() {
 
   group('.onDataTrackPublished', () {
     test('should process `RemoteDataTrackPublished` correctly', () async {
-      mockInterface!.addRemoteParticipantEvent(RemoteDataTrackPublished(
+      mockInterface!.addRemoteParticipantEvent(const RemoteDataTrackPublished(
         remoteParticipantModel,
         ModelInstances.remoteDataTrackPublicationModel,
       ));
@@ -128,7 +128,7 @@ void main() {
 
   group('.onDataTrackSubscribed', () {
     test('should process `RemoteDataTrackSubscribed` correctly', () async {
-      mockInterface!.addRemoteParticipantEvent(RemoteDataTrackSubscribed(
+      mockInterface!.addRemoteParticipantEvent(const RemoteDataTrackSubscribed(
         remoteParticipantModel: remoteParticipantModel,
         remoteDataTrackModel: ModelInstances.remoteDataTrackModel,
         remoteDataTrackPublicationModel: ModelInstances.remoteDataTrackPublicationModel,
@@ -142,7 +142,7 @@ void main() {
 
   group('.onDataTrackSubscriptionFailed', () {
     test('should process `RemoteDataTrackSubscriptionFailed` correctly', () async {
-      mockInterface!.addRemoteParticipantEvent(RemoteDataTrackSubscriptionFailed(
+      mockInterface!.addRemoteParticipantEvent(const RemoteDataTrackSubscriptionFailed(
         remoteParticipantModel: remoteParticipantModel,
         remoteDataTrackPublicationModel: ModelInstances.remoteDataTrackPublicationModel,
         exception: ModelInstances.twilioExceptionModel,
@@ -157,7 +157,7 @@ void main() {
 
   group('.onDataTrackUnpublished', () {
     test('should process `RemoteDataTrackUnpublished` correctly', () async {
-      mockInterface!.addRemoteParticipantEvent(RemoteDataTrackUnpublished(
+      mockInterface!.addRemoteParticipantEvent(const RemoteDataTrackUnpublished(
         remoteParticipantModel,
         ModelInstances.remoteDataTrackPublicationModel,
       ));
@@ -170,7 +170,7 @@ void main() {
 
   group('.onDataTrackUnsubscribed', () {
     test('should process `RemoteDataTrackUnsubscribed` correctly', () async {
-      mockInterface!.addRemoteParticipantEvent(RemoteDataTrackUnsubscribed(
+      mockInterface!.addRemoteParticipantEvent(const RemoteDataTrackUnsubscribed(
         remoteParticipantModel: remoteParticipantModel,
         remoteDataTrackPublicationModel: ModelInstances.remoteDataTrackPublicationModel,
         remoteDataTrackModel: ModelInstances.remoteDataTrackModel,
@@ -184,7 +184,7 @@ void main() {
 
   group('.onVideoTrackDisabled', () {
     test('should process `RemoteDataTrackSubscriptionFailed` correctly', () async {
-      mockInterface!.addRemoteParticipantEvent(RemoteVideoTrackDisabled(
+      mockInterface!.addRemoteParticipantEvent(const RemoteVideoTrackDisabled(
         remoteParticipantModel,
         ModelInstances.remoteVideoTrackPublicationModel,
       ));
@@ -197,7 +197,7 @@ void main() {
 
   group('.onVideoTrackEnabled', () {
     test('should process `RemoteVideoTrackEnabled` correctly', () async {
-      mockInterface!.addRemoteParticipantEvent(RemoteVideoTrackEnabled(
+      mockInterface!.addRemoteParticipantEvent(const RemoteVideoTrackEnabled(
         remoteParticipantModel,
         ModelInstances.remoteVideoTrackPublicationModel,
       ));
@@ -210,7 +210,7 @@ void main() {
 
   group('.onVideoTrackPublished', () {
     test('should process `RemoteVideoTrackPublished` correctly', () async {
-      mockInterface!.addRemoteParticipantEvent(RemoteVideoTrackPublished(
+      mockInterface!.addRemoteParticipantEvent(const RemoteVideoTrackPublished(
         remoteParticipantModel,
         ModelInstances.remoteVideoTrackPublicationModel,
       ));
@@ -223,7 +223,7 @@ void main() {
 
   group('.onVideoTrackSubscribed', () {
     test('should process `RemoteVideoTrackSubscribed` correctly', () async {
-      mockInterface!.addRemoteParticipantEvent(RemoteVideoTrackSubscribed(
+      mockInterface!.addRemoteParticipantEvent(const RemoteVideoTrackSubscribed(
         remoteParticipantModel: remoteParticipantModel,
         remoteVideoTrackModel: ModelInstances.remoteVideoTrackModel,
         remoteVideoTrackPublicationModel: ModelInstances.remoteVideoTrackPublicationModel,
@@ -237,7 +237,7 @@ void main() {
 
   group('.onVideoTrackSubscriptionFailed', () {
     test('should process `RemoteVideoTrackSubscriptionFailed` correctly', () async {
-      mockInterface!.addRemoteParticipantEvent(RemoteVideoTrackSubscriptionFailed(
+      mockInterface!.addRemoteParticipantEvent(const RemoteVideoTrackSubscriptionFailed(
         remoteParticipantModel: remoteParticipantModel,
         remoteVideoTrackPublicationModel: ModelInstances.remoteVideoTrackPublicationModel,
         exception: ModelInstances.twilioExceptionModel,
@@ -251,7 +251,7 @@ void main() {
 
   group('.onVideoTrackUnpublished', () {
     test('should process `RemoteVideoTrackUnpublished` correctly', () async {
-      mockInterface!.addRemoteParticipantEvent(RemoteVideoTrackUnpublished(
+      mockInterface!.addRemoteParticipantEvent(const RemoteVideoTrackUnpublished(
         remoteParticipantModel,
         ModelInstances.remoteVideoTrackPublicationModel,
       ));
@@ -264,7 +264,7 @@ void main() {
 
   group('.onVideoTrackUnsubscribed', () {
     test('should process `RemoteVideoTrackSubscribed` correctly', () async {
-      mockInterface!.addRemoteParticipantEvent(RemoteVideoTrackUnsubscribed(
+      mockInterface!.addRemoteParticipantEvent(const RemoteVideoTrackUnsubscribed(
         remoteParticipantModel: remoteParticipantModel,
         remoteVideoTrackModel: ModelInstances.remoteVideoTrackModel,
         remoteVideoTrackPublicationModel: ModelInstances.remoteVideoTrackPublicationModel,

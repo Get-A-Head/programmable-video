@@ -1,5 +1,4 @@
 import 'package:twilio_programmable_video/src/parts.dart';
-import 'package:twilio_programmable_video_platform_interface/src/enums/enum_exports.dart';
 import 'package:twilio_programmable_video_platform_interface/src/models/model_exports.dart';
 
 class ModelInstances {
@@ -54,14 +53,25 @@ class ModelInstances {
     sid: 'sid',
     localDataTrack: localDataTrackModel,
   );
-
-  static const localVideoTrackModel = LocalVideoTrackModel(
+  /* TWILIO-1.0.1
+  static final localVideoTrackModel = LocalVideoTrackModel(
     name: 'name',
     enabled: true,
     cameraCapturer: CameraCapturerModel(CameraSource('FRONT_CAMERA', false, false, false), 'CameraCapturer'),
   );
 
-  static const localVideoTrackPublicationModel = LocalVideoTrackPublicationModel(
+  static final localVideoTrackPublicationModel = LocalVideoTrackPublicationModel(
+    sid: 'sid',
+    localVideoTrack: localVideoTrackModel,
+  );
+  */
+  static final localVideoTrackModel = LocalVideoTrackModel(
+    name: 'name',
+    enabled: true,
+    cameraCapturer: CameraCapturerModel(const CameraSource('FRONT_CAMERA', false, false, false), 'CameraCapturer'),
+  );
+
+  static final localVideoTrackPublicationModel = LocalVideoTrackPublicationModel(
     sid: 'sid',
     localVideoTrack: localVideoTrackModel,
   );

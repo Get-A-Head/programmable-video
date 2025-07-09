@@ -29,7 +29,7 @@ class _ConferencePageState extends State<ConferencePage> {
   final StreamController<bool> _onButtonBarVisibleStreamController = StreamController<bool>.broadcast();
   final StreamController<double> _onButtonBarHeightStreamController = StreamController<double>.broadcast();
   ConferenceRoom? _conferenceRoom;
-  late StreamSubscription _onConferenceRoomException;
+  StreamSubscription? _onConferenceRoomException;
 
   @override
   void initState() {
@@ -97,7 +97,7 @@ class _ConferencePageState extends State<ConferencePage> {
   Future<void> _disposeStreamsAndSubscriptions() async {
     await _onButtonBarVisibleStreamController.close();
     await _onButtonBarHeightStreamController.close();
-    await _onConferenceRoomException.cancel();
+    await _onConferenceRoomException?.cancel();
   }
 
   @override
@@ -125,10 +125,12 @@ class _ConferencePageState extends State<ConferencePage> {
                     audioEnabled: conferenceRoom.onAudioEnabled,
                     videoEnabled: conferenceRoom.onVideoEnabled,
                     flashState: conferenceRoom.flashStateStream,
+                    speakerState: conferenceRoom.speakerStateStream,
                     onAudioEnabled: conferenceRoom.toggleAudioEnabled,
                     onVideoEnabled: conferenceRoom.toggleVideoEnabled,
                     onHangup: _onHangup,
                     onSwitchCamera: conferenceRoom.switchCamera,
+                    onToggleSpeaker: conferenceRoom.toggleSpeaker,
                     toggleFlashlight: conferenceRoom.toggleFlashlight,
                     onPersonAdd: _onPersonAdd,
                     onPersonRemove: _onPersonRemove,

@@ -1,10 +1,9 @@
+import 'package:dartlin/dartlin.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:twilio_programmable_video_platform_interface/src/audio_codecs/audio_codec.dart';
 import 'package:twilio_programmable_video_platform_interface/src/enums/enum_exports.dart';
 import 'package:twilio_programmable_video_platform_interface/src/models/model_exports.dart';
 import 'package:twilio_programmable_video_platform_interface/src/video_codecs/video_codec.dart';
-
-import 'model_exports.dart';
 
 class ConnectOptionsModel {
   /// This Access Token is the credential you must use to identify and authenticate your request.
@@ -26,6 +25,10 @@ class ConnectOptionsModel {
   /// Set preferred video codecs.
   final List<VideoCodec>? preferredVideoCodecs;
 
+  /// OUR IMPLEMENTATION -- DO NOT REMOVE
+  /// Audio speaker device id to use for outgoing audio.
+  final String? speakerDeviceId;
+
   /// Audio tracks that will be published upon connection.
   final List<LocalAudioTrackModel>? audioTracks;
 
@@ -40,7 +43,7 @@ class ConnectOptionsModel {
 
   /// Enable or disable the Network Quality API.
   /// Set this to true to enable the Network Quality API when using Group Rooms.
-  final bool? enableNetworkQuality;
+  final bool enableNetworkQuality;
 
   /// Sets the verbosity level for network quality information returned by the
   /// Network Quality API.
@@ -50,6 +53,9 @@ class ConnectOptionsModel {
     this.accessToken, {
     this.audioTracks,
     this.dataTracks,
+
+    /// OUR IMPLEMENTATION -- DO NOT REMOVE
+    this.speakerDeviceId,
     this.preferredAudioCodecs,
     this.preferredVideoCodecs,
     this.region,
@@ -57,15 +63,15 @@ class ConnectOptionsModel {
     this.videoTracks,
     this.enableDominantSpeaker,
     this.enableAutomaticSubscription,
-    this.enableNetworkQuality,
+    this.enableNetworkQuality = false,
     this.networkQualityConfiguration,
   })  : assert(accessToken.isNotEmpty),
         assert((audioTracks != null && audioTracks.isNotEmpty) || audioTracks == null),
         assert((dataTracks != null && dataTracks.isNotEmpty) || dataTracks == null),
         assert((preferredAudioCodecs != null && preferredAudioCodecs.isNotEmpty) || preferredAudioCodecs == null),
         assert((preferredVideoCodecs != null && preferredVideoCodecs.isNotEmpty) || preferredVideoCodecs == null),
-        assert((region != null && region is Region) || region == null),
         assert((videoTracks != null && videoTracks.isNotEmpty) || videoTracks == null),
+        assert((region != null && region is Region) || region == null),
         assert((networkQualityConfiguration != null && networkQualityConfiguration is NetworkQualityConfigurationModel) || networkQualityConfiguration == null);
 
   /// Create map from properties.
@@ -80,10 +86,13 @@ class ConnectOptionsModel {
         'audioTracks': audioTracks != null ? Map<Object, Object>.fromIterable(audioTracks!.map<Map<String, Object?>>((TrackModel a) => a.toMap())) : null,
         'dataTracks': dataTracks != null ? Map<Object, Object>.fromIterable(dataTracks!.map<Map<String, Object>>((LocalDataTrackModel d) => d.toMap())) : null,
         'videoTracks': videoTracks != null ? Map<Object, Object>.fromIterable(videoTracks!.map<Map<String, Object?>>((LocalVideoTrackModel v) => v.toMap())) : null,
+        'speakerDeviceId': speakerDeviceId,
+
+        /// OUR IMPLEMENTATION -- DO NOT REMOVE
         'enableDominantSpeaker': enableDominantSpeaker,
         'enableAutomaticSubscription': enableAutomaticSubscription,
         'enableNetworkQuality': enableNetworkQuality,
-        'networkQualityConfiguration': networkQualityConfiguration != null ? networkQualityConfiguration!.toMap() : null
+        'networkQualityConfiguration': networkQualityConfiguration?.let((it) => it.toMap()),
       },
     };
   }

@@ -28,7 +28,7 @@ void main() {
 
   group('Room', () {
     test('should update properties correctly from an interface event', () async {
-      final updateRoom = RoomModel(
+      const updateRoom = RoomModel(
         name: 'updateRoom',
         sid: 'updateRoomSid',
         mediaRegion: Region.jp1,
@@ -37,7 +37,7 @@ void main() {
         remoteParticipants: <RemoteParticipantModel>[],
       );
 
-      mockInterface!.addRoomEvent(Connected(updateRoom));
+      mockInterface!.addRoomEvent(const Connected(updateRoom));
       expect(await room!.onConnected.first, room);
       expect(room!.name, updateRoom.name);
       expect(room!.sid, updateRoom.sid);
@@ -48,15 +48,15 @@ void main() {
 
   group('.onConnected', () {
     test('should return current room after a `Connected` event arrives from the interface', () async {
-      mockInterface!.addRoomEvent(Connected(ModelInstances.roomModel));
+      mockInterface!.addRoomEvent(const Connected(ModelInstances.roomModel));
       expect(await room!.onConnected.first, room);
     });
   });
 
   group('.onDisconnected', () {
     test('should return correct `RoomDisconnectedEvent` after a `Disconnected` event arrives from the interface', () async {
-      final exceptionModel = ModelInstances.twilioExceptionModel;
-      mockInterface!.addRoomEvent(Disconnected(ModelInstances.roomModel, exceptionModel));
+      const exceptionModel = ModelInstances.twilioExceptionModel;
+      mockInterface!.addRoomEvent(const Disconnected(ModelInstances.roomModel, exceptionModel));
       final event = await room!.onDisconnected.first;
       expect(event.room, room);
       expect(event.exception?.code, exceptionModel.code);
@@ -66,8 +66,8 @@ void main() {
 
   group('.onConnectFailure', () {
     test('should return correct `RoomConnectFailureEvent` after a `ConnectFailure` event arrives from the interface', () async {
-      final exceptionModel = ModelInstances.twilioExceptionModel;
-      mockInterface!.addRoomEvent(ConnectFailure(ModelInstances.roomModel, exceptionModel));
+      const exceptionModel = ModelInstances.twilioExceptionModel;
+      mockInterface!.addRoomEvent(const ConnectFailure(ModelInstances.roomModel, exceptionModel));
       final event = await room!.onConnectFailure.first;
       expect(event.room, room);
       expect(event.exception?.code, exceptionModel.code);
@@ -77,8 +77,8 @@ void main() {
 
   group('.onDominantSpeakerChange', () {
     test('should return correct `DominantSpeakerChangedEvent` after a `DominantSpeakerChanged` event arrives from the interface', () async {
-      final remoteParticipantModel = ModelInstances.remoteParticipantModel;
-      mockInterface!.addRoomEvent(DominantSpeakerChanged(ModelInstances.roomModel, remoteParticipantModel));
+      const remoteParticipantModel = ModelInstances.remoteParticipantModel;
+      mockInterface!.addRoomEvent(const DominantSpeakerChanged(ModelInstances.roomModel, remoteParticipantModel));
       final event = await room!.onDominantSpeakerChange.first;
       expect(event.room, room);
       expect(
@@ -92,8 +92,8 @@ void main() {
 
   group('.onParticipantConnected', () {
     test('should return correct `RoomParticipantConnectedEvent` after a `ParticipantConnected` event arrives from the interface', () async {
-      final remoteParticipantModel = ModelInstances.remoteParticipantModel;
-      mockInterface!.addRoomEvent(ParticipantConnected(ModelInstances.roomModel, remoteParticipantModel));
+      const remoteParticipantModel = ModelInstances.remoteParticipantModel;
+      mockInterface!.addRoomEvent(const ParticipantConnected(ModelInstances.roomModel, remoteParticipantModel));
       final event = await room!.onParticipantConnected.first;
       expect(event.room, room);
       expect(
@@ -107,8 +107,8 @@ void main() {
 
   group('.onParticipantDisconnected', () {
     test('should return correct `RoomParticipantDisconnectedEvent` after a `ParticipantDisconnected` event arrives from the interface', () async {
-      final remoteParticipantModel = ModelInstances.remoteParticipantModel;
-      mockInterface!.addRoomEvent(ParticipantDisconnected(ModelInstances.roomModel, remoteParticipantModel));
+      const remoteParticipantModel = ModelInstances.remoteParticipantModel;
+      mockInterface!.addRoomEvent(const ParticipantDisconnected(ModelInstances.roomModel, remoteParticipantModel));
       final event = await room!.onParticipantDisconnected.first;
       expect(event.room, room);
       expect(
@@ -122,15 +122,15 @@ void main() {
 
   group('.onReconnected', () {
     test('should return current room after a `Reconnected` event arrives from the interface', () async {
-      mockInterface!.addRoomEvent(Reconnected(ModelInstances.roomModel));
+      mockInterface!.addRoomEvent(const Reconnected(ModelInstances.roomModel));
       expect(await room!.onReconnected.first, room);
     });
   });
 
   group('.onReconnecting', () {
     test('should return correct `RoomReconnectingEvent` after a `Reconnecting` event arrives from the interface', () async {
-      final exceptionModel = ModelInstances.twilioExceptionModel;
-      mockInterface!.addRoomEvent(Reconnecting(ModelInstances.roomModel, exceptionModel));
+      const exceptionModel = ModelInstances.twilioExceptionModel;
+      mockInterface!.addRoomEvent(const Reconnecting(ModelInstances.roomModel, exceptionModel));
       final event = await room!.onReconnecting.first;
       expect(event.room, room);
       expect(event.exception?.code, exceptionModel.code);
@@ -140,14 +140,14 @@ void main() {
 
   group('.onRecordingStarted', () {
     test('should return current room after a `RecordingStarted` event arrives from the interface', () async {
-      mockInterface!.addRoomEvent(RecordingStarted(ModelInstances.roomModel));
+      mockInterface!.addRoomEvent(const RecordingStarted(ModelInstances.roomModel));
       expect(await room!.onRecordingStarted.first, room);
     });
   });
 
   group('.onRecordingStopped', () {
     test('should return current room after a `RecordingStarted` event arrives from the interface', () async {
-      mockInterface!.addRoomEvent(RecordingStopped(ModelInstances.roomModel));
+      mockInterface!.addRoomEvent(const RecordingStopped(ModelInstances.roomModel));
       expect(await room!.onRecordingStopped.first, room);
     });
   });

@@ -15,6 +15,10 @@ class ConnectOptions {
   /// Enable detection of the loudest audio track
   final bool? enableDominantSpeaker;
 
+  /// OUR IMPLEMENTATION -- START
+  /// Audio speaker device id to use for outgoing audio.
+  final String? speakerDeviceId;
+
   /// Set preferred audio codecs.
   final List<AudioCodec>? preferredAudioCodecs;
 
@@ -58,6 +62,9 @@ class ConnectOptions {
     this.videoTracks,
     this.enableNetworkQuality = false,
     this.networkQualityConfiguration,
+
+    /// OUR IMPLEMENTATION -- START
+    this.speakerDeviceId,
     this.enableDominantSpeaker,
     this.enableAutomaticSubscription,
   }) : assert(accessToken.isNotEmpty);
@@ -100,6 +107,9 @@ class ConnectOptions {
       enableDominantSpeaker: enableDominantSpeaker,
       preferredAudioCodecs: preferredAudioCodecs,
       preferredVideoCodecs: preferredVideoCodecs,
+
+      /// OUR IMPLEMENTATION -- START
+      speakerDeviceId: speakerDeviceId,
       region: region,
       roomName: roomName,
       enableNetworkQuality: enableNetworkQuality,

@@ -10,8 +10,8 @@ enum TwilioRoomStatus {
 }
 
 enum TwilioStatusCallbackMethod {
-  GET,
-  POST,
+  get,
+  post,
 }
 
-enum TwilioVideoCodec { VP8, H264 }
+enum TwilioVideoCodec { vp8, h264 }

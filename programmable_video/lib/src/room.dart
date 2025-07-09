@@ -137,10 +137,14 @@ class Room {
   }
 
   Future<void> dispose() async {
-    await _roomStream.cancel();
-    await _remoteParticipantStream.cancel();
-    await _localParticipantStream.cancel();
-    await _remoteDataTrackStream.cancel();
+    try {
+      await _roomStream.cancel();
+      await _remoteParticipantStream.cancel();
+      await _localParticipantStream.cancel();
+      await _remoteDataTrackStream.cancel();
+    } catch (err) {
+      TwilioProgrammableVideo._log("Room Error => Event '$err'");
+    }
   }
 
   /// Find or create a [RemoteParticipant].
@@ -169,7 +173,7 @@ class Room {
   }
 
   /// Parse native room events to the right event streams.
-  void _parseRoomEvents(BaseRoomEvent event) {
+  void _parseRoomEvents(BaseRoomEvent event) async {
     TwilioProgrammableVideo._log("Room => Event '$event'");
     if (event is SkippableRoomEvent) {
       return;
@@ -182,15 +186,20 @@ class Room {
     } else if (event is Connected) {
       _onConnected.add(this);
     } else if (event is Disconnected) {
+      await disconnect();
       dispose();
 
       for (var participant in _remoteParticipants) {
         participant._dispose();
       }
       _remoteParticipants.clear();
-
-      final exception = event.exception != null ? TwilioException._fromModel(event.exception!) : null;
-      _onDisconnected.add(RoomDisconnectedEvent(this, exception));
+      try {
+        final exception = event.exception != null ? TwilioException._fromModel(event.exception!) : null;
+        _onDisconnected.add(RoomDisconnectedEvent(this, exception));
+      } catch (e) {
+        TwilioProgrammableVideo._log("Room => Event '$event' => Exception '$e'");
+        _onDisconnected.add(RoomDisconnectedEvent(this, null));
+      }
     } else if (event is ParticipantConnected) {
       final remoteParticipant = _findOrCreateRemoteParticipant(event.connectedParticipant);
 
@@ -281,13 +290,13 @@ class Room {
 
     final remoteDataTrackModel = event.remoteDataTrackModel;
 
-    _remoteParticipants.forEach((RemoteParticipant remoteParticipant) {
-      remoteParticipant.remoteDataTracks.forEach((RemoteDataTrackPublication dataTrackPublication) {
+    for (final remoteParticipant in _remoteParticipants) {
+      for (final dataTrackPublication in remoteParticipant.remoteDataTracks) {
         if (dataTrackPublication.trackSid == remoteDataTrackModel!.sid) {
           dataTrackPublication.remoteDataTrack!._parseEvents(event);
         }
-      });
-    });
+      }
+    }
   }
 
   /// Update this instances state from RoomEvents

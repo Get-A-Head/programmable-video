@@ -255,11 +255,17 @@ class RemoteParticipantListener : BaseListener(), RemoteParticipant.Listener {
             val remoteAudioTrackPublications = if (!noTracks) remoteParticipant.remoteAudioTracks.map { remoteAudioTrackPublicationToMap(it) } else null
             val remoteVideoTrackPublications = if (!noTracks) remoteParticipant.remoteVideoTracks.map { remoteVideoTrackPublicationToMap(it) } else null
 
+            /// OUR IMPLEMENTATION -- START
+            val remoteDataTrackPublications = if (!noTracks) remoteParticipant.remoteDataTracks.map { remoteDataTrackPublicationToMap(it) } else null
+            /// OUR IMPLEMENTATION - END
             return mapOf(
                     "identity" to remoteParticipant.identity,
                     "sid" to remoteParticipant.sid,
                     "networkQualityLevel" to remoteParticipant.networkQualityLevel.toString(),
                     "remoteAudioTrackPublications" to remoteAudioTrackPublications,
+                /// OUR IMPLEMENTATION -- START
+                    "remoteDataTrackPublications" to remoteDataTrackPublications,
+                /// OUR IMPLEMENTATION - END
                     "remoteVideoTrackPublications" to remoteVideoTrackPublications
             )
         }

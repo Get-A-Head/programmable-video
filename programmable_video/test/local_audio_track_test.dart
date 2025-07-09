@@ -22,7 +22,7 @@ void main() {
 
   group('.isEnabled()', () {
     test('should return correct value', () async {
-      final constructionBool = true;
+      const constructionBool = true;
       final localAudioTrack = LocalAudioTrack(constructionBool, 'name');
       expect(localAudioTrack.isEnabled, constructionBool);
       await localAudioTrack.enable(!constructionBool);
