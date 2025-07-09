@@ -1,9 +1,8 @@
 import 'dart:async';
-import 'dart:html' as html;
 import 'dart:html';
 import 'dart:js_util' as js_util;
 import 'dart:typed_data';
-import 'dart:ui' as ui;
+import 'dart:ui_web';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -43,20 +42,20 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   static final _registeredRemoteParticipantViewFactories = [];
 
   //Variables to support screen share
-  static html.MediaStreamTrack? shareTrack;
-  static html.VideoElement? _screenShareVideoElement;
+  static MediaStreamTrack? shareTrack;
+  static VideoElement? _screenShareVideoElement;
   static Widget? _screenShareWidget;
   static var _shareTrackSid = '';
 
   // Camera variables
-  static html.MediaStream? cameraMediaStream;
-  static html.MediaStreamTrack? cameraTrack;
-  static html.VideoElement? _cameraVideoElement;
+  static MediaStream? cameraMediaStream;
+  static MediaStreamTrack? cameraTrack;
+  static VideoElement? _cameraVideoElement;
   static LocalVideoTrack? _cameraLocalTrack;
 
   // Microphone variables
-  static html.MediaStream? microphoneMediaStream;
-  static html.MediaStreamTrack? microphoneTrack;
+  static MediaStream? microphoneMediaStream;
+  static MediaStreamTrack? microphoneTrack;
   static LocalAudioTrack? _microphoneLocalTrack;
 
   static String speakerDeviceId = 'default';
@@ -70,26 +69,10 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     _createLocalViewFactory();
   }
 
-/* RMC 20221124 - THEIRS 
-  static void _createLocalViewFactory() {
-    ui.platformViewRegistry.registerViewFactory('local-video-track-html', (int viewId) {
-      final room = _room;
-      if (room != null) {
-        final localVideoTrackElement = room.localParticipant.videoTracks.values().next().value.track.attach()..style.objectFit = 'cover';
-        debug('Created local video track view for:  ${room.localParticipant.sid}');
-        return localVideoTrackElement;
-      } else {
-        // TODO: review behaviour in scenario where `_room` is `null`.
-        return DivElement();
-      }
-    });
-  }
-  */
-
   static void _createLocalViewFactory({bool isScreenShare = false}) {
     final htmlTag = !isScreenShare ? 'local-video-track-html' : 'local-screen-share-track-html';
-    _cameraVideoElement ??= html.VideoElement();
-    ui.platformViewRegistry.registerViewFactory(htmlTag, (int viewId) {
+    _cameraVideoElement ??= VideoElement();
+    platformViewRegistry.registerViewFactory(htmlTag, (int viewId) {
       final room = _room;
       if (room != null) {
         debug('Creating local video track view for:  ${room.localParticipant.sid}');
@@ -102,35 +85,18 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
             // localVideoTrackElement = localVideoTrackPublication.track.attach()
             _cameraVideoElement = localVideoTrackPublication.track.attach()..style.objectFit = 'cover';
           } else {
-            return html.DivElement();
+            return DivElement();
           }
           return _cameraVideoElement!;
         }
       } else {
-        return html.DivElement();
-      }
-    });
-  }
-
-/* RMC 20221124 - THEIRS
-  static void _createRemoteViewFactory(String remoteParticipantSid, String remoteVideoTrackSid) {
-    ui.platformViewRegistry.registerViewFactory('remote-video-track-#$remoteVideoTrackSid-html', (int viewId) {
-      final remoteVideoTrack = _room?.participants.toDartMap()[remoteParticipantSid]?.videoTracks.toDartMap()[remoteVideoTrackSid]?.track;
-      // TODO: flatten this out
-      if (remoteVideoTrack != null) {
-        final remoteVideoTrackElement = remoteVideoTrack.attach()..style.objectFit = 'cover';
-        debug('Created remote video track view for: $remoteParticipantSid');
-        return remoteVideoTrackElement;
-      } else {
-        // TODO: review behaviour in scenario where `_room` is `null`.
         return DivElement();
       }
     });
   }
-  */
 
   static void _createRemoteViewFactory(String remoteParticipantSid, String remoteVideoTrackSid, {bool isScreenShare = false}) {
-    ui.platformViewRegistry.registerViewFactory('remote-video-track-#$remoteVideoTrackSid-html', (int viewId) {
+    platformViewRegistry.registerViewFactory('remote-video-track-#$remoteVideoTrackSid-html', (int viewId) {
       final remoteParticipant = _room?.participants.toDartMap()[remoteParticipantSid];
       final remoteVideoTrackPublication = remoteParticipant?.videoTracks.toDartMap()[remoteVideoTrackSid];
       if (remoteVideoTrackPublication != null) {
@@ -144,28 +110,13 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
           debug('Created remote video track view for: $remoteVideoTrackSid');
           return remoteVideoTrackElement;
         } else {
-          return html.DivElement();
+          return DivElement();
         }
       } else {
-        return html.DivElement();
+        return DivElement();
       }
     });
   }
-
-/* RMC 20221124 - THEIRS
-  //#region Functions
-  @override
-  Widget createLocalVideoTrackWidget({bool mirror = true, Key? key}) {
-    final room = _room;
-
-    if (room != null) {
-      debug('Created local video track widget for: ${room.localParticipant.sid}');
-      return HtmlElementView(viewType: 'local-video-track-html', key: key);
-    } else {
-      throw Exception('NotConnected. LocalVideoTrack is not fully initialized until connection.');
-    }
-  }
-  */
 
   @override
   Widget createLocalVideoTrackWidget({bool isScreenShare = false, bool mirror = true, Key? key}) {
@@ -183,13 +134,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   }
 
   @override
-  Widget createRemoteVideoTrackWidget({
-    required String remoteParticipantSid,
-    required String remoteVideoTrackSid,
-    bool mirror = true,
-    Key? key,
-    bool isScreenShare = false,
-  }) {
+  Widget createRemoteVideoTrackWidget({required String remoteParticipantSid, required String remoteVideoTrackSid, bool mirror = true, Key? key, bool isScreenShare = false}) {
     key ??= ValueKey(remoteVideoTrackSid);
 
     if (!_registeredRemoteParticipantViewFactories.contains(remoteVideoTrackSid)) {
@@ -319,16 +264,16 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   ///
   /// #### Note: `dart:html` does not support `getDisplayMedia` yet as it uses the sky_engine implementation.
   ///
-  Future<html.MediaStream> _getDisplayMedia(Map<String, dynamic> mediaConstraints) async {
+  Future<MediaStream> _getDisplayMedia(Map<String, dynamic> mediaConstraints) async {
     try {
-      final mediaDevices = html.window.navigator.mediaDevices;
+      final mediaDevices = window.navigator.mediaDevices;
       if (mediaDevices == null) throw Exception('MediaDevices is null');
 
       if (js_util.hasProperty(mediaDevices, 'getDisplayMedia')) {
         final arg = js_util.jsify(mediaConstraints);
-        return await js_util.promiseToFuture<html.MediaStream>(js_util.callMethod(mediaDevices, 'getDisplayMedia', [arg]));
+        return await js_util.promiseToFuture<MediaStream>(js_util.callMethod(mediaDevices, 'getDisplayMedia', [arg]));
       } else {
-        return await html.window.navigator.getUserMedia(video: {'mediaSource': 'screen'}, audio: mediaConstraints['audio'] ?? false);
+        return await window.navigator.getUserMedia(video: {'mediaSource': 'screen'}, audio: mediaConstraints['audio'] ?? false);
       }
     } catch (err) {
       throw Exception('Failed to getDisplayMedia (Permission Denied or User canceled): $err');
@@ -353,8 +298,8 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     if (room != null) {
       try {
         final tag = 'screen-share-html';
-        _screenShareVideoElement = html.VideoElement();
-        ui.platformViewRegistry.registerViewFactory(tag, (int viewId) => _screenShareVideoElement!);
+        _screenShareVideoElement = VideoElement();
+        platformViewRegistry.registerViewFactory(tag, (int viewId) => _screenShareVideoElement!);
 
         _screenShareWidget = HtmlElementView(viewType: tag);
 
@@ -374,10 +319,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
         // Add the track to the local participant tracks
         debug('Publishing startShareScreen() >> ${shareTrack!.label}');
 
-        final shareLocalTrack = LocalVideoTrack(
-          shareTrack!,
-          CreateLocalTrackOptions(name: 'screen-share:${shareTrack!.label ?? 'screen:0'}'),
-        );
+        final shareLocalTrack = LocalVideoTrack(shareTrack!, CreateLocalTrackOptions(name: 'screen-share:${shareTrack!.label ?? 'screen:0'}'));
 
         final publishedTrack = await localParticipant.publishTrack(shareLocalTrack);
         try {
@@ -442,24 +384,26 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   Future<bool> setCameraDeviceId(String deviceId) async {
     final localVideoTracks = _room?.localParticipant.videoTracks.values();
     if (localVideoTracks != null) {
-      final mediaDevices = html.window.navigator.mediaDevices;
-      await mediaDevices!.getUserMedia({
-        'video': {'deviceId': deviceId},
-      }).then((html.MediaStream stream) {
-        if (cameraMediaStream != null) {
-          cameraMediaStream!.getTracks().forEach((track) {
-            track.stop();
-          });
-          _room?.localParticipant.unpublishTrack(cameraTrack);
-        }
-        cameraMediaStream = stream;
-        cameraTrack = cameraMediaStream!.getTracks().first;
-        _cameraVideoElement!.srcObject = cameraMediaStream;
-        _cameraVideoElement!.autoplay = true;
-        _cameraLocalTrack = LocalVideoTrack(cameraTrack, CreateLocalTrackOptions(name: 'camera-device-' + deviceId));
+      final mediaDevices = window.navigator.mediaDevices;
+      await mediaDevices!
+          .getUserMedia({
+            'video': {'deviceId': deviceId},
+          })
+          .then((MediaStream stream) {
+            if (cameraMediaStream != null) {
+              cameraMediaStream!.getTracks().forEach((track) {
+                track.stop();
+              });
+              _room?.localParticipant.unpublishTrack(cameraTrack);
+            }
+            cameraMediaStream = stream;
+            cameraTrack = cameraMediaStream!.getTracks().first;
+            _cameraVideoElement!.srcObject = cameraMediaStream;
+            _cameraVideoElement!.autoplay = true;
+            _cameraLocalTrack = LocalVideoTrack(cameraTrack, CreateLocalTrackOptions(name: 'camera-device-' + deviceId));
 
-        _room?.localParticipant.publishTrack(_cameraLocalTrack);
-      });
+            _room?.localParticipant.publishTrack(_cameraLocalTrack);
+          });
       return Future(() => true);
     } else {
       throw PlatformException(code: 'NOT_FOUND', message: 'No LocalAudioTrack found with the name \'$deviceId\'');
@@ -471,21 +415,23 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   Future<bool> setMicrophoneDeviceId(String deviceId) {
     final localAudioTracks = _room?.localParticipant.audioTracks.values();
     if (localAudioTracks != null) {
-      final mediaDevices = html.window.navigator.mediaDevices;
-      mediaDevices!.getUserMedia({
-        'audio': {'deviceId': deviceId},
-      }).then((html.MediaStream stream) {
-        if (microphoneMediaStream != null) {
-          microphoneMediaStream!.getTracks().forEach((track) {
-            track.stop();
+      final mediaDevices = window.navigator.mediaDevices;
+      mediaDevices!
+          .getUserMedia({
+            'audio': {'deviceId': deviceId},
+          })
+          .then((MediaStream stream) {
+            if (microphoneMediaStream != null) {
+              microphoneMediaStream!.getTracks().forEach((track) {
+                track.stop();
+              });
+              _room?.localParticipant.unpublishTrack(microphoneTrack);
+            }
+            microphoneMediaStream = stream;
+            microphoneTrack = microphoneMediaStream!.getTracks().first;
+            _microphoneLocalTrack = LocalAudioTrack(microphoneTrack, CreateLocalTrackOptions(name: 'microphone-device-' + deviceId));
+            _room?.localParticipant.publishTrack(_microphoneLocalTrack!);
           });
-          _room?.localParticipant.unpublishTrack(microphoneTrack);
-        }
-        microphoneMediaStream = stream;
-        microphoneTrack = microphoneMediaStream!.getTracks().first;
-        _microphoneLocalTrack = LocalAudioTrack(microphoneTrack, CreateLocalTrackOptions(name: 'microphone-device-' + deviceId));
-        _room?.localParticipant.publishTrack(_microphoneLocalTrack!);
-      });
       return Future(() => true);
     } else {
       throw PlatformException(code: 'NOT_FOUND', message: 'No LocalAudioTrack found with the name \'$deviceId\'');
@@ -658,20 +604,12 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   Future<void> enableRemoteAudioTrack(bool enable, String sid) {
     final remoteAudioTrack = _getRemoteAudioTrack(sid);
     if (remoteAudioTrack == null) {
-      throw PlatformException(
-        code: 'NOT_FOUND',
-        message: 'No RemoteAudioTrack found with sid $sid',
-        details: null,
-      );
+      throw PlatformException(code: 'NOT_FOUND', message: 'No RemoteAudioTrack found with sid $sid', details: null);
     }
 
     final remoteTrackElement = document.getElementById(remoteAudioTrack.name) as AudioElement?;
     if (remoteTrackElement == null) {
-      throw PlatformException(
-        code: 'NOT_FOUND',
-        message: 'No AudioElement found for RemoteAudioTrack with sid: $sid',
-        details: null,
-      );
+      throw PlatformException(code: 'NOT_FOUND', message: 'No AudioElement found for RemoteAudioTrack with sid: $sid', details: null);
     }
 
     remoteTrackElement.muted = !enable;
@@ -732,5 +670,6 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
   Stream<dynamic> loggingStream() {
     return _loggingStreamController.stream;
   }
-//#endregion
+
+  //#endregion
 }
