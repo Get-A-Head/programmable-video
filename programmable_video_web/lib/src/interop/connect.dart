@@ -18,29 +18,19 @@ import 'package:twilio_programmable_video_web/src/interop/classes/room.dart';
 import 'package:twilio_programmable_video_web/twilio_programmable_video_web.dart';
 
 @JS('Twilio.Video.connect')
-external Future<Room> connect(
-  String token, [
-  ConnectOptions options,
-]);
+external Future<Room> connect(String token, [ConnectOptions options]);
 
 @JS()
 @anonymous
 class NetworkQualityConfiguration {
-  external factory NetworkQualityConfiguration({
-    int local,
-    int remote,
-  });
+  external factory NetworkQualityConfiguration({int local, int remote});
 }
 
 @JS('Twilio.Video.createLocalAudioTrack')
-external Future<LocalAudioTrack> createLocalAudioTrack([
-  CreateLocalTrackOptions options,
-]);
+external Future<LocalAudioTrack> createLocalAudioTrack([CreateLocalTrackOptions options]);
 
 @JS('Twilio.Video.createLocalVideoTrack')
-external Future<LocalAudioTrack> createLocalVideoTrack([
-  CreateLocalTrackOptions options,
-]);
+external Future<LocalAudioTrack> createLocalVideoTrack([CreateLocalTrackOptions options]);
 
 //dynamic types might still need to be implemented with custom classes
 @JS()
@@ -73,9 +63,7 @@ class ConnectOptions {
 @JS()
 @anonymous
 class CreateLocalTrackOptions {
-  external factory CreateLocalTrackOptions({
-    String name,
-  });
+  external factory CreateLocalTrackOptions({String name});
 }
 
 /// Calls twilio-video.js connect method with values from the [ConnectOptionsModel]
@@ -106,7 +94,9 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
 
       ProgrammableVideoPlugin.debug('Trying to connect audio with specific device id >>> ${track.name}');
       final audioStream = await window.navigator.mediaDevices!.getUserMedia({
-        'audio': {'deviceId': track.name},
+        'audio': {
+          'deviceId': {'exact': track.name},
+        },
       });
       if (audioStream.getAudioTracks().isNotEmpty) {
         ProgrammableVideoPlugin.microphoneMediaStream = audioStream;
@@ -140,7 +130,9 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
       ProgrammableVideoPlugin.debug('Trying to connect video with specific device id >>> ${track.name}');
 
       final cameraStream = await window.navigator.mediaDevices!.getUserMedia({
-        'video': {'deviceId': track.name},
+        'video': {
+          'deviceId': {'exact': track.name},
+        },
       });
       if (cameraStream.getTracks().isNotEmpty) {
         ProgrammableVideoPlugin.cameraMediaStream = cameraStream;
@@ -164,9 +156,7 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
   /// OUR IMPLEMENTATION - END
   final dataTracks = model.dataTracks;
   dataTracks?.forEach((track) async {
-    final jsTrack = LocalDataTrack(
-      LocalDataTrackOptions(maxRetransmits: track.maxRetransmits >= 0 ? track.maxRetransmits : null, maxPacketLifeTime: track.maxPacketLifeTime >= 0 ? track.maxPacketLifeTime : null, ordered: track.ordered),
-    );
+    final jsTrack = LocalDataTrack(LocalDataTrackOptions(maxRetransmits: track.maxRetransmits >= 0 ? track.maxRetransmits : null, maxPacketLifeTime: track.maxPacketLifeTime >= 0 ? track.maxPacketLifeTime : null, ordered: track.ordered));
     tracks.add(jsTrack);
   });
 
@@ -180,10 +170,7 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
         dominantSpeaker: model.enableDominantSpeaker,
         name: model.roomName,
         networkQuality: networkQualityConfiguration != null && model.enableNetworkQuality
-            ? NetworkQualityConfiguration(
-                local: networkQualityConfiguration.local.index,
-                remote: networkQualityConfiguration.remote.index,
-              )
+            ? NetworkQualityConfiguration(local: networkQualityConfiguration.local.index, remote: networkQualityConfiguration.remote.index)
             : model.enableNetworkQuality,
         region: model.region != null ? EnumToString.convertToString(model.region) : 'gll',
         preferredAudioCodecs: model.preferredAudioCodecs?.map((e) => e.name).toList() ?? [],
