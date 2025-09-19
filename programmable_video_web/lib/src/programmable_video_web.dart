@@ -387,7 +387,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       final mediaDevices = window.navigator.mediaDevices;
       await mediaDevices!
           .getUserMedia({
-            'video': {'deviceId': deviceId},
+            'video': {
+              'deviceId': {'exact': deviceId},
+            },
           })
           .then((MediaStream stream) {
             if (cameraMediaStream != null) {
@@ -418,7 +420,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       final mediaDevices = window.navigator.mediaDevices;
       mediaDevices!
           .getUserMedia({
-            'audio': {'deviceId': deviceId},
+            'audio': {
+              'deviceId': {'exact': deviceId},
+            },
           })
           .then((MediaStream stream) {
             if (microphoneMediaStream != null) {
