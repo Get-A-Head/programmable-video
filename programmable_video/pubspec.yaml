@@ -24,10 +24,10 @@ dependencies:
       ref: 1.4.1
       path: programmable_video_platform_interface
   twilio_programmable_video_web:
-    #    path: ../programmable_video_web
+    # path: ../programmable_video_web
     git:
       url: https://github.com/Get-A-Head/programmable-video.git
-      ref: 1.4.1
+      ref: 1.4.0
       path: programmable_video_web
 
 dev_dependencies:

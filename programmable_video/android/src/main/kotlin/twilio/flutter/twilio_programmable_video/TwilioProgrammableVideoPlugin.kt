@@ -12,7 +12,6 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformViewRegistry
 import tvi.webrtc.Camera1Enumerator
@@ -37,23 +36,7 @@ class TwilioProgrammableVideoPlugin : FlutterPlugin {
 
     private lateinit var audioNotificationChannel: EventChannel
 
-    // This static function is optional and equivalent to onAttachedToEngine. It supports the old
-    // pre-Flutter-1.12 Android projects. You are encouraged to continue supporting
-    // plugin registration via this function while apps migrate to use the new Android APIs
-    // post-flutter-1.12 via https://flutter.dev/go/android-project-migration.
-    //
-    // It is encouraged to share logic between onAttachedToEngine and registerWith to keep
-    // them functionally equivalent. Only one of onAttachedToEngine or registerWith will be called
-    // depending on the user's project. onAttachedToEngine or registerWith must both be defined
-    // in the same class.
     companion object {
-        @Suppress("unused")
-        @JvmStatic
-        fun registerWith(registrar: Registrar) {
-            val instance = TwilioProgrammableVideoPlugin()
-            instance.onAttachedToEngine(registrar.context(), registrar.messenger(), registrar.platformViewRegistry())
-        }
-
         @JvmStatic
         val LOG_TAG = "Twilio_PVideo"
 
