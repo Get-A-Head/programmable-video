@@ -27,7 +27,7 @@ dependencies:
     # path: ../programmable_video_web
     git:
       url: https://github.com/Get-A-Head/programmable-video.git
-      ref: 1.4.0
+      ref: 1.4.1
       path: programmable_video_web
 
 dev_dependencies:
