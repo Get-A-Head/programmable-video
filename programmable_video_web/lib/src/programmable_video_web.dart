@@ -469,9 +469,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
       final mediaDevices = html.window.navigator.mediaDevices;
       mediaDevices!
           .getUserMedia({
-            'audio': {
-              'deviceId': {'exact': deviceId},
-            },
+            'audio': {'deviceId': deviceId},
           })
           .then((html.MediaStream stream) {
             if (microphoneMediaStream != null) {

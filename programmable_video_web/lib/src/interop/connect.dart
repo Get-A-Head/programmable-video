@@ -94,11 +94,7 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
 
       ProgrammableVideoPlugin.debug('Trying to connect audio with specific device id >>> ${track.name}');
       final audioStream = await window.navigator.mediaDevices!.getUserMedia({
-        'audio': {
-          'deviceId': {
-            'deviceId': {'exact': track.name},
-          },
-        },
+        'audio': {'deviceId': track.name},
       });
       if (audioStream.getAudioTracks().isNotEmpty) {
         ProgrammableVideoPlugin.microphoneMediaStream = audioStream;
@@ -133,9 +129,7 @@ Future<Room?> connectWithModel(ConnectOptionsModel model) async {
 
       final cameraStream = await window.navigator.mediaDevices!.getUserMedia({
         'video': {
-          'deviceId': {
-            'deviceId': {'exact': track.name},
-          },
+          'deviceId': {'exact': track.name},
         },
       });
       if (cameraStream.getTracks().isNotEmpty) {
