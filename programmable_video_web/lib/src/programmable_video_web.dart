@@ -12,6 +12,7 @@ import 'package:twilio_programmable_video_platform_interface/twilio_programmable
 import 'package:twilio_programmable_video_web/src/interop/classes/js_map.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_audio_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_data_track_publication.dart';
+import 'package:twilio_programmable_video_web/src/interop/classes/local_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_video_track.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/local_video_track_publication.dart';
 import 'package:twilio_programmable_video_web/src/interop/classes/logger.dart';
@@ -409,7 +410,11 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
             _cameraVideoElement!.autoplay = enabled;
             _cameraLocalTrack = LocalVideoTrack(cameraTrack, CreateLocalTrackOptions(name: 'camera-device-' + deviceId));
 
-            await _room?.localParticipant.publishTrack(_cameraLocalTrack);
+            await _room?.localParticipant.publishTrack(_cameraLocalTrack).then((LocalTrackPublication publication) {
+              if (!enabled) {
+                (publication.track as LocalVideoTrack).disable();
+              }
+            });
             return true;
           });
     } else {
@@ -444,7 +449,11 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
               });
             }
             _microphoneLocalTrack = LocalAudioTrack(microphoneTrack, CreateLocalTrackOptions(name: 'microphone-device-' + deviceId));
-            await _room?.localParticipant.publishTrack(_microphoneLocalTrack!);
+            await _room?.localParticipant.publishTrack(_microphoneLocalTrack!).then((LocalTrackPublication publication) {
+              if (!enabled) {
+                (publication.track as LocalAudioTrack).disable();
+              }
+            });
             return true;
           });
     } else {
