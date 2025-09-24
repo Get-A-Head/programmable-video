@@ -385,13 +385,13 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     final localVideoTracks = _room?.localParticipant.videoTracks.values();
     if (localVideoTracks != null) {
       final mediaDevices = window.navigator.mediaDevices;
-      return await mediaDevices!
+      await mediaDevices!
           .getUserMedia({
             'video': {
               'deviceId': {'exact': deviceId},
             },
           })
-          .then((MediaStream stream) async {
+          .then((MediaStream stream) {
             if (cameraMediaStream != null) {
               cameraMediaStream!.getTracks().forEach((track) {
                 track.stop();
@@ -409,9 +409,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
             _cameraVideoElement!.autoplay = enabled;
             _cameraLocalTrack = LocalVideoTrack(cameraTrack, CreateLocalTrackOptions(name: 'camera-device-' + deviceId));
 
-            await _room?.localParticipant.publishTrack(_cameraLocalTrack);
-            return true;
+            _room?.localParticipant.publishTrack(_cameraLocalTrack);
           });
+      return Future(() => true);
     } else {
       throw PlatformException(code: 'NOT_FOUND', message: 'No LocalAudioTrack found with the name \'$deviceId\'');
     }
@@ -423,13 +423,13 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
     final localAudioTracks = _room?.localParticipant.audioTracks.values();
     if (localAudioTracks != null) {
       final mediaDevices = window.navigator.mediaDevices;
-      return await mediaDevices!
+      mediaDevices!
           .getUserMedia({
             'audio': {
               'deviceId': {'exact': deviceId},
             },
           })
-          .then((MediaStream stream) async {
+          .then((MediaStream stream) {
             if (microphoneMediaStream != null) {
               microphoneMediaStream!.getTracks().forEach((track) {
                 track.stop();
@@ -444,9 +444,9 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
               });
             }
             _microphoneLocalTrack = LocalAudioTrack(microphoneTrack, CreateLocalTrackOptions(name: 'microphone-device-' + deviceId));
-            await _room?.localParticipant.publishTrack(_microphoneLocalTrack!);
-            return true;
+            _room?.localParticipant.publishTrack(_microphoneLocalTrack!);
           });
+      return Future(() => true);
     } else {
       throw PlatformException(code: 'NOT_FOUND', message: 'No LocalAudioTrack found with the name \'$deviceId\'');
     }
