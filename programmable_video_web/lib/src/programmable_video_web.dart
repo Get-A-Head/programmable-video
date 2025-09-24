@@ -381,7 +381,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   /// Calls native code to set the preferred camera device id.
   @override
-  Future<bool> setCameraDeviceId(String deviceId, {bool enabled = false}) async {
+  Future<bool> setCameraDeviceId(String deviceId, {bool enabled = true}) async {
     final localVideoTracks = _room?.localParticipant.videoTracks.values();
     if (localVideoTracks != null) {
       final mediaDevices = window.navigator.mediaDevices;
@@ -401,7 +401,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
             cameraMediaStream = stream;
             cameraTrack = cameraMediaStream!.getTracks().first;
             _cameraVideoElement!.srcObject = cameraMediaStream;
-            if (!enabled) {
+            if (enabled) {
               cameraMediaStream!.getTracks().forEach((track) {
                 track.stop();
               });
@@ -419,7 +419,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
 
   /// Calls native code to set the preferred microphone device id.
   @override
-  Future<bool> setMicrophoneDeviceId(String deviceId, {bool enabled = false}) async {
+  Future<bool> setMicrophoneDeviceId(String deviceId, {bool enabled = true}) async {
     final localAudioTracks = _room?.localParticipant.audioTracks.values();
     if (localAudioTracks != null) {
       final mediaDevices = window.navigator.mediaDevices;
@@ -438,7 +438,7 @@ class ProgrammableVideoPlugin extends ProgrammableVideoPlatform {
             }
             microphoneMediaStream = stream;
             microphoneTrack = microphoneMediaStream!.getTracks().first;
-            if (!enabled) {
+            if (enabled) {
               microphoneMediaStream!.getTracks().forEach((track) {
                 track.stop();
               });
